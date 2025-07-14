@@ -3,7 +3,6 @@ package com.nighttrip.core.domain.tripspot.entity;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
-import com.nighttrip.core.global.enums.SpotType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
