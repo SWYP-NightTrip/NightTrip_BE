@@ -1,8 +1,8 @@
 package com.nighttrip.core.domain.city.entity;
 
 
+import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
-import com.nighttrip.core.domain.tripspot.entity.TripCity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "cities")
+@Table(name = "city")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class City {
@@ -25,13 +25,20 @@ public class City {
     @Column(name = "city_name", nullable = false, length = 50)
     private String cityName;
 
+    @Column(name = "country_name", nullable = false, length = 50)
+    private String countryName;
+
     private Double longitude;
     private Double latitude;
+
+    @Column(name = "city_image_url")
+    private String imageUrl;
 
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
 
-    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TripCity> tripCities = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_day_id")
+    private TripDay tripDay;
 }

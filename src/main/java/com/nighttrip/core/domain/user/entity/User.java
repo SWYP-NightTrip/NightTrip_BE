@@ -35,6 +35,9 @@ public class User {
     @Column(name = "social_id", nullable = false)
     private String socialId;
 
+    @Column(name = "point")
+    private Integer point = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private User_role role = User_role.USER;
@@ -45,6 +48,4 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<TripPlan> tripPlans = new ArrayList<>();
-
-
 }

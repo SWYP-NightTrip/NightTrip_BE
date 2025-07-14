@@ -1,6 +1,6 @@
 package com.nighttrip.core.domain.memo.entity;
 
-import com.nighttrip.core.domain.tripplan.entity.TripPlan;
+import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.global.enums.MemoType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,8 +24,8 @@ public class Memo {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_plan_id", nullable = false)
-    private TripPlan tripPlan;
+    @JoinColumn(name = "trip_order_id", nullable = false)
+    private TripOrder tripOrder;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "memo_type", length = 20)

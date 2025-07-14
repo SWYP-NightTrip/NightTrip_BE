@@ -1,14 +1,19 @@
 package com.nighttrip.core.domain.tripspot.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
+import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.global.enums.SpotType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "tourist_spots")
+@Table(name = "tourist_spot")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TouristSpot {
@@ -19,18 +24,25 @@ public class TouristSpot {
     private Long id;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "city_id")
-    private City city;
-
     @Column(name = "spot_name", nullable = false, length = 100)
     private String spotName;
 
     private Double longitude;
     private Double latitude;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "spot_type", length = 50)
-    private SpotType spotType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private City city;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_order_id")
+    private TripOrder tripOrder;
+
+
+    // 왜 1:n 인지 궁금합니다.
+    // 경복궁을 여러명이 할수있어서 그럼?
+    @OneToMany(mappedBy = "touristSpot")
+    private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
 
 }
