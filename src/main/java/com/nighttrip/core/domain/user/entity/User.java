@@ -2,6 +2,7 @@ package com.nighttrip.core.domain.user.entity;
 
 import com.nighttrip.core.domain.avatar.entity.Avatar;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
+import com.nighttrip.core.global.enums.Oauth_Provider;
 import com.nighttrip.core.global.enums.User_role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -29,8 +30,9 @@ public class User {
     @Column(length = 100)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String provider;
+    private Oauth_Provider provider;
 
     @Column(name = "social_id", nullable = false)
     private String socialId;
@@ -48,4 +50,11 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<TripPlan> tripPlans = new ArrayList<>();
+
+    public User(String email, String nickname, String socialId, Oauth_Provider provider) {
+        this.email = email;
+        this.nickname = nickname;
+        this.socialId = socialId;
+        this.provider = provider;
+    }
 }
