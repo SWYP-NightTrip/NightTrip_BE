@@ -1,5 +1,5 @@
 package com.nighttrip.core.global.enums;
 
-public enum Oauth_Provider {
+public enum OauthProvider {
     KAKAO,GOOGLE,NAVER;
 }

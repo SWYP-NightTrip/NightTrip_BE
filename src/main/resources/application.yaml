@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/xcp
-    username: postgres
-    password: "1234"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -42,7 +42,7 @@ spring:
             client-name: Kakao
             authorization-grant-type: authorization_code
             scope:
-              - profile
+              - profile_nickname
               - account_email
             provider: kakao
 
