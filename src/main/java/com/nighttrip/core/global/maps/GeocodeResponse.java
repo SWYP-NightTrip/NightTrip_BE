@@ -1,8 +1,8 @@
 package com.nighttrip.core.global.maps;
 
 public record GeocodeResponse (
-        String x, // 경도
-        String y // 위도
+        Double x, // 경도
+        Double y // 위도
 ){
 
 }

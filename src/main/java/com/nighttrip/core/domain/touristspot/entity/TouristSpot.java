@@ -1,4 +1,4 @@
-package com.nighttrip.core.domain.touristspot.entity;
+package com.nighttrip.core.domain.tripspot.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
@@ -32,6 +32,7 @@ public class TouristSpot {
     private Double longitude;
     private Double latitude;
 
+    private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
@@ -40,10 +41,7 @@ public class TouristSpot {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_order_id")
     private TripOrder tripOrder;
-
-
-    // 왜 1:n 인지 궁금합니다.
-    // 경복궁을 여러명이 할수있어서 그럼?
+    
     @OneToMany(mappedBy = "touristSpot")
     private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
 

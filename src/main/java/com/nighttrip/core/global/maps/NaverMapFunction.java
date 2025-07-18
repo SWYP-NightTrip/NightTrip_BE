@@ -5,7 +5,10 @@ import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -54,8 +57,8 @@ public class NaverMapFunction {
         }
 
         JsonNode first = addressNode.get(0);
-        String x = first.get("x").asText();
-        String y = first.get("y").asText();
+        Double x = first.get("x").asDouble();
+        Double y = first.get("y").asDouble();
 
         return new GeocodeResponse(x, y);
     }

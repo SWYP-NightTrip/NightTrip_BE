@@ -2,7 +2,7 @@ package com.nighttrip.core.domain.city.entity;
 
 
 import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,10 +33,8 @@ public class City {
     @Column(name = "country_name", nullable = false, length = 100)
     private String countryName;
 
-
-    // 제외
-//    private Double longitude;
-//    private Double latitude;
+    private String sigunguCode;
+    private Integer visitedNumber;
 
     @Column(name = "city_image_url")
     private String imageUrl;

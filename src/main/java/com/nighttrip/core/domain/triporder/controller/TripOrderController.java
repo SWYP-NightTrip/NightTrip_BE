@@ -25,9 +25,7 @@ public class TripOrderController {
 
     @PostMapping("/add-place")
     public ResponseEntity<ApiResponse<?>>  addPlace(@RequestBody PlaceAddRequest request) {
-
         orderService.addPlace(request);
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
