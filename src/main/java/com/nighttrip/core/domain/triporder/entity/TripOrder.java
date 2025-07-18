@@ -3,10 +3,11 @@ package com.nighttrip.core.domain.triporder.entity;
 
 import com.nighttrip.core.domain.memo.entity.Memo;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.global.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,11 @@ public class TripOrder {
     @OneToMany(mappedBy = "tripOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
 
+
+    @Builder
+    public TripOrder(Integer order, ItemType itemType, TripDay tripDay) {
+        this.order = order;
+        this.itemType = itemType;
+        this.tripDay = tripDay;
+    }
 }

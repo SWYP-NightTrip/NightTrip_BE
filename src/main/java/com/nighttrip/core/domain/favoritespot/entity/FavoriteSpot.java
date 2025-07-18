@@ -1,6 +1,6 @@
 package com.nighttrip.core.domain.favoritespot.entity;
 
-import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

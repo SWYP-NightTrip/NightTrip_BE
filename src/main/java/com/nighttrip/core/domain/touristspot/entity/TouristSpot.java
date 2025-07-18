@@ -1,4 +1,4 @@
-package com.nighttrip.core.domain.tripspot.entity;
+package com.nighttrip.core.domain.touristspot.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tourist_spot")
+@Table(name = "tourist_spot",
+uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"city_name", "spot_name"})
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TouristSpot {
