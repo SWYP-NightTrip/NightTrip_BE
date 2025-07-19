@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tourist_spot")
+@Table(name = "tourist_spot",
+uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"city_name", "spot_name"})
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TouristSpot {
@@ -29,6 +32,7 @@ public class TouristSpot {
     private Double longitude;
     private Double latitude;
 
+    private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
@@ -37,10 +41,7 @@ public class TouristSpot {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_order_id")
     private TripOrder tripOrder;
-
-
-    // 왜 1:n 인지 궁금합니다.
-    // 경복궁을 여러명이 할수있어서 그럼?
+    
     @OneToMany(mappedBy = "touristSpot")
     private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
 

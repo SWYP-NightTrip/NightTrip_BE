@@ -12,7 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "city")
+@Table(
+        name = "city",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"country_name", "city_name"})
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class City {
@@ -22,18 +27,17 @@ public class City {
     @Column(name = "city_id")
     private Long id;
 
-    @Column(name = "city_name", nullable = false, length = 50)
+    @Column(name = "city_name", nullable = false, length = 100)
     private String cityName;
 
-    @Column(name = "country_name", nullable = false, length = 50)
+    @Column(name = "country_name", nullable = false, length = 100)
     private String countryName;
 
-    private Double longitude;
-    private Double latitude;
+    private String sigunguCode;
+    private Integer visitedNumber;
 
     @Column(name = "city_image_url")
     private String imageUrl;
-
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
