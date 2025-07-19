@@ -1,4 +1,4 @@
-package com.nighttrip.core.domain.tripspot.entity;
+package com.nighttrip.core.domain.touristspot.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
@@ -41,7 +41,7 @@ public class TouristSpot {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_order_id")
     private TripOrder tripOrder;
-    
+
     @OneToMany(mappedBy = "touristSpot")
     private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
 

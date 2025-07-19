@@ -5,6 +5,7 @@ import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.tripday.repository.TripDayRepository;
 import com.nighttrip.core.domain.triporder.dto.PlaceAddRequest;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
+import com.nighttrip.core.domain.triporder.repository.TripOrderRepository;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.global.enums.ErrorCode;

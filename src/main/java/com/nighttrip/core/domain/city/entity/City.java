@@ -1,8 +1,8 @@
 package com.nighttrip.core.domain.city.entity;
 
 
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
