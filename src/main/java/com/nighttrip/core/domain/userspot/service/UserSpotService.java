@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FavoriteSpotService {
+public class UserSpotService {
 
     private final UserRepository userRepository;
     private final UserSpotRepository userSpotRepository;
