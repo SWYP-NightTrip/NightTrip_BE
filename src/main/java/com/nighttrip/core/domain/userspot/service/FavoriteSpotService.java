@@ -1,9 +1,9 @@
-package com.nighttrip.core.domain.favoritespot.service;
+package com.nighttrip.core.domain.userspot.service;
 
-import com.nighttrip.core.domain.favoritespot.dto.FavoritePlaceAddRequest;
-import com.nighttrip.core.domain.favoritespot.dto.FavoritePlaceListResponse;
-import com.nighttrip.core.domain.favoritespot.entity.UserSpot;
-import com.nighttrip.core.domain.favoritespot.repository.FavoriteSpotRepository;
+import com.nighttrip.core.domain.userspot.dto.UserSpotAddRequest;
+import com.nighttrip.core.domain.userspot.dto.UserSpotListResponse;
+import com.nighttrip.core.domain.userspot.entity.UserSpot;
+import com.nighttrip.core.domain.userspot.repository.UserSpotRepository;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 public class FavoriteSpotService {
 
     private final UserRepository userRepository;
-    private final FavoriteSpotRepository favoriteSpotRepository;
+    private final UserSpotRepository userSpotRepository;
     private final NaverMapFunction naverMapFunction;
 
-    public void addFavoritePlace(FavoritePlaceAddRequest request) {
-        if (favoriteSpotRepository.existsByUserIdAndSpotName(0L, request.placeName())) {
+    public void addFavoritePlace(UserSpotAddRequest request) {
+        if (userSpotRepository.existsByUserIdAndSpotName(0L, request.placeName())) {
             throw new BusinessException(ErrorCode.FAVORITE_PLACE_IS_ALREADY_CREATED);
         }
 
@@ -36,14 +36,14 @@ public class FavoriteSpotService {
         GeocodeResponse geocode = naverMapFunction.geocode(request.placeAddress());
 
         UserSpot spot = new UserSpot(user, request.placeName(), request.placeExplain(), geocode.y(), geocode.x(), request.imageUrl(),request.category());
-        favoriteSpotRepository.save(spot);
+        userSpotRepository.save(spot);
     }
 
-    public ArrayList<FavoritePlaceListResponse> getFavoritePlaceList() {
-        List<UserSpot> favoriteSpots = favoriteSpotRepository.findByUserId(0L);
+    public ArrayList<UserSpotListResponse> getFavoritePlaceList() {
+        List<UserSpot> favoriteSpots = userSpotRepository.findByUserId(0L);
 
         return favoriteSpots.stream()
-                .map(FavoritePlaceListResponse::new)
+                .map(UserSpotListResponse::new)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

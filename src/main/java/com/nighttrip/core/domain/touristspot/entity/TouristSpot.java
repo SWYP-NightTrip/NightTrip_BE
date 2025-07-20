@@ -1,15 +1,11 @@
 package com.nighttrip.core.domain.touristspot.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
-import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "tourist_spot",
@@ -34,6 +30,9 @@ public class TouristSpot {
 
     private String category;
 
+    private String spotDescription;
+    private String telephone;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
@@ -41,8 +40,5 @@ public class TouristSpot {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_order_id")
     private TripOrder tripOrder;
-
-    @OneToMany(mappedBy = "touristSpot")
-    private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
 
 }
