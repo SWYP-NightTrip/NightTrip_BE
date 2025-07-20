@@ -4,7 +4,6 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/nighttrip
-#    url: jdbc:postgresql://49.50.134.196:5432/nighttrip
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -77,8 +76,3 @@ spring:
             token-uri: https://nid.naver.com/oauth2.0/token
             user-info-uri: https://openapi.naver.com/v1/nid/me
             user-name-attribute: response
-
-
-
-naver.client-id : xwo3yhn4yt
-naver.client-secret : tjA2EQVNJ1Uyjqs0tevoOz2t83GRQIsJIhQVxmRP
