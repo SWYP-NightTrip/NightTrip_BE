@@ -16,31 +16,29 @@ import com.nighttrip.core.global.maps.NaverMapFunction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 import static com.nighttrip.core.global.enums.ErrorCode.TRIP_PLAN_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class TripOrderService {
 
-    private final TripPlanRepository tripPlanRepository;
     private final TripDayRepository tripDayRepository;
     private final TouristSpotRepository touristSpotRepository;
     private final NaverMapFunction naverMapFunction;
     private final TripOrderRepository tripOrderRepository;
 
-    public void addPlace(PlaceAddRequest request) {
+    public void addPlace(PlaceAddRequest request, Long tripPlanId, Integer tripDayId) {
         // 지오코딩
         String address = request.placeAddress();
         GeocodeResponse geocode = naverMapFunction.geocode(address);
 
-        TripPlan tripPlan = tripPlanRepository.findByName(request.tripPlanName())
-                .orElseThrow(() -> new BusinessException(TRIP_PLAN_NOT_FOUND));
-
-        TripDay tripDay = tripDayRepository.findByTripPlanNameAndDayOrder(request.tripPlanName(), request.tripDayOrder())
+        TripDay tripDay = tripDayRepository.findByTripPlanIdAndTripDayId(tripPlanId, tripDayId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_DAY_NOT_FOUND));
 
-        Integer order = touristSpotRepository.findLastOrder(tripPlan.getId(), request.tripDayOrder())
-                                .orElse(0) + 1;
+        BigDecimal order = touristSpotRepository.findLastOrder(tripPlanId, tripDayId)
+                .orElse(BigDecimal.valueOf(0)).add(BigDecimal.valueOf(1));
 
         TripOrder tripOrder = new TripOrder(order, ItemType.PLACE, tripDay);
         tripOrderRepository.save(tripOrder);
