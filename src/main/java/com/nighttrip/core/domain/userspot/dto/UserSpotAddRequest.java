@@ -1,8 +1,8 @@
-package com.nighttrip.core.domain.favoritespot.dto;
+package com.nighttrip.core.domain.userspot.dto;
 
 import java.util.List;
 
-public record FavoritePlaceAddRequest(
+public record UserSpotAddRequest(
         String placeName,
         String placeAddress,
         String placeExplain,
