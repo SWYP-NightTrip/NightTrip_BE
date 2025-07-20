@@ -9,6 +9,4 @@ import java.util.Optional;
 
 public interface TripPlanRepository extends JpaRepository<TripPlan, Long> {
 
-    @Query("select p from TripPlan p where p.title=:name")
-    Optional<TripPlan> findByName(@Param("name") String name);
 }
