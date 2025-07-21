@@ -25,14 +25,12 @@ public class CitySearchController {
         return ResponseEntity.ok(ApiResponse.success(cities));
     }
 
-    // 국내 도시
     @GetMapping("/domestic")
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> getDomesticCities() {
         List<CityResponseDto> cities = citySearchService.getDomesticCities();
         return ResponseEntity.ok(ApiResponse.success(cities));
     }
 
-    // 해외 도시
     @GetMapping("/international")
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> getInternationalCities() {
         List<CityResponseDto> cities = citySearchService.getInternationalCities();
