@@ -3,6 +3,7 @@ package com.nighttrip.core.domain.touristspot.entity;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.favoritespot.entity.FavoriteSpot;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
+import com.nighttrip.core.domain.user.entity.BookMark;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class TouristSpot {
 
     private Double longitude;
     private Double latitude;
-
+    private Integer chkeCount;
     private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,5 +45,11 @@ public class TouristSpot {
 
     @OneToMany(mappedBy = "touristSpot")
     private List<FavoriteSpot> favoriteSpots = new ArrayList<>();
+
+    @OneToMany(mappedBy = "touristSpot")
+    private List<BookMark> bookMarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "touristSpot")
+    private List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
 
 }
