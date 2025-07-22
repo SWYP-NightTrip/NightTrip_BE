@@ -36,7 +36,7 @@ public class TripOrder {
     @JoinColumn(name = "trip_day_id")
     private TripDay tripDay;
 
-    // 이거는 cascade 할지 말지 고민됩니다.
+    // todo 이거는 cascade 할지 말지 고민됩니다.
     @OneToMany(mappedBy = "tripOrder")
     private List<Memo> memos = new ArrayList<>();
 

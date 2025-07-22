@@ -35,6 +35,7 @@ public class City {
 
     private String sigunguCode;
     private Integer visitedNumber;
+    private Integer chkeCount;
 
     @Column(name = "city_image_url")
     private String imageUrl;
@@ -45,4 +46,6 @@ public class City {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_day_id")
     private TripDay tripDay;
+
+
 }
