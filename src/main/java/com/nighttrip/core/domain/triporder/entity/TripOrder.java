@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,8 @@ public class TripOrder {
     @Column(name = "trip_order_id")
     private Long id;
 
-    @Column(name = "trip_order_index")
-    private Integer order;
+    @Column(name = "trip_order_index", precision = 12, scale = 6)
+    private BigDecimal orderIndex;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,9 +46,13 @@ public class TripOrder {
 
 
     @Builder
-    public TripOrder(Integer order, ItemType itemType, TripDay tripDay) {
-        this.order = order;
+    public TripOrder(BigDecimal orderIndex, ItemType itemType, TripDay tripDay) {
+        this.orderIndex = orderIndex;
         this.itemType = itemType;
         this.tripDay = tripDay;
+    }
+
+    public void changeOrderIndex(BigDecimal orderIndex) {
+        this.orderIndex = orderIndex;
     }
 }

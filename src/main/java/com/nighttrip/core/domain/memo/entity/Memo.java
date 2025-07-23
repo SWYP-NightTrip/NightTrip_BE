@@ -41,7 +41,4 @@ public class Memo {
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;
 
-    @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImageUrl> ImageUrl = new ArrayList<>();
-
 }

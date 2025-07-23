@@ -1,4 +1,6 @@
-package com.nighttrip.core.domain.memo.entity;
+package com.nighttrip.core.global.image;
+
+import com.nighttrip.core.global.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,11 +13,16 @@ import lombok.NoArgsConstructor;
 public class ImageUrl {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "url_id")
+    @Column(name = "trip_order_id")
     private Long id;
-    @Column(name = "ncp_image_url",length = 2048)
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ImageType itemType;
+
+    private Long relatedId;
+
     private String url;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "memo_id", nullable = false)
-    private Memo memo;
+
+    private boolean isMain;
 }

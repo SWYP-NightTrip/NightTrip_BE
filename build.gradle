@@ -41,6 +41,9 @@ dependencies {
     //Naver map
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // 문자열, Enum 관련 라이브러리
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
 }
 
 tasks.named('test') {

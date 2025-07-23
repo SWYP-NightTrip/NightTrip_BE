@@ -7,13 +7,16 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-	USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
-	PLACE_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 장소입니다."),
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
+	PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 장소입니다."),
 
-	TRIP_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 여행일정입니다."),
-	TRIP_DAY_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 여행일입니다."),
+    TRIP_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 여행일정입니다."),
+    TRIP_DAY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 여행일입니다."),
 
-	GEOCODE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"지오코딩 중 실패했습니다."),
+    FAVORITE_PLACE_IS_ALREADY_CREATED(HttpStatus.BAD_REQUEST, "이미 존재하는 나만의 장소입니다."),
+    INVALID_TRIP_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 status입니다."),
+
+    GEOCODE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "지오코딩 중 실패했습니다."),
 
 	INVALID_OAUTH_CODE_MISSING(HttpStatus.BAD_REQUEST, "인가 코드가 누락되었습니다."),
 	INVALID_OAUTH_CODE_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 인가 코드입니다."),
@@ -23,7 +26,7 @@ public enum ErrorCode {
 	MISSING_SOCIAL_INFO(HttpStatus.BAD_REQUEST, "소셜 로그인 필수 정보가 누락되었습니다."),
 	USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 
-	private final HttpStatus errorCode;
-	private final String message;
+    private final HttpStatus errorCode;
+    private final String message;
 
 }
