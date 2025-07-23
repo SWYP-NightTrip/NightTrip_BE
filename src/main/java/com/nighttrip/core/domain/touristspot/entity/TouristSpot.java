@@ -28,10 +28,15 @@ public class TouristSpot {
     private Double longitude;
     private Double latitude;
 
+    private String address;
+    private String link;
+
     private String category;
 
     private String spotDescription;
     private String telephone;
+    private Integer mainWeight;
+    private Integer subWeight;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
