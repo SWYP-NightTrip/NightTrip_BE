@@ -32,7 +32,7 @@ public class TouristSpot {
 
     private Double longitude;
     private Double latitude;
-    private Integer chkeCount;
+    private Integer checkCount;
     private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)

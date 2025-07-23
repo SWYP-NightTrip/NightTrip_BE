@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class SecurityUtils {
     public static String getCurrentUserEmail() {
@@ -50,5 +51,34 @@ public class SecurityUtils {
         }
 
         return email;
+    }
+
+    public static Optional<String> findCurrentUserEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return Optional.empty();
+        }
+
+        if (!(auth instanceof OAuth2AuthenticationToken oauthToken)) {
+            return Optional.empty();
+        }
+
+        String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+        OAuth2User oauth2User = (OAuth2User) auth.getPrincipal();
+
+        String email = switch (registrationId.toLowerCase()) {
+            case "google" -> oauth2User.getAttribute("email");
+            case "kakao" -> {
+                Map<String, Object> kakaoAccount = oauth2User.getAttribute("kakao_account");
+                yield kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+            }
+            case "naver" -> {
+                Map<String, Object> response = oauth2User.getAttribute("response");
+                yield response != null ? (String) response.get("email") : null;
+            }
+            default -> null;
+        };
+
+        return Optional.ofNullable(email);
     }
 }

@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/api/v1/main/request", true)
+                        .defaultSuccessUrl("/api/v1/main", true)
                 );
 
         return http.build();
