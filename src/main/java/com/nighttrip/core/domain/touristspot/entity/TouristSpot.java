@@ -31,11 +31,11 @@ public class TouristSpot {
 
     private Double longitude;
     private Double latitude;
+    private Integer checkCount;
 
     private String address;
     private String link;
 
-    private Integer chkeCount;
     private String category;
 
     private String spotDescription;

@@ -35,7 +35,7 @@ public class City {
 
     private String sigunguCode;
     private Integer visitedNumber;
-    private Integer chkeCount;
+    private Integer checkCount;
 
     @Column(name = "city_image_url")
     private String imageUrl;
