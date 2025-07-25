@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class ImageUrl {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trip_order_id")
+    @Column(name = "image_url_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
