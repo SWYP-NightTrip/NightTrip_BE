@@ -30,7 +30,7 @@ public class TripOrderService {
     private final TripOrderRepository tripOrderRepository;
 
     public void addPlace(PlaceAddRequest request, Long tripPlanId, Integer tripDayId) {
-        // 지오코딩
+
         String address = request.placeAddress();
         GeocodeResponse geocode = naverMapFunction.geocode(address);
 

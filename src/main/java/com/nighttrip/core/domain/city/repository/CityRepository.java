@@ -10,10 +10,4 @@ import java.util.List;
 
 public interface CityRepository extends JpaRepository<City, Long> {
 
-    List<City> findAllByCountryName(String countryName);
-    List<City> findAllByCountryNameNot(String countryName);
-    @Query("SELECT c FROM City c WHERE " +
-            "LOWER(c.cityName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(c.countryName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<City> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

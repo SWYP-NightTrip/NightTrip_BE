@@ -12,12 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(
-        name = "city",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"country_name", "city_name"})
-        }
-)
+@Table(name = "city")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class City {
@@ -29,14 +24,11 @@ public class City {
 
     @Column(name = "city_name", nullable = false, length = 100)
     private String cityName;
-
-    @Column(name = "country_name", nullable = false, length = 100)
-    private String countryName;
-
-    private String sigunguCode;
-    private Integer visitedNumber;
     private Integer checkCount;
-
+    @Column(name = "city_consum")
+    private double cityConsum;
+    @Column(name = "city_pepole_visitied")
+    private double cityPepoleVisitied;
     @Column(name = "city_image_url")
     private String imageUrl;
 
