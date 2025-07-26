@@ -10,4 +10,7 @@ import java.util.List;
 
 public interface CityRepository extends JpaRepository<City, Long> {
 
+    @Query("SELECT c FROM City c WHERE " +
+            "LOWER(c.cityName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<City> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }

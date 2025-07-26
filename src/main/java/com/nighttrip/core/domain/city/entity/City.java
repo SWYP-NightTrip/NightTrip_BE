@@ -39,5 +39,4 @@ public class City {
     @JoinColumn(name = "trip_day_id")
     private TripDay tripDay;
 
-
 }

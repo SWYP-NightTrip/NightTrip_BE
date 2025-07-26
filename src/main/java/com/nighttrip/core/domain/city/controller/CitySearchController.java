@@ -19,5 +19,21 @@ public class CitySearchController {
 
 
     private final CitySearchService citySearchService;
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> searchCity(@RequestParam String keyword) {
+        List<CityResponseDto> cities = citySearchService.searchCity(keyword);
+        return ResponseEntity.ok(ApiResponse.success(cities));
+    }
 
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getPopularCities() {
+        List<CityResponseDto> cities = citySearchService.getPopularCities();
+        return ResponseEntity.ok(ApiResponse.success(cities));
+    }
+
+    @GetMapping("/recommended")
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getRecommendedCities() {
+        List<CityResponseDto> cities = citySearchService.getRecommendedCities();
+        return ResponseEntity.ok(ApiResponse.success(cities));
+    }
 }
