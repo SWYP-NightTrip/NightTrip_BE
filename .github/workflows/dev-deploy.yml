@@ -32,6 +32,7 @@ jobs:
           key: ${{ secrets.DEV_SSH_KEY }}
           source: "build/libs/*.jar"
           target: "/home/devuser/dev-api/"
+          debug: true   # 복사 여부 로그 확인
 
       - name: Restart Dev Server App
         uses: appleboy/ssh-action@master
@@ -40,9 +41,15 @@ jobs:
           username: ${{ secrets.DEV_USER }}
           key: ${{ secrets.DEV_SSH_KEY }}
           script: |
-            set -x
+            set -e
             cd /home/devuser/dev-api
-            ls -lh *.jar
+            ls -lh *.jar || true
+            JAR_NAME=$(ls -t *.jar 2>/dev/null | head -n 1)
+            if [ -z "$JAR_NAME" ]; then
+              echo "❌ 실행할 JAR 파일이 없습니다. 배포 실패"
+              exit 1
+            fi
+            echo "✅ 최신 JAR: $JAR_NAME"
             pkill -f 'java.*\.jar' || true
-            nohup java -jar *.jar --spring.profiles.active=dev > app.log 2>&1 &
+            nohup java -jar "$JAR_NAME" --spring.profiles.active=dev > app.log 2>&1 &
             sleep 5
