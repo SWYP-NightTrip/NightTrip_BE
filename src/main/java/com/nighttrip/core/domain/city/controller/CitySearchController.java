@@ -20,6 +20,7 @@ public class CitySearchController {
 
     private final CitySearchService citySearchService;
     @GetMapping("/search")
+
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> searchCity(@RequestParam String keyword) {
         List<CityResponseDto> cities = citySearchService.searchCity(keyword);
         return ResponseEntity.ok(ApiResponse.success(cities));

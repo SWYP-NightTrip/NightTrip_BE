@@ -56,5 +56,6 @@ public class TouristSpot {
 
     @OneToMany(mappedBy = "touristSpot")
     private List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
-
+    @OneToMany(mappedBy = "touristSpot")
+    private List<TourLike> tourLikes = new ArrayList<>();
 }
