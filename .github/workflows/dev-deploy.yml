@@ -40,7 +40,9 @@ jobs:
           username: ${{ secrets.DEV_USER }}
           key: ${{ secrets.DEV_SSH_KEY }}
           script: |
+            set -x
             cd /home/devuser/dev-api
+            ls -lh *.jar
             pkill -f 'java.*\.jar' || true
             nohup java -jar *.jar --spring.profiles.active=dev > app.log 2>&1 &
-
+            sleep 5
