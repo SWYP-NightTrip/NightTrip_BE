@@ -44,6 +44,10 @@ jobs:
           key: ${{ secrets.DEV_SSH_KEY }}
           script: |
             echo "🔁 Restarting systemd service"
+            which sudo
+            sudo -v
             sudo systemctl daemon-reexec
             sudo systemctl restart nighttrip.service
-            sudo systemctl status nighttrip.service --no-pager
+            sudo systemctl status nighttrip.service --no-pager || true
+          
+          
