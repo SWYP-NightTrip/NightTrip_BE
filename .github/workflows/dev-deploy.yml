@@ -45,7 +45,7 @@ jobs:
             cd /home/devuser/dev-api
 
             echo "📦 현재 디렉토리의 .jar 파일 목록:"
-            ls -lh *.jar || true  # ✅ 따옴표 제거됨
+            ls -lh *.jar || true 
 
             # 가장 최신 JAR 파일 탐색
             JAR_NAME=$(ls -t *.jar 2>/dev/null | head -n 1)
