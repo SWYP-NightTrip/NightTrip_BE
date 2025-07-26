@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**", "http://localhost:3000","/api/health-check").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**", "http://localhost:3000","/api/health-check","/api/v1/oauth/status").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
