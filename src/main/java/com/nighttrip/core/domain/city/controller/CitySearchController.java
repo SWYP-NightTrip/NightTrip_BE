@@ -25,18 +25,6 @@ public class CitySearchController {
         return ResponseEntity.ok(ApiResponse.success(cities));
     }
 
-    @GetMapping("/domestic")
-    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getDomesticCities() {
-        List<CityResponseDto> cities = citySearchService.getDomesticCities();
-        return ResponseEntity.ok(ApiResponse.success(cities));
-    }
-
-    @GetMapping("/international")
-    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getInternationalCities() {
-        List<CityResponseDto> cities = citySearchService.getInternationalCities();
-        return ResponseEntity.ok(ApiResponse.success(cities));
-    }
-
     // 인기 도시 순
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> getPopularCities() {

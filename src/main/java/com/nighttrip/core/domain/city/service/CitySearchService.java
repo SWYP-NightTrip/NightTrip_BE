@@ -30,19 +30,6 @@ public class CitySearchService implements CitySearchServiceImpl {
 
     private final CityRepository cityRepository;
 
-
-    public List<CityResponseDto> getDomesticCities() {
-        return cityRepository.findAllByCountryName("대한민국").stream()
-                .map(CityResponseDto::from)
-                .toList();
-    }
-
-    public List<CityResponseDto> getInternationalCities() {
-        return cityRepository.findAllByCountryNameNot("대한민국").stream()
-                .map(CityResponseDto::from)
-                .toList();
-    }
-
     @Override
     public List<CityResponseDto> getPopularCities() {
         return List.of();
