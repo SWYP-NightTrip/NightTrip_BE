@@ -44,11 +44,11 @@ jobs:
             set -e
             cd /home/devuser/dev-api
 
-            # 📦 현재 디렉토리의 .jar 파일 목록
+            echo "📦 현재 디렉토리의 .jar 파일 목록:"
             ls -lh *.jar || true
 
-            # 가장 최신 JAR 파일 탐색
-            JAR_NAME=$(ls -t *.jar 2>/dev/null | head -n 1)
+            # ✅ 실행 가능한 JAR만 필터링 (plain 제외)
+            JAR_NAME=$(ls -t *.jar | grep -v 'plain' | head -n 1)
 
             if [ -z "$JAR_NAME" ]; then
               echo "❌ 실행할 JAR 파일이 없습니다. 배포 실패"
