@@ -43,13 +43,19 @@ jobs:
           script: |
             set -e
             cd /home/devuser/dev-api
-            ls -lh *.jar || true
+
+            echo "📦 현재 디렉토리의 .jar 파일 목록:"
+            ls -lh *.jar || true  # ✅ 따옴표 제거됨
+
+            # 가장 최신 JAR 파일 탐색
             JAR_NAME=$(ls -t *.jar 2>/dev/null | head -n 1)
+
             if [ -z "$JAR_NAME" ]; then
               echo "❌ 실행할 JAR 파일이 없습니다. 배포 실패"
               exit 1
             fi
-            echo "✅ 최신 JAR: $JAR_NAME"
+
+            echo "✅ 최신 JAR 파일: $JAR_NAME"
             pkill -f 'java.*\.jar' || true
             nohup java -jar "$JAR_NAME" --spring.profiles.active=dev > app.log 2>&1 &
             sleep 5
