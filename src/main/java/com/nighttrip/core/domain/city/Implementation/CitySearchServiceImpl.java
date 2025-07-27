@@ -7,4 +7,5 @@ public interface CitySearchServiceImpl {
     List<CityResponseDto> searchCity(String keyword);
     List<CityResponseDto> getPopularCities();
     List<CityResponseDto> getRecommendedCities();
+    List<CityResponseDto> getDefaultCities();
 }
