@@ -33,10 +33,13 @@ jobs:
           username: ${{ secrets.DEV_USER }}
           key: ${{ secrets.DEV_SSH_KEY }}
           source: "build/libs/nighttrip-0.0.1-SNAPSHOT.jar"
-          target: "/opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar"
-          overwrite: true
+          target: "/opt/nighttrip/"
           strip_components: 0
+          overwrite: true
           debug: true
+
+      - name: Deploy JAR manually using scp
+        run: scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no build/libs/nighttrip-0.0.1-SNAPSHOT.jar ${{ secrets.DEV_USER }}@${{ secrets.DEV_HOST }}:/opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar
 
 
       - name: Restart Spring Boot service via systemd
