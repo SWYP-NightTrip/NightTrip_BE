@@ -26,6 +26,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        log.info(">>>> [CHECK] 최신 SecurityConfig가 성공적으로 로드되었습니다. permitAll 경로에 /api/v1/oauth/status 가 포함되어 있습니다.");
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -40,7 +42,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/api/v1/main", true)
+                        .defaultSuccessUrl("http://localhost:3000", true)
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint((request, response, authException) -> {
