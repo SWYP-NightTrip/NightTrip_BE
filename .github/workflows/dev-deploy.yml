@@ -38,10 +38,6 @@ jobs:
           overwrite: true
           debug: true
 
-      - name: Deploy JAR manually using scp
-        run: scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no build/libs/nighttrip-0.0.1-SNAPSHOT.jar ${{ secrets.DEV_USER }}@${{ secrets.DEV_HOST }}:/opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar
-
-
       - name: Restart Spring Boot service via systemd
         uses: appleboy/ssh-action@master
         with:
@@ -51,6 +47,8 @@ jobs:
           script: |
             echo "🔍 서버 jar 상태 확인"
             ls -alh /opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar
+            echo "🧾 해시값"
+            md5sum /opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar || echo "⚠️ md5sum 실패"
             echo "📅 서버 시간"
             date
             echo "🔁 systemd 재시작"
