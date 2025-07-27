@@ -36,7 +36,8 @@ public interface CityRepository extends JpaRepository<City, Long> {
             "ORDER BY (COALESCE(COUNT(DISTINCT tl.id), 0L) + " +
             "COALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
             "COALESCE(COUNT(DISTINCT bm.id), 0L) + " +
-            "COALESCE(COUNT(DISTINCT tp.id), 0L)) DESC")
+            "COALESCE(COUNT(DISTINCT tp.id), 0L)) DESC " +
+            "LIMIT 7")
     List<CityPopularityDto> findPopularCitiesWithAggregatedScores();
 
 }
