@@ -1,4 +1,5 @@
 package com.nighttrip.core.global.enums;
 
-public enum TripFeature {
+public enum User_role {
+    USER, ADMIN;
 }

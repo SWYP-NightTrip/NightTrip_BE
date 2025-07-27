@@ -62,7 +62,4 @@ public class TripPlan {
     @OneToMany(mappedBy = "tripPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripDay> tripDays = new ArrayList<>();
 
-    public void changeStatus(TripStatus status) {
-        this.status = status;
-    }
 }

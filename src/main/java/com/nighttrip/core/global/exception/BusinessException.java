@@ -1,6 +1,5 @@
 package com.nighttrip.core.global.exception;
 
-import com.nighttrip.core.global.enums.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -11,10 +10,5 @@ public class BusinessException extends RuntimeException {
 	public BusinessException(HttpStatus status, String message) {
 		super(message);
 		this.status = status;
-	}
-
-	public BusinessException(ErrorCode errorCode) {
-		super(errorCode.getMessage());
-		this.status = errorCode.getErrorCode();
 	}
 }
