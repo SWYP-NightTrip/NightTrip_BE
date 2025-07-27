@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("/api/v1/main", true)
+                        .defaultSuccessUrl("http://localhost:3000", true)
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint((request, response, authException) -> {
