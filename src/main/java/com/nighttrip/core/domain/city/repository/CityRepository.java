@@ -40,4 +40,6 @@ public interface CityRepository extends JpaRepository<City, Long> {
             "LIMIT 7")
     List<CityPopularityDto> findPopularCitiesWithAggregatedScores();
 
+    List<City> findAllByOrderByIdAsc(Pageable pageable);
+
 }

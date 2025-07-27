@@ -25,7 +25,7 @@ public class TouristSpotController {
         return ResponseEntity.ok(ApiResponse.success(popularSpots));
     }
 
-    @GetMapping("/recommended")
+    @GetMapping("/recommend")
     public ResponseEntity<ApiResponse<List<TouristSpotResponseDto>>> getRecommendedTouristSpotsInCity(
             @RequestParam Long cityId) {
 

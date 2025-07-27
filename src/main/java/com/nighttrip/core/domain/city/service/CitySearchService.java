@@ -44,10 +44,17 @@ public class CitySearchService implements CitySearchServiceImpl {
 
         return popularCitiesDto.stream()
                 .map(dto -> new CityResponseDto(
-                        dto.id(),
-                        dto.cityName(),
-                        dto.imageUrl()
-                ))
+                        dto.id(), dto.cityName(), dto.imageUrl()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CityResponseDto> getDefaultCities() {
+        Pageable pageable = PageRequest.of(0, 7);
+        List<City> defaultCities = cityRepository.findAllByOrderByIdAsc(pageable);
+
+        return defaultCities.stream()
+                .map(city -> new CityResponseDto(city.getId(), city.getCityName(), city.getImageUrl()))
                 .collect(Collectors.toList());
     }
 

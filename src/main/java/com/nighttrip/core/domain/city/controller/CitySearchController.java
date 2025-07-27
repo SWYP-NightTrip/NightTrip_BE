@@ -31,6 +31,12 @@ public class CitySearchController {
         List<CityResponseDto> cities = citySearchService.getPopularCities();
         return ResponseEntity.ok(ApiResponse.success(cities));
     }
+    @GetMapping("/default")
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getDefaultCities() {
+        List<CityResponseDto> defaultCities = citySearchService.getDefaultCities();
+        return ResponseEntity.ok(ApiResponse.success(defaultCities));
+    }
+
 
     @GetMapping("/recommended")
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> getRecommendedCities() {
