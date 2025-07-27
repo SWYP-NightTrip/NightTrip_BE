@@ -33,10 +33,11 @@ jobs:
           username: ${{ secrets.DEV_USER }}
           key: ${{ secrets.DEV_SSH_KEY }}
           source: "build/libs/nighttrip-0.0.1-SNAPSHOT.jar"
-          target: "/opt/nighttrip/"
-          strip_components: 0
+          target: "/opt/nighttrip/nighttrip-0.0.1-SNAPSHOT.jar"
           overwrite: true
+          strip_components: 0
           debug: true
+
 
       - name: Restart Spring Boot service via systemd
         uses: appleboy/ssh-action@master
