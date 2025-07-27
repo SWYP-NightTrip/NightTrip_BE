@@ -1,6 +1,7 @@
-package com.nighttrip.core.domain.touristspot.dto;
+package com.nighttrip.core.main.dto;
 
 import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
