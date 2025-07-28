@@ -85,5 +85,14 @@ spring:
           path: /
           http-only: true
 
+
+
 naver.client-id: ${NAVER_CLIENT_CLOUD}
 naver.client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
+
+
+data:
+  elasticsearch:
+    client:
+      reactive:
+        endpoints: localhost:9200

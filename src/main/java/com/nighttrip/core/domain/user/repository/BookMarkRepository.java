@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface BookMarkRepository extends JpaRepository<BookMark, Long> {
 
-    List<BookMark> findByUser(User user);
+    List<BookMark> findByBookMarkFolder_User(User user);
 }

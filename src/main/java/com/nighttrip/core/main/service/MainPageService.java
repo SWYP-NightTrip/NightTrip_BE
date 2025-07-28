@@ -174,7 +174,7 @@ public class MainPageService {
     }
 
     private String determineFavoriteCategory(User user) {
-        return bookMarkRepository.findByUser(user).stream()
+        return bookMarkRepository.findByBookMarkFolder_User(user).stream()
                 .map(BookMark::getTouristSpot)
                 .filter(spot -> spot != null && spot.getCategory() != null)
                 .map(TouristSpot::getCategory)

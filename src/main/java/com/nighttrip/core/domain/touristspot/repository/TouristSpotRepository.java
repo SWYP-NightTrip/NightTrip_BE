@@ -5,6 +5,7 @@ import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,6 +44,10 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             "ORDER BY (COALESCE(ts.checkCount, 0) + COALESCE(ts.mainWeight, 0) + COALESCE(ts.subWeight, 0)) DESC, " +
             "ts.category ASC")
     List<TouristSpot> findRecommendedTouristSpotsByCityId(@Param("cityId") Long cityId, Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"city", "touristSpotImageUris"}) // ★★★ 이 부분을 추가 또는 확인! ★★★
+    List<TouristSpot> findAll();
 
     /**
      * 2-a. 여행계획이 없고, 위치 정보가 있는 경우

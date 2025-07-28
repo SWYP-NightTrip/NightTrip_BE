@@ -1,10 +1,11 @@
+// domain/city/entity/City.java (Lombok @Builder 사용)
 package com.nighttrip.core.domain.city.entity;
-
 
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,7 @@ public class City {
     private Double cityConsum;
     @Column(name = "city_pepole_visitied")
     private Double cityPepoleVisitied;
+
     @Column(name = "city_image_url")
     private String imageUrl;
 
@@ -39,4 +41,12 @@ public class City {
     @JoinColumn(name = "trip_day_id")
     private TripDay tripDay;
 
+    @Builder
+    public City(String cityName, Integer checkCount, double cityConsum, double cityPepoleVisitied, String imageUrl) {
+        this.cityName = cityName;
+        this.checkCount = checkCount;
+        this.cityConsum = cityConsum;
+        this.cityPepoleVisitied = cityPepoleVisitied;
+        this.imageUrl = imageUrl;
+    }
 }
