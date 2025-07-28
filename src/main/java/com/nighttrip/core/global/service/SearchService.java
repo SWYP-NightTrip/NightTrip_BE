@@ -31,7 +31,7 @@ public class SearchService {
             documents.stream()
                     .map(SearchDocument::getName)
                     .filter(name -> name != null && !name.trim().isEmpty())
-                    .map(String::trim) // 앞뒤 공백 제거
+                    .map(String::trim)
                     .distinct()
                     .forEach(name -> {
                         redisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, name, 1);

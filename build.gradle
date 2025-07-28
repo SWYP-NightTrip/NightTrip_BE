@@ -38,16 +38,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.session:spring-session-data-redis'
 
-    //Naver map
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // 문자열, Enum 관련 라이브러리
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    // ★★★ 이 부분 추가 및 순서 조정 ★★★
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    // spring-boot-starter-data-elasticsearch가 내부적으로 가져오지 못할 경우를 대비하여 명시적으로 추가
     implementation 'co.elastic.clients:elasticsearch-java:8.14.0'
-    // ★★★ 추가 끝 ★★★
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 }

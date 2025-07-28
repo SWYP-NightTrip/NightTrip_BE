@@ -14,10 +14,10 @@ public class RedisConfig {
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer()); // 키 직렬화
-        template.setValueSerializer(new StringRedisSerializer()); // 값 직렬화
-        template.setHashKeySerializer(new StringRedisSerializer()); // 해시 키 직렬화 (옵션)
-        template.setHashValueSerializer(new StringRedisSerializer()); // 해시 값 직렬화 (옵션)
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(new StringRedisSerializer());
         return template;
     }
 

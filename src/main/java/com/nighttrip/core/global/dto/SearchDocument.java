@@ -35,6 +35,6 @@ public class SearchDocument {
     @Field(type = FieldType.Keyword, index = false)
     private String imageUrl;
 
-    @Field(type = FieldType.Text) // 이제 text 타입
+    @Field(type = FieldType.Text)
     private List<String> suggestName;
 }

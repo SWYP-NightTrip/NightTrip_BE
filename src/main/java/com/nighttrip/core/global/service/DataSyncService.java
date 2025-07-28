@@ -23,9 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// Elasticsearch Java Client 관련 임포트
+
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.JsonData; // JsonData 임포트
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class DataSyncService {
     private final SearchDocumentRepository searchDocumentRepository;
     private final CityRepository cityRepository;
     private final TouristSpotRepository touristSpotRepository;
-    private final ElasticsearchClient elasticsearchClient; // ElasticsearchClient 주입
+    private final ElasticsearchClient elasticsearchClient;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -45,15 +44,12 @@ public class DataSyncService {
     @PostConstruct
     @Transactional(readOnly = true)
     public void initialElasticsearchSync() {
-        System.out.println("=== 애플리케이션 시작: Elasticsearch 초기 동기화 시작 ===");
         try {
 
             ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(INDEX_NAME));
             if (elasticsearchClient.indices().exists(existsRequest).value()) {
-                System.out.println("기존 Elasticsearch 인덱스 '" + INDEX_NAME + "' 삭제 중...");
                 DeleteIndexRequest deleteRequest = DeleteIndexRequest.of(d -> d.index(INDEX_NAME));
                 elasticsearchClient.indices().delete(deleteRequest);
-                System.out.println("기존 Elasticsearch 인덱스 '" + INDEX_NAME + "' 삭제 완료.");
             }
 
             Map<String, Object> settingsMap = readResourceFileAsMap(SETTINGS_PATH);
