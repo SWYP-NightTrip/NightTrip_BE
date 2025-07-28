@@ -26,23 +26,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        log.info(">>>> [CHECK] 최신 SecurityConfig가 성공적으로 로드되었습니다. permitAll 경로에 /api/v1/oauth/status 가 포함되어 있습니다.");
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**", "/api/health-check", "/api/v1/oauth/status").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+        http.
+                  authorizeHttpRequests(auth -> auth
+                .requestMatchers("index.html", "/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
+                .requestMatchers("/oauth2/**", "/login/**", "/api/health-check", "/api/v1/oauth/status").permitAll()
+                .requestMatchers("/api/v1/search/**").permitAll()
+                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated()
+        )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
-                        )
-                        .defaultSuccessUrl("http://localhost:3000", true)
+                        ).defaultSuccessUrl("/api/v1/main", true)
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint((request, response, authException) -> {
