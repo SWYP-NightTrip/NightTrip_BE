@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -104,7 +101,14 @@ public class MainPageService {
         // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
         String favoriteCategory = determineFavoriteCategory(user);
         if (favoriteCategory == null) {
-            return Collections.emptyList();
+            List<String> allCategories = touristSpotRepository.findAllDistinctCategories();
+
+            if (allCategories.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            Random random = new Random();
+            favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
         }
 
         // 2. [최우선] 사용자가 진행 중이거나 예정된 여행 계획이 있는지 확인합니다.

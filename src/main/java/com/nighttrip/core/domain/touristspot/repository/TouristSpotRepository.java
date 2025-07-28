@@ -49,6 +49,9 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     @EntityGraph(attributePaths = {"city", "touristSpotImageUris"}) // ★★★ 이 부분을 추가 또는 확인! ★★★
     List<TouristSpot> findAll();
 
+    @Query("SELECT DISTINCT t.category FROM TouristSpot t ORDER BY t.category ASC")
+    List<String> findAllDistinctCategories();
+
     /**
      * 2-a. 여행계획이 없고, 위치 정보가 있는 경우
      */

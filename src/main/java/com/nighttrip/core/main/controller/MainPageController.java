@@ -32,4 +32,14 @@ public class MainPageController {
         List<RecommendedSpotDto> spots = mainPageService.getNightPopularSpots(user, lat, lon);
         return ApiResponse.success(spots);
     }
+
+    @GetMapping("/category")
+    public ApiResponse<List<RecommendedSpotDto>> getCategoryRecommendedSpots(
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lon) {
+
+        User user = userService.getCurrentUser(SecurityUtils.getCurrentUserEmail());
+        List<RecommendedSpotDto> spots = mainPageService.getCategoryRecommendedSpots(user, lat, lon);
+        return ApiResponse.success(spots);
+    }
 }
