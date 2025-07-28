@@ -8,16 +8,22 @@ import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
+import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.main.dto.RecommendedSpotDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +33,7 @@ public class MainPageService {
 
     private final TouristSpotRepository touristSpotRepository;
     private final TripPlanRepository tripPlanRepository;
+    private final BookMarkRepository bookMarkRepository;
 
     private static final int SPOT_COUNT = 10;
 
@@ -36,6 +43,9 @@ public class MainPageService {
 
     private static final double MAIN_WEIGHT_NO_DISTANCE = 0.70;
     private static final double REVIEW_WEIGHT_NO_DISTANCE = 0.30;
+
+    private static final double CATEGORY_SUB_WEIGHT = 0.5;
+    private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
 
 
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
@@ -89,8 +99,43 @@ public class MainPageService {
     }
 
 
+    public List<RecommendedSpotDto> getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
 
+        // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
+        String favoriteCategory = determineFavoriteCategory(user);
+        if (favoriteCategory == null) {
+            return Collections.emptyList();
+        }
 
+        // 2. [최우선] 사용자가 진행 중이거나 예정된 여행 계획이 있는지 확인합니다.
+        Optional<TripPlan> activePlanOpt = tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING));
+        if (activePlanOpt.isPresent()) {
+            City targetCity = findTargetCityFromPlan(activePlanOpt.get());
+            if (targetCity != null) {
+                List<TouristSpot> spots = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, favoriteCategory, PageRequest.of(0, SPOT_COUNT));
+                return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            }
+        }
+
+        // 3. 여행 계획이 없는 일반 사용자
+        // 3-a. 위치 정보가 있는 경우: 위치 기반 + 선호 카테고리 추천
+        if (userLat != null && userLon != null) {
+            List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsByCategoryAndLocation(
+                    favoriteCategory,
+                    userLat,
+                    userLon,
+                    CATEGORY_SUB_WEIGHT,
+                    DISTANCE_WEIGHT_FOR_CAT,
+                    SPOT_COUNT
+            );
+            return projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+        }
+        // 3-b. 위치 정보가 없는 경우: 전국 단위 + 선호 카테고리 추천 (폴백)
+        else {
+            List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
+            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+        }
+    }
 
 
 
@@ -127,4 +172,18 @@ public class MainPageService {
             @Override public Double getDistance() { return null; }
         });
     }
+
+    private String determineFavoriteCategory(User user) {
+        return bookMarkRepository.findByUser(user).stream()
+                .map(BookMark::getTouristSpot)
+                .filter(spot -> spot != null && spot.getCategory() != null)
+                .map(TouristSpot::getCategory)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+
 }
