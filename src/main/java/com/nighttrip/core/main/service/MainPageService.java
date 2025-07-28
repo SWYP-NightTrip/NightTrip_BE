@@ -28,7 +28,7 @@ public class MainPageService {
     private final TouristSpotRepository touristSpotRepository;
     private final TripPlanRepository tripPlanRepository;
 
-    private static final int SPOT_COUNT = 20;
+    private static final int SPOT_COUNT = 10;
 
     private static final double DISTANCE_WEIGHT = 0.50;
     private static final double MAIN_WEIGHT_FOR_DISTANCE = 0.35;
@@ -63,7 +63,7 @@ public class MainPageService {
                             REVIEW_WEIGHT_NO_DISTANCE,
                             SPOT_COUNT
                     );
-                    return spots.stream().map(this::convertToDtoWithoutDistance).collect(Collectors.toList());
+                    return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
                 }
             }
         }
@@ -84,7 +84,7 @@ public class MainPageService {
                     REVIEW_WEIGHT_NO_DISTANCE,
                     SPOT_COUNT
             );
-            return spots.stream().map(this::convertToDtoWithoutDistance).collect(Collectors.toList());
+            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
         }
     }
 
