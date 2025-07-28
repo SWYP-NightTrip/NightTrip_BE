@@ -1,0 +1,43 @@
+{
+  "properties": {
+    "_class": {
+      "type": "keyword",
+      "index": false,
+      "doc_values": false
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "cityName": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer"
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer"
+    },
+    "id": {
+      "type": "keyword"
+    },
+    "imageUrl": {
+      "type": "keyword"
+    },
+    "name": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer",
+      "fields": {
+        "autocomplete": {
+          "type": "text",
+          "analyzer": "korean_autocomplete_analyzer"
+        }
+      }
+    },
+    "suggestName": {
+      "type": "text",
+      "analyzer": "korean_autocomplete_analyzer"
+    },
+    "type": {
+      "type": "keyword"
+    }
+  }
+}

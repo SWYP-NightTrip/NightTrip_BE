@@ -5,6 +5,7 @@ import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.domain.user.entity.BookMark;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -60,4 +61,21 @@ public class TouristSpot {
     private List<TourLike> tourLikes = new ArrayList<>();
     @OneToMany(mappedBy = "touristSpot")
     private List<TouristSpotImageUri> touristSpotImageUris = new ArrayList<>();
+
+
+    @Builder
+    public TouristSpot(String spotName, Double longitude, Double latitude, Integer checkCount, String address, String link, String category, String spotDescription, String telephone, Integer mainWeight, Integer subWeight, City city) {
+        this.spotName = spotName;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.checkCount = checkCount;
+        this.address = address;
+        this.link = link;
+        this.category = category;
+        this.spotDescription = spotDescription;
+        this.telephone = telephone;
+        this.mainWeight = mainWeight;
+        this.subWeight = subWeight;
+        this.city = city;
+    }
 }

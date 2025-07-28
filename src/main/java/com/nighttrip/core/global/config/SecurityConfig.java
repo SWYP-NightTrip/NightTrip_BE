@@ -26,15 +26,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**", "/api/health-check", "/api/v1/oauth/status").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+        http.
+                  authorizeHttpRequests(auth -> auth
+                .requestMatchers("index.html", "/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
+                .requestMatchers("/oauth2/**", "/login/**", "/api/health-check", "/api/v1/oauth/status").permitAll()
+                .requestMatchers("/api/v1/search/**").permitAll()
+                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated()
+        )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
