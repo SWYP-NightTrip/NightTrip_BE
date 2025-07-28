@@ -39,8 +39,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
-                        )
-                        .defaultSuccessUrl("/api/v1/main", true)
+                        ).defaultSuccessUrl("/api/v1/main", true)
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                                 .authenticationEntryPoint((request, response, authException) -> {

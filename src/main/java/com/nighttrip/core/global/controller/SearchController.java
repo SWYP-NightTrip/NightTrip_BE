@@ -46,7 +46,7 @@ public class SearchController {
         List<String> popularKeywords = searchService.getPopularKeywords(10);
         return ResponseEntity.ok(popularKeywords);
     }
-    // GET /api/v1/search/recommend
+
     @GetMapping("/recommend")
     public ResponseEntity<List<String>> getRecommendedSearchKeywords() {
         List<String> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded();

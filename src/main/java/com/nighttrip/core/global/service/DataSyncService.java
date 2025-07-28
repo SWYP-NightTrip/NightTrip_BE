@@ -47,7 +47,7 @@ public class DataSyncService {
     public void initialElasticsearchSync() {
         System.out.println("=== 애플리케이션 시작: Elasticsearch 초기 동기화 시작 ===");
         try {
-            // 1. 기존 Elasticsearch 인덱스 삭제
+
             ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(INDEX_NAME));
             if (elasticsearchClient.indices().exists(existsRequest).value()) {
                 System.out.println("기존 Elasticsearch 인덱스 '" + INDEX_NAME + "' 삭제 중...");
@@ -56,32 +56,28 @@ public class DataSyncService {
                 System.out.println("기존 Elasticsearch 인덱스 '" + INDEX_NAME + "' 삭제 완료.");
             }
 
-            // 1. settings와 mappings 읽기
-            Map<String, Object> settingsMap = readResourceFileAsMap(SETTINGS_PATH); // 이건 {"index": {...}} 형식임
-            Map<String, Object> mappingsMap = readResourceFileAsMap(MAPPINGS_PATH); // 이건 {"properties": {...}} 형식임
+            Map<String, Object> settingsMap = readResourceFileAsMap(SETTINGS_PATH);
+            Map<String, Object> mappingsMap = readResourceFileAsMap(MAPPINGS_PATH);
 
-// 2. index 키 빼고 settings만 추출
+
             Map<String, Object> settingsOnly = (Map<String, Object>) settingsMap.get("index");
 
-// 3. 하나의 JSON으로 합치기
             Map<String, Object> fullIndexRequest = new HashMap<>();
             fullIndexRequest.put("settings", settingsOnly);
             fullIndexRequest.put("mappings", mappingsMap);
 
-// 4. JSON 직렬화 후 InputStream 생성
+
             String fullJson = objectMapper.writeValueAsString(fullIndexRequest);
             InputStream fullInputStream = new ByteArrayInputStream(fullJson.getBytes(StandardCharsets.UTF_8));
 
-// 5. 인덱스 생성
+
             elasticsearchClient.indices().create(c -> c
-                    .index(INDEX_NAME)  // ✅ 필수!
+                    .index(INDEX_NAME)
                     .withJson(fullInputStream)
             );
             System.out.println("인덱스 생성 완료");
 
-            // 4. City 데이터 동기화 (기존 코드 유지)
             List<City> cities = cityRepository.findAll();
-            System.out.println("PostgreSQL에서 총 " + cities.size() + "개의 City 데이터를 가져왔습니다.");
             if (!cities.isEmpty()) {
                 List<SearchDocument> cityDocuments = cities.stream()
                         .map(city -> {
@@ -124,7 +120,7 @@ public class DataSyncService {
                 System.out.println("동기화할 City 데이터가 없습니다.");
             }
 
-            // 5. TouristSpot 데이터 동기화 (기존 코드 유지)
+
             List<TouristSpot> touristSpots = touristSpotRepository.findAll();
             System.out.println("PostgreSQL에서 총 " + touristSpots.size() + "개의 TouristSpot 데이터를 가져왔습니다.");
             if (!touristSpots.isEmpty()) {
@@ -183,7 +179,6 @@ public class DataSyncService {
                 System.out.println("동기화할 TouristSpot 데이터가 없습니다.");
             }
 
-            // 6. 모든 문서 색인 후 Elasticsearch 인덱스 refresh
             RefreshRequest refreshRequest = RefreshRequest.of(r -> r.index(INDEX_NAME));
             elasticsearchClient.indices().refresh(refreshRequest);
             System.out.println("Elasticsearch 인덱스 '" + INDEX_NAME + "' 리프레시 완료.");

@@ -24,17 +24,15 @@ public class SearchService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String POPULAR_KEYWORDS_KEY = "popular:keywords"; // Redis ZSET 키
+    private static final String POPULAR_KEYWORDS_KEY = "popular:keywords";
 
-    // SearchDocument의 name 필드를 Redis에 집계하는 헬퍼 메서드
     private void incrementPopularKeywords(List<SearchDocument> documents) {
         if (documents != null && !documents.isEmpty()) {
             documents.stream()
-                    .map(SearchDocument::getName) // SearchDocument에서 name 필드 추출
-                    .filter(name -> name != null && !name.trim().isEmpty()) // null이 아니고 공백이 아닌 이름만 필터링
+                    .map(SearchDocument::getName)
+                    .filter(name -> name != null && !name.trim().isEmpty())
                     .map(String::trim) // 앞뒤 공백 제거
-                    // .map(String::toLowerCase) // 필요하다면 소문자 변환 (대소문자 구분 없이 집계)
-                    .distinct() // 중복된 이름은 한 번만 집계 (예: 검색 결과에 '서울역' 문서가 여러 개여도 한 번만 카운트)
+                    .distinct()
                     .forEach(name -> {
                         redisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, name, 1);
                     });
@@ -66,7 +64,6 @@ public class SearchService {
                 .limit(10)
                 .collect(Collectors.toList());
 
-        // ★★★ 검색 결과 문서들의 name 필드를 Redis에 집계 ★★★
         incrementPopularKeywords(searchResults);
 
         return searchResults;
@@ -96,7 +93,7 @@ public class SearchService {
                 .map(hit -> hit.getContent())
                 .collect(Collectors.toList());
 
-        // ★★★ 검색 결과 문서들의 name 필드를 Redis에 집계 ★★★
+
         incrementPopularKeywords(searchResults);
 
         return searchResults;
