@@ -1,5 +1,6 @@
 package com.nighttrip.core.domain.touristspot.repository;
 
+import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
@@ -132,5 +133,45 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             @Param("mainWeight") double mainWeight,
             @Param("reviewWeight") double reviewWeight,
             @Param("limit") int limit);
+
+
+
+    /**
+     * 카테고리 추천용: 위치 기반 + 사용자 선호 카테고리 기반 추천
+     */
+    @Query(value =
+            "SELECT ts.*, " +
+                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance " +
+                    "FROM tourist_spot ts " +
+                    "WHERE ts.category = :category AND " +
+                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70 " +
+                    "ORDER BY " +
+                    // [변경점] ORDER BY 절을 가중합으로 변경
+                    "  (COALESCE(ts.sub_weight, 0) * :subWeightParam) + " +
+                    "  (CASE " +
+                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 " +
+                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 " +
+                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 " +
+                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 " +
+                    "    ELSE 0 " +
+                    "  END * :distanceWeight) " +
+                    "DESC " +
+                    "LIMIT :limit", nativeQuery = true)
+    List<TouristSpotWithDistance> findSpotsByCategoryAndLocation(
+            @Param("category") String category,
+            @Param("userLat") double userLat, @Param("userLon") double userLon,
+            @Param("subWeightParam") double subWeightParam,
+            @Param("distanceWeight") double distanceWeight,
+            @Param("limit") int limit);
+
+    /**
+     * 카테고리 추천용 (여행 계획 중): 해당 도시 & 카테고리 내에서 sub_weight로 정렬
+     */
+    List<TouristSpot> findByCityAndCategoryOrderBySubWeightDesc(City city, String category, Pageable pageable);
+
+    /**
+     * 카테고리 추천용 (위치 정보 없을 때 폴백): 전국 단위로 해당 카테고리 내에서 sub_weight로 정렬
+     */
+    List<TouristSpot> findByCategoryOrderBySubWeightDesc(String category, Pageable pageable);
 
 }
