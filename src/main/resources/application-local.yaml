@@ -28,13 +28,15 @@ spring:
       session:
         store-type: redis
 
+
   session:
-    timeout: 1000
-    cookie:
-      secure: false # 로컬 HTTP 환경 테스트를 위해 false로 설정 (운영에서는 true 유지!)
-      same-site: none
-      path: /
-      http-only: true
+    servlet:
+      cookie:
+        domain: dev.nighttrip.co.kr # 프론트엔드와 동일하게 유지
+        secure: false # <--- 이 부분을 false로 변경
+        http-only: true
+        same-site: None
+        name: JSESSIONID
 
   security:
     oauth2:
