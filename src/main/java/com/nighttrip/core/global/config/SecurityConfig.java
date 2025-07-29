@@ -21,6 +21,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
+import java.util.Arrays; // Arrays 임포트 추가
+import java.util.List;   // List 임포트 추가
 // Collection 임포트가 더 이상 필요 없을 수 있지만, 혹시 몰라 남겨둡니다.
 // import java.util.Collection;
 
@@ -107,14 +109,24 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // CORS 허용할 Origin 목록
-        configuration.addAllowedOrigin("https://localhost:3000"); // 로컬 개발용 프론트엔드 HTTPS URL
-        configuration.addAllowedOrigin("https://www.nighttrip.co.kr"); // 운영 환경 프론트엔드 URL
-        configuration.addAllowedOrigin("https://dev.nighttrip.co.kr"); // 백엔드 개발 서버 URL (프론트엔드로 사용될 수도 있음)
-
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 인증 정보(쿠키, HTTP 인증 헤더 등) 전송 허용
+
+        // CORS 허용할 Origin 목록 (기존 및 추가된 Origin 모두 포함)
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://localhost:3000", // 기존 로컬 개발용 프론트엔드 HTTPS URL
+                "https://www.nighttrip.co.kr", // 기존 운영 환경 프론트엔드 URL
+                "https://dev.nighttrip.co.kr"
+        ));
+
+        // 모든 HTTP 메서드 허용 (기존 '*'과 동일한 효과)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // 모든 헤더 허용 (기존 '*'과 동일한 효과)
+        configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Set-Cookie","Access-Control-Allow-Origin"));
+
+        // 브라우저가 접근할 수 있도록 노출할 응답 헤더 설정
+        configuration.setExposedHeaders(List.of("Set-Cookie","Access-Control-Allow-Origin"));
+
         configuration.setMaxAge(3600L); // Preflight 요청 결과 캐싱 시간
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
