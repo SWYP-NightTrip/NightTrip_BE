@@ -3,13 +3,14 @@ package com.nighttrip.core.global.config;
 import com.nighttrip.core.oauth.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession; // HttpSession 임포트 추가
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseCookie; // ResponseCookie 임포트 추가
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,10 +22,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
-import java.util.Arrays; // Arrays 임포트 추가
-import java.util.List;   // List 임포트 추가
-// Collection 임포트가 더 이상 필요 없을 수 있지만, 혹시 몰라 남겨둡니다.
-// import java.util.Collection;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j // Lombok 로거
 @Configuration
@@ -35,11 +34,11 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
 
     @Value("${frontend.url}")
-    private String frontUrl; // application.yaml 또는 환경변수에서 주입
+    private String frontUrl; // application.yaml 또는 환경변수에서 주입 (예: https://localhost:3000)
 
     // 백엔드 쿠키 도메인을 application.yaml에서 가져오도록 설정
     @Value("${spring.session.servlet.cookie.domain}")
-    private String cookieDomain;
+    private String cookieDomain; // 예: dev.nighttrip.co.kr
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,27 +60,22 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // 사용자 정보 가져오는 서비스 설정
                         )
-                        // defaultSuccessUrl은 이제 successHandler에서 처리하므로, 여기서는 기본 리다이렉션만 설정
-                        // successHandler가 항상 호출되므로 defaultSuccessUrl은 내부적으로 사용되지 않습니다.
+
                         .defaultSuccessUrl(frontUrl + "/", true)
-                        // !!! 로그인 성공 핸들러 추가 !!!
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 Login Success Handler Called!");
                             log.info(">>>> Redirecting to: {}", frontUrl + "/"); // https://localhost:3000/
 
-                            // Spring Security가 이미 생성한 JSESSIONID 세션 ID를 가져옵니다.
-                            // 세션이 존재하지 않으면 (매우 드물겠지만) NPE 방지를 위해 null 체크
+                            HttpSession session = request.getSession(false);
                             String sessionId = null;
-                            if (request.getSession(false) != null) {
-                                sessionId = request.getSession(false).getId();
+                            if (session != null) {
+                                sessionId = session.getId();
                             }
 
                             if (sessionId != null) {
-                                // JSESSIONID 쿠키를 직접 생성하여 응답에 추가
-                                // 이전에 email/provider 쿠키를 성공적으로 보냈던 속성들을 사용합니다.
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/") // 모든 경로에서 유효
-                                        .domain(cookieDomain) // application-local.yaml의 dev.nighttrip.co.kr 도메인 사용
+                                        .domain(cookieDomain) // application.yaml의 dev.nighttrip.co.kr 도메인 사용
                                         .secure(false) // HTTPS 통신이지만, localhost와의 호환성을 위해 false로 설정
                                         .httpOnly(true) // JavaScript 접근 방지
                                         .sameSite("Lax") // 탑-레벨 내비게이션에서 쿠키 전송 허용
@@ -93,14 +87,12 @@ public class SecurityConfig {
                             } else {
                                 log.warn(">>>> JSESSIONID was null after OAuth2 login. Cannot manually add cookie.");
                             }
-
-                            // 최종 프론트엔드로 리다이렉트
                             response.sendRedirect(frontUrl + "/");
                         })
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login") // 로그아웃 성공 시 리다이렉션 될 URL
-                        .permitAll() // 로그아웃 경로는 인증 없이 접근 허용
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
                 );
 
         return http.build();
@@ -111,20 +103,15 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true); // 인증 정보(쿠키, HTTP 인증 헤더 등) 전송 허용
 
-        // CORS 허용할 Origin 목록 (기존 및 추가된 Origin 모두 포함)
+        // CORS 허용할 Origin 목록
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://localhost:3000", // 기존 로컬 개발용 프론트엔드 HTTPS URL
-                "https://www.nighttrip.co.kr", // 기존 운영 환경 프론트엔드 URL
+                "https://localhost:3000",
+                "https://www.nighttrip.co.kr",
                 "https://dev.nighttrip.co.kr"
-        ));
+                ));
 
-        // 모든 HTTP 메서드 허용 (기존 '*'과 동일한 효과)
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        // 모든 헤더 허용 (기존 '*'과 동일한 효과)
         configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Set-Cookie","Access-Control-Allow-Origin"));
-
-        // 브라우저가 접근할 수 있도록 노출할 응답 헤더 설정
         configuration.setExposedHeaders(List.of("Set-Cookie","Access-Control-Allow-Origin"));
 
         configuration.setMaxAge(3600L); // Preflight 요청 결과 캐싱 시간
