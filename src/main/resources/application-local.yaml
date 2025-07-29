@@ -15,7 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       show-sql: true
       properties:
         hibernate:
@@ -28,25 +28,6 @@ spring:
       session:
         store-type: redis
 
-
-  session:
-    servlet:
-      cookie:
-        domain: dev.nighttrip.co.kr # <--- 이 도메인 유지
-        secure: false # <--- 이 부분을 false로 변경합니다.
-        http-only: true # 이 부분은 그대로 유지하거나, 필요시 false로 변경 가능 (세션 쿠키는 보통 true 유지)
-        same-site: Lax # <--- 이 부분을 Lax로 변경합니다.
-        name: JSESSIONID
-
-        spring:
-          session:
-            servlet:
-              cookie:
-                domain: dev.nighttrip.co.kr # <--- 이 도메인을 유지하세요.
-                secure: false # <--- 이 부분을 false로 변경.
-                http-only: true
-                same-site: Lax # <--- 이 부분을 Lax로 변경.
-                name: JSESSIONID
 
   security:
     oauth2:
@@ -109,7 +90,9 @@ data:
         endpoints: localhost:9200
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.session: DEBUG
-    org.springframework.security.web.DefaultRedirectStrategy: DEBUG
+    root: INFO # 기본 로그 레벨은 INFO로 유지하거나 필요시 DEBUG로 변경
+    com.nighttrip.core: DEBUG # NightTrip 프로젝트의 모든 로그를 DEBUG 레벨로 출력
+    org.springframework.security: DEBUG # 스프링 시큐리티 관련 상세 로그
+    org.springframework.session: DEBUG # 스프링 세션 관련 상세 로그
+    org.springframework.security.web.DefaultRedirectStrategy: TRACE # <-- 여기를 TRACE로
     org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler: DEBUG # 세션 쿠키 삭제 관련 로그
