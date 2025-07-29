@@ -27,9 +27,10 @@ public class City {
     private String cityName;
     private Integer checkCount;
     @Column(name = "city_consum")
-    private Double  cityConsum;
+    private Double cityConsum;
     @Column(name = "city_pepole_visitied")
-    private Double  cityPepoleVisitied;
+    private Double cityPepoleVisitied;
+
     @Column(name = "city_image_url")
     private String imageUrl;
 
