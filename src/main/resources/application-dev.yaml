@@ -48,7 +48,7 @@ spring:
 
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            redirect-uri: ${DOMAIN}/login/oauth2/code/kakao
+            redirect-uri: ${OAUTH_DOMAIN}/login/oauth2/code/kakao
             client-name: Kakao
             authorization-grant-type: authorization_code
             scope:
@@ -59,7 +59,7 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: ${DOMAIN}/login/oauth2/code/naver"
+            redirect-uri: ${OAUTH_DOMAIN}/login/oauth2/code/naver"
             client-name: Naver
             authorization-grant-type: authorization_code
             provider: naver
