@@ -74,14 +74,13 @@ public class SecurityConfig {
 
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
-                                        .path("/") // 모든 경로에서 유효
-                                        .domain(cookieDomain)
+                                        .path("/")
+                                        .domain("localhost")  // 여기 매우 중요!
                                         .httpOnly(true)
-                                        .secure(true)
-                                        .sameSite("Lax")
+                                        .secure(true) // SameSite=None이면 필수
+                                        .sameSite("None") // 완전 허용
                                         .maxAge(60 * 60 * 24 * 7)
                                         .build();
-
                                 response.addHeader("Set-Cookie", jsessionidCookie.toString());
                                 log.info(">>>> Manually added Set-Cookie Header for JSESSIONID: {}", jsessionidCookie.toString());
                             } else {
