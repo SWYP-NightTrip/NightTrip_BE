@@ -73,7 +73,7 @@ public class SecurityConfig {
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/")
-                                        .httpOnly(true)    // HttpOnly: true
+                                        .httpOnly(false)    // HttpOnly: true
                                         .secure(true)      // Secure: true
                                         .sameSite("None")  // ← 변경: SameSite=None
                                         .domain("dev.nighttrip.co.kr") // 현재 백엔드 도메인으로 정확히 명시
