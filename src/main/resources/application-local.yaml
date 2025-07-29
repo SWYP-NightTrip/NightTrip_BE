@@ -32,10 +32,10 @@ spring:
   session:
     servlet:
       cookie:
-        domain: dev.nighttrip.co.kr # 프론트엔드와 동일하게 유지
-        secure: false # <--- 이 부분을 false로 변경
-        http-only: true
-        same-site: None
+        domain: dev.nighttrip.co.kr # <--- 이 도메인 유지
+        secure: false # <--- 이 부분을 false로 변경합니다.
+        http-only: true # 이 부분은 그대로 유지하거나, 필요시 false로 변경 가능 (세션 쿠키는 보통 true 유지)
+        same-site: Lax # <--- 이 부분을 Lax로 변경합니다.
         name: JSESSIONID
 
   security:
