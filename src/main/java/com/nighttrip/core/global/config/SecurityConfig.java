@@ -76,6 +76,7 @@ public class SecurityConfig {
                                         .sameSite("None")
                                         .maxAge(60 * 60 * 24 * 7) // 7일 유지
                                         .build();
+                                log.info(">>>> JSESSIONID 쿠키 헤더 추가 직전. 응답 커밋 여부: {}", response.isCommitted()); // <-- 여기 추가
                                 response.addHeader("Set-Cookie", jsessionidCookie.toString());
                                 log.info(">>>> JSESSIONID 쿠키 헤더를 수동으로 추가했습니다: {}", jsessionidCookie.toString());
                             } else {
