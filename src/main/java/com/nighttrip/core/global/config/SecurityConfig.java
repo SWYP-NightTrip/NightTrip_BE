@@ -50,7 +50,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/oauth/status").permitAll() // 로그인 상태 확인 API는 인증 없이 접근 허용
-                        .requestMatchers("/api/v1/search/**").permitAll() // 검색 API는 인증 없이 접근 허용
+                        .requestMatchers("/api/v1/search/**","/api/v1/search/recommend","/api/v1/search/popular").permitAll() // 검색 API는 인증 없이 접근 허용
                         .requestMatchers("/oauth2/**").permitAll() // OAuth2 관련 경로는 인증 없이 접근 허용
                         .requestMatchers("/favicon.ico").permitAll() // favicon.ico 요청 허용
                         .requestMatchers(HttpMethod.GET, "/health").permitAll() // 헬스 체크 경로 허용
