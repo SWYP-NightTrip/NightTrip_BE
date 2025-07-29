@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        // /api/v1/oauth/status 는 로그인 여부를 확인하는 용도이므로 허용
                         .requestMatchers("/api/v1/oauth/status").permitAll()
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
@@ -62,33 +63,22 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/");
+                            // 이전에 JSESSIONID 쿠키를 수동으로 만들어서 추가했던 코드를 제거합니다.
+                            // Spring Security와 Spring Session이 자동으로 JSESSIONID 쿠키를 Set-Cookie 헤더에 담아 보낼 것입니다.
+                            // 쿠키의 속성(HttpOnly, Secure, SameSite 등)은 application.properties/yml에서 관리합니다.
 
-                            HttpSession session = request.getSession(false); // 세션이 없다면 생성하지 않음
-                            String sessionId = null;
-                            if (session != null) {
-                                sessionId = session.getId();
-                            }
-
-                            if (sessionId != null) {
-                                ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
-                                        .path("/")
-                                        .httpOnly(false)    // HttpOnly: true
-                                        .secure(true)      // Secure: true
-                                        .sameSite("None")  // ← 변경: SameSite=None
-                                        .domain("dev.nighttrip.co.kr") // 현재 백엔드 도메인으로 정확히 명시
-                                        .maxAge(Duration.ofDays(7)) // 7일 유지
-                                        .build();
-                                response.addHeader("Set-Cookie", jsessionidCookie.toString());
-                                log.info(">>>> JSESSIONID 쿠키 헤더를 수동으로 추가했습니다: {}", jsessionidCookie.toString());
-                            } else {
-                                log.warn(">>>> OAuth2 로그인 후 JSESSIONID가 null입니다. 수동으로 쿠키를 추가할 수 없습니다.");
-                            }
-                            response.sendRedirect(frontUrl + "/");
+                            // 로그인 성공 후 프론트엔드의 메인 페이지로 리다이렉트합니다.
+                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
+                            response.sendRedirect(frontUrl + "/main");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
+                            // 로그인 실패 시 프론트엔드의 로그인 페이지로 리다이렉트하며 에러 파라미터를 전달합니다.
+                            response.sendRedirect(frontUrl + "/login?error=auth_failed");
                         })
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/login") // 로그아웃 성공 시 로그인 페이지로 리다이렉트
                         .permitAll()
                 );
 
