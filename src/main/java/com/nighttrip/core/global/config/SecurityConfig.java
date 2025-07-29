@@ -73,13 +73,12 @@ public class SecurityConfig {
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/")
-                                        .httpOnly(false)
-                                        .secure(true)
-                                        .sameSite("Lax")
-                                        .domain("dev.nighttrip.co.kr") // 이 부분도 정확한지 확인
+                                        .httpOnly(true)    // HttpOnly: true
+                                        .secure(true)      // Secure: true
+                                        .sameSite("None")  // ← 변경: SameSite=None
+                                        .domain("dev.nighttrip.co.kr") // 현재 백엔드 도메인으로 정확히 명시
                                         .maxAge(Duration.ofDays(7)) // 7일 유지
                                         .build();
-                                log.info(">>>> JSESSIONID 쿠키 헤더 추가 직전. 응답 커밋 여부: {}", response.isCommitted()); // <-- 여기 추가
                                 response.addHeader("Set-Cookie", jsessionidCookie.toString());
                                 log.info(">>>> JSESSIONID 쿠키 헤더를 수동으로 추가했습니다: {}", jsessionidCookie.toString());
                             } else {
@@ -98,6 +97,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
         configuration.setAllowCredentials(true);
 
         configuration.setAllowedOrigins(Arrays.asList(
@@ -106,9 +106,11 @@ public class SecurityConfig {
                 "https://www.nighttrip.co.kr",
                 "https://dev.nighttrip.co.kr"
         ));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization", "accessToken", "refreshToken"));
 
         configuration.setMaxAge(3600L);
 
