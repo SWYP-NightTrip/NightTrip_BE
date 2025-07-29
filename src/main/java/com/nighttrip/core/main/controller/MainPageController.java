@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +28,11 @@ public class MainPageController {
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
 
-        User user = userService.getCurrentUser(SecurityUtils.getCurrentUserEmail());
+        Optional<String> userEmailOpt = SecurityUtils.findCurrentUserEmail();
+
+        User user = userEmailOpt
+                .flatMap(userService::findUserByEmail)
+                .orElse(null);
 
         List<RecommendedSpotDto> spots = mainPageService.getNightPopularSpots(user, lat, lon);
         return ApiResponse.success(spots);
@@ -38,7 +43,12 @@ public class MainPageController {
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
 
-        User user = userService.getCurrentUser(SecurityUtils.getCurrentUserEmail());
+        Optional<String> userEmailOpt = SecurityUtils.findCurrentUserEmail();
+
+        User user = userEmailOpt
+                .flatMap(userService::findUserByEmail)
+                .orElse(null);
+
         List<RecommendedSpotDto> spots = mainPageService.getCategoryRecommendedSpots(user, lat, lon);
         return ApiResponse.success(spots);
     }

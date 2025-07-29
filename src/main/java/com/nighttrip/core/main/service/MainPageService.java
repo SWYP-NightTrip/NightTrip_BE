@@ -47,6 +47,14 @@ public class MainPageService {
 
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
 
+        if (user == null) {
+            List<TouristSpot> spots = touristSpotRepository.findSpotsByScoresWithoutLocation(
+                    MAIN_WEIGHT_NO_DISTANCE,
+                    REVIEW_WEIGHT_NO_DISTANCE,
+                    SPOT_COUNT);
+            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+        }
+
         // 1. [최우선] 여행 계획 확인
         Optional<TripPlan> activePlanOpt = tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING));
 
@@ -97,6 +105,18 @@ public class MainPageService {
 
 
     public List<RecommendedSpotDto> getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
+
+        if (user == null) {
+            List<String> allCategories = touristSpotRepository.findAllDistinctCategories();
+            if (allCategories.isEmpty()) {
+                return Collections.emptyList();
+            }
+            Random random = new Random();
+            String favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
+
+            List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
+            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+        }
 
         // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
         String favoriteCategory = determineFavoriteCategory(user);
