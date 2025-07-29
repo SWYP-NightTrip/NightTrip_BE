@@ -23,7 +23,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       session:
         store-type: redis
