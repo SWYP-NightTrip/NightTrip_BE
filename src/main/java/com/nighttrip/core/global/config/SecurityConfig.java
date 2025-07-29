@@ -70,7 +70,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // allowedOrigins에 프론트엔드 URL과 개발 백엔드 URL을 모두 명시합니다.
-        configuration.addAllowedOrigin("http://localhost:3000"); // 로컬 개발 프론트엔드 URL
+        configuration.addAllowedOrigin("https://localhost:3000"); // 로컬 개발 프론트엔드 URL
         configuration.addAllowedOrigin("https://www.nighttrip.co.kr"); // 실제 운영/배포 환경 프론트엔드 URL
         configuration.addAllowedOrigin("https://dev.nighttrip.co.kr"); // 개발 백엔드 URL (테스트용, 필요시 추가)
 

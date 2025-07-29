@@ -106,3 +106,5 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.session: DEBUG
+    org.springframework.security.web.DefaultRedirectStrategy: DEBUG
+    org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler: DEBUG # 세션 쿠키 삭제 관련 로그
