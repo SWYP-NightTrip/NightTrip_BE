@@ -90,7 +90,9 @@ data:
         endpoints: localhost:9200
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.session: DEBUG
+    root: INFO # 기본 로그 레벨은 INFO로 유지하거나 필요시 DEBUG로 변경
+    com.nighttrip.core: DEBUG # NightTrip 프로젝트의 모든 로그를 DEBUG 레벨로 출력
+    org.springframework.security: DEBUG # 스프링 시큐리티 관련 상세 로그
+    org.springframework.session: DEBUG # 스프링 세션 관련 상세 로그
     org.springframework.security.web.DefaultRedirectStrategy: DEBUG
     org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler: DEBUG # 세션 쿠키 삭제 관련 로그
