@@ -38,6 +38,16 @@ spring:
         same-site: Lax # <--- 이 부분을 Lax로 변경합니다.
         name: JSESSIONID
 
+        spring:
+          session:
+            servlet:
+              cookie:
+                domain: dev.nighttrip.co.kr # <--- 이 도메인을 유지하세요.
+                secure: false # <--- 이 부분을 false로 변경.
+                http-only: true
+                same-site: Lax # <--- 이 부분을 Lax로 변경.
+                name: JSESSIONID
+
   security:
     oauth2:
       client:
