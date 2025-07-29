@@ -79,7 +79,8 @@ server:
     session:
       cookie:
         same-site: Lax  # ← None 대신 Lax 또는 제거
-        secure: false    # ← Secure 비활성화 (개발 환경에서만)
+        secure: true   # <--- 이 부분이 반드시 true여야 합니다!
+        domain: dev.nighttrip.co.kr # 이 부분도 정확한지 확인
 
 frontend:
   url: ${FRONTEND_URL}

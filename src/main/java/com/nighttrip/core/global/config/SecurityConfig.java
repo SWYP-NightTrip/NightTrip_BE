@@ -74,8 +74,9 @@ public class SecurityConfig {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/")
                                         .httpOnly(true)
-                                        .secure(false)
+                                        .secure(true)
                                         .sameSite("Lax")
+                                        .domain("dev.nighttrip.co.kr") // 이 부분도 정확한지 확인
                                         .maxAge(Duration.ofDays(7)) // 7일 유지
                                         .build();
                                 log.info(">>>> JSESSIONID 쿠키 헤더 추가 직전. 응답 커밋 여부: {}", response.isCommitted()); // <-- 여기 추가
