@@ -30,6 +30,11 @@ spring:
 
   session:
     timeout: 1000
+    cookie:
+      secure: false # 로컬 HTTP 환경 테스트를 위해 false로 설정 (운영에서는 true 유지!)
+      same-site: none
+      path: /
+      http-only: true
 
   security:
     oauth2:
@@ -97,3 +102,7 @@ data:
     client:
       reactive:
         endpoints: localhost:9200
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.session: DEBUG
