@@ -75,11 +75,11 @@ public class SecurityConfig {
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/") // 모든 경로에서 유효
-                                        .domain(cookieDomain) // application.yaml의 dev.nighttrip.co.kr 도메인 사
-                                        .httpOnly(true) // JavaScript 접근 방지
-                                        .secure(true) // <--- 이 부분을 다시 true로 변경해봅니다.
-                                        .sameSite("Lax") // 탑-레벨 내비게이션에서 쿠키 전송 허용
-                                        .maxAge(60 * 60 * 24 * 7) // 예: 7일 유효
+                                        .domain(cookieDomain)
+                                        .httpOnly(true)
+                                        .secure(true)
+                                        .sameSite("Lax")
+                                        .maxAge(60 * 60 * 24 * 7)
                                         .build();
 
                                 response.addHeader("Set-Cookie", jsessionidCookie.toString());
@@ -106,6 +106,7 @@ public class SecurityConfig {
         // CORS 허용할 Origin 목록
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://localhost:3000",
+                "http://localhost:3000",
                 "https://www.nighttrip.co.kr",
                 "https://dev.nighttrip.co.kr"
                 ));
