@@ -73,7 +73,7 @@ public class SecurityConfig {
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/")
-                                        .httpOnly(true)
+                                        .httpOnly(false)
                                         .secure(true)
                                         .sameSite("Lax")
                                         .domain("dev.nighttrip.co.kr") // 이 부분도 정확한지 확인

@@ -78,9 +78,12 @@ server:
   servlet:
     session:
       cookie:
-        same-site: Lax  # ← None 대신 Lax 또는 제거
-        secure: true   # <--- 이 부분이 반드시 true여야 합니다!
-        domain: dev.nighttrip.co.kr # 이 부분도 정확한지 확인
+        secure: true    # HTTPS에서만 쿠키 전송
+        same-site: Lax  # ← 변경: 크로스 사이트 요청 시 제한적으로 쿠키 전송
+        path: /         # 모든 경로에서 쿠키 유효
+        http-only: false # JavaScript에서 접근 불가 (보안 강화)
+        domain: dev.nighttrip.co.kr # 이 부분도 필요하다면 추가하고 일치시켜주세요.
+        # JSESSIONID 쿠키와 동일하게 명시하는 것이 좋습니다.
 
 frontend:
   url: ${FRONTEND_URL}
