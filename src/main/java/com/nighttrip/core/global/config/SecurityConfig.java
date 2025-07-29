@@ -75,9 +75,9 @@ public class SecurityConfig {
                             if (sessionId != null) {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/") // 모든 경로에서 유효
-                                        .domain(cookieDomain) // application.yaml의 dev.nighttrip.co.kr 도메인 사용
-                                        .secure(false) // HTTPS 통신이지만, localhost와의 호환성을 위해 false로 설정
+                                        .domain(cookieDomain) // application.yaml의 dev.nighttrip.co.kr 도메인 사
                                         .httpOnly(true) // JavaScript 접근 방지
+                                        .secure(true) // <--- 이 부분을 다시 true로 변경해봅니다.
                                         .sameSite("Lax") // 탑-레벨 내비게이션에서 쿠키 전송 허용
                                         .maxAge(60 * 60 * 24 * 7) // 예: 7일 유효
                                         .build();
