@@ -15,7 +15,7 @@ jobs:
       - name: Prepare Clean Deploy Folder
         run: |
           mkdir -p deploy
-          rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ./deploy
+          rsync -av --exclude='.git' --exclude='node_modules' ./ ./deploy/
 
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.7.0
