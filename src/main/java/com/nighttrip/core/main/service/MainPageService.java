@@ -12,6 +12,7 @@ import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.global.enums.TripStatus;
+import com.nighttrip.core.main.dto.PartnerServiceDto;
 import com.nighttrip.core.main.dto.RecommendedSpotDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -209,5 +210,13 @@ public class MainPageService {
                 .orElse(null);
     }
 
+    public List<PartnerServiceDto> getPartnerServices() {
+        return Arrays.asList(
+                new PartnerServiceDto(1L, "교통권", null),
+                new PartnerServiceDto(2L, "숙박예약", null),
+                new PartnerServiceDto(3L, "투어티켓", null),
+                new PartnerServiceDto(4L, "렌터카", null)
+        );
+    }
 
 }

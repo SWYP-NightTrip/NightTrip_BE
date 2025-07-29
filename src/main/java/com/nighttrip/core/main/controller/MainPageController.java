@@ -3,6 +3,7 @@ package com.nighttrip.core.main.controller;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.service.UserService;
 import com.nighttrip.core.global.dto.ApiResponse;
+import com.nighttrip.core.main.dto.PartnerServiceDto;
 import com.nighttrip.core.main.dto.RecommendedSpotDto;
 import com.nighttrip.core.main.service.MainPageService;
 import com.nighttrip.core.oauth.util.SecurityUtils;
@@ -17,13 +18,13 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/main/recommend")
+@RequestMapping("/api/v1/main")
 public class MainPageController {
 
     private final MainPageService mainPageService;
     private final UserService userService;
 
-    @GetMapping("/night-popular")
+    @GetMapping("/recommend/night-popular")
     public ApiResponse<List<RecommendedSpotDto>> getNightPopularSpots(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
@@ -38,7 +39,7 @@ public class MainPageController {
         return ApiResponse.success(spots);
     }
 
-    @GetMapping("/category")
+    @GetMapping("/recommend/category")
     public ApiResponse<List<RecommendedSpotDto>> getCategoryRecommendedSpots(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
@@ -51,5 +52,11 @@ public class MainPageController {
 
         List<RecommendedSpotDto> spots = mainPageService.getCategoryRecommendedSpots(user, lat, lon);
         return ApiResponse.success(spots);
+    }
+
+    @GetMapping("/partner-services")
+    public ApiResponse<List<PartnerServiceDto>> getPartnerServices() {
+        List<PartnerServiceDto> partnerServices = mainPageService.getPartnerServices();
+        return ApiResponse.success(partnerServices);
     }
 }
