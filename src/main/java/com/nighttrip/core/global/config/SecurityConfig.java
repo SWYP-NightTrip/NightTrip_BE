@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,10 +74,9 @@ public class SecurityConfig {
                                 ResponseCookie jsessionidCookie = ResponseCookie.from("JSESSIONID", sessionId)
                                         .path("/")
                                         .httpOnly(true)
-                                        .secure(true)
-                                        .sameSite("None")
-                                        .maxAge(60 * 60 * 24 * 7) // 7일 유지
-                                        .domain("dev.nighttrip.co.kr") // <-- 이 부분을 추가합니다.
+                                        .secure(false)
+                                        .sameSite("Lax")
+                                        .maxAge(Duration.ofDays(7)) // 7일 유지
                                         .build();
                                 log.info(">>>> JSESSIONID 쿠키 헤더 추가 직전. 응답 커밋 여부: {}", response.isCommitted()); // <-- 여기 추가
                                 response.addHeader("Set-Cookie", jsessionidCookie.toString());
