@@ -82,6 +82,7 @@ server:
         same-site: None # ← 변경: SameSite=None
         path: /
         http-only: false # HttpOnly: true 유지 (보안 권장)
+        domain: localhost
 
 frontend:
   url: ${FRONTEND_URL}
