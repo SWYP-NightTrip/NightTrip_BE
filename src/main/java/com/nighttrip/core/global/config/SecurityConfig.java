@@ -67,7 +67,7 @@ public class SecurityConfig {
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
-                            response.sendRedirect(frontUrl + "/login");
+                            response.sendRedirect(frontUrl + "/login?error=auth_failed");
                         })
                 )
                 .logout(logout -> logout
