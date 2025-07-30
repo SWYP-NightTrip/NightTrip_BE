@@ -31,6 +31,8 @@ jobs:
           source: "."
           target: "/home/${{ secrets.PROD_USER }}/nighttrip"
           overwrite: true
+          exclude: |
+            .git/
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@master
