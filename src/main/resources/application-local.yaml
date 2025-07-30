@@ -82,8 +82,7 @@ server:
         same-site: None # ← 변경: SameSite=None
         path: /
         http-only: false # HttpOnly: true 유지 (보안 권장)
-        domain: localhost
-
+        domain: dev.nighttrip.co.kr # <--- 현재 백엔드 도메인으로 정확히 명시
 frontend:
   url: ${FRONTEND_URL}
 
