@@ -23,6 +23,7 @@ public class OAuthController {
         log.info(">>>> [API-CHECK-START] /api/v1/oauth/status 컨트롤러가 호출되었습니다.");
 
         LoginStatusResponse response = oAuthService.getLoginStatus();
+        log.info(">>>> 로그인 상태 응답: {}", response);
         log.info(">>>> [API-CHECK-END] /api/v1/oauth/status 컨트롤러가 응답을 반환합니다.");
         return ResponseEntity.ok(ApiResponse.success(response));
     }
