@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # JAR 빌드
-RUN gradle bootJar --no-daemon
+RUN gradle bootJar --no-daemon --info
 
 # -------- 2단계: Runtime Stage --------
 FROM openjdk:17-jdk-slim
