@@ -49,7 +49,6 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        // /api/v1/oauth/status 는 로그인 여부를 확인하는 용도이므로 허용
                         .requestMatchers("/api/v1/oauth/status").permitAll()
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
