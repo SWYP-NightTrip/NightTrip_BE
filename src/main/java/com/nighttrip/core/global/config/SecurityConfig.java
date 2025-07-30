@@ -62,8 +62,23 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
-                            response.sendRedirect(frontUrl + "/");
+
+                            // Content-Type과 상태 설정
+                            response.setContentType("text/html;charset=UTF-8");
+                            response.setStatus(HttpServletResponse.SC_OK);
+
+                            // 최종 응답으로 HTML 내려주고 JS에서 메인 페이지로 이동
+                            String html = """
+        <html>
+          <body>
+            <script>
+              window.location.href = "/";
+            </script>
+          </body>
+        </html>
+        """;
+
+                            response.getWriter().write(html);
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
