@@ -28,11 +28,9 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: "."
+          source: "deploy/."
           target: "/home/${{ secrets.PROD_USER }}/nighttrip"
           overwrite: true
-          exclude: |
-            .git/
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@master
@@ -46,3 +44,4 @@ jobs:
             docker compose pull || true
             docker compose up --build -d
             docker image prune -f
+
