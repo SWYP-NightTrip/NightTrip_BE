@@ -68,12 +68,11 @@ public class SecurityConfig {
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
-                            // 로그인 실패 시 프론트엔드의 로그인 페이지로 리다이렉트하며 에러 파라미터를 전달합니다.
                             response.sendRedirect(frontUrl + "/login");
                         })
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login") // 로그아웃 성공 시 로그인 페이지로 리다이렉트
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 );
 
