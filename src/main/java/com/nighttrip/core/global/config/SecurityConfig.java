@@ -63,18 +63,13 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-                            // 이전에 JSESSIONID 쿠키를 수동으로 만들어서 추가했던 코드를 제거합니다.
-                            // Spring Security와 Spring Session이 자동으로 JSESSIONID 쿠키를 Set-Cookie 헤더에 담아 보낼 것입니다.
-                            // 쿠키의 속성(HttpOnly, Secure, SameSite 등)은 application.properties/yml에서 관리합니다.
-
-                            // 로그인 성공 후 프론트엔드의 메인 페이지로 리다이렉트합니다.
                             log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
-                            response.sendRedirect(frontUrl + "/main");
+                            response.sendRedirect(frontUrl + "/");
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
                             // 로그인 실패 시 프론트엔드의 로그인 페이지로 리다이렉트하며 에러 파라미터를 전달합니다.
-                            response.sendRedirect(frontUrl + "/login?error=auth_failed");
+                            response.sendRedirect(frontUrl + "/login");
                         })
                 )
                 .logout(logout -> logout
