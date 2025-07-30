@@ -49,8 +49,8 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        // /api/v1/oauth/status 는 로그인 여부를 확인하는 용도이므로 허용
-                        .requestMatchers("/api/v1/oauth/status").permitAll()
+                        // /api/v1/oauth/status 는 로그인 여부를 확인하는 용도이므로 허용, 메인 페이지 관련은 비로그인 사용자도 메인페이지 볼 수 있어야 하므로 허용
+                        .requestMatchers("/api/v1/oauth/status", "/api/v1/main/**").permitAll()
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
