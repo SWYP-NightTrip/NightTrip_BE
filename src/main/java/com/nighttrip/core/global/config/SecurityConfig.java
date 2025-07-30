@@ -63,11 +63,11 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
                             log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
-                            response.sendRedirect(frontUrl + "/main");
+                            response.sendRedirect(frontUrl + "/");
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
-                            response.sendRedirect(frontUrl + "/login?error=auth_failed");
+                            response.sendRedirect(frontUrl + "/login");
                         })
                 )
                 .logout(logout -> logout
