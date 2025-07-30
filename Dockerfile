@@ -16,6 +16,6 @@ VOLUME /tmp
 WORKDIR /app
 
 # builder 단계에서 만든 JAR만 복사
-COPY --from=builder /app/deploy/build/libs/nighttrip-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/build/libs/nighttrip-0.0.1-SNAPSHOT.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
