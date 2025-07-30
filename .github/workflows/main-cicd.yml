@@ -28,7 +28,7 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: "deploy/"
+          source: "."
           target: "/home/${{ secrets.PROD_USER }}/nighttrip"
           overwrite: true
 
