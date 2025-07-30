@@ -17,7 +17,7 @@ jobs:
       - name: Prepare Clean Deploy Folder
         run: |
           mkdir -p deploy
-          rsync -av --exclude='.git' --exclude='node_modules' ./ ./deploy/
+          rsync -av --exclude='.git' --exclude='node_modules' ./deploy .
 
       # 3. SSH 에이전트 설정 (배포용 Key 사용)
       - name: Set up SSH Agent
