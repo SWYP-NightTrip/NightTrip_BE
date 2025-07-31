@@ -67,7 +67,7 @@ public class TouristSpot {
 
 
     @Builder
-    public TouristSpot(String spotName, Double longitude, Double latitude, Integer checkCount, String address, String link, String category, String spotDescription, String telephone, Integer mainWeight, Integer subWeight, City city) {
+    public TouristSpot(String spotName, Double longitude, Double latitude, Integer checkCount, String address, String link, SpotCategory category, String spotDescription, String telephone, Integer mainWeight, Integer subWeight, City city) {
         this.spotName = spotName;
         this.longitude = longitude;
         this.latitude = latitude;
