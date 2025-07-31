@@ -163,7 +163,7 @@ public class DataSyncService {
                                     .name(touristSpot.getSpotName())
                                     .description(touristSpot.getSpotDescription())
                                     .cityName(touristSpot.getCity() != null ? touristSpot.getCity().getCityName() : null)
-                                    .category(touristSpot.getCategory())
+                                    .category(touristSpot.getCategory().getKoreanName())
                                     .imageUrl(mainImageUrl)
                                     .suggestName(new ArrayList<>(suggestions))
                                     .build();

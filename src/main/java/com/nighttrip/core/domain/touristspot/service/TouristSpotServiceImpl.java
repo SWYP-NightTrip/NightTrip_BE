@@ -35,7 +35,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 spot.getId(),
                 spot.getSpotName(),
                 spot.getAddress(),
-                spot.getCategory(),
+                spot.getCategory().getKoreanName(),
                 spot.getSpotDescription(),
                 mainImageUrl
         );
