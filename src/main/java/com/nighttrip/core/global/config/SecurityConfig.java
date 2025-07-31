@@ -66,15 +66,15 @@ public class SecurityConfig {
                             response.setContentType("text/html;charset=UTF-8");
                             response.setStatus(HttpServletResponse.SC_OK);
 
-                            String html = """
+                            String html = String.format("""
         <html>
           <body>
             <script>
-              window.location.href = "/";
+              window.location.href = "%s";
             </script>
           </body>
         </html>
-        """;
+        """, frontUrl + "/");
 
                             response.getWriter().write(html);
                         })
