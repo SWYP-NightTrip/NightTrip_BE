@@ -3,6 +3,7 @@ package com.nighttrip.core.domain.touristspot.entity;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.domain.user.entity.BookMark;
+import com.nighttrip.core.global.converter.SpotCategoryConverter;
 import com.nighttrip.core.global.enums.SpotCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,6 +38,7 @@ public class TouristSpot {
     private String address;
     private String link;
 
+    @Convert(converter = SpotCategoryConverter.class)
     private SpotCategory category;
 
     private String spotDescription;
