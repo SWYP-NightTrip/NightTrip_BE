@@ -63,11 +63,9 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
 
-                            // Content-Type과 상태 설정
                             response.setContentType("text/html;charset=UTF-8");
                             response.setStatus(HttpServletResponse.SC_OK);
 
-                            // 최종 응답으로 HTML 내려주고 JS에서 메인 페이지로 이동
                             String html = """
         <html>
           <body>

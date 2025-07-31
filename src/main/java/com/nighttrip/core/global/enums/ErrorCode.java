@@ -25,7 +25,8 @@ public enum ErrorCode {
 	OAUTH_PROVIDER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OAuth 공급자에서 에러가 발생했습니다."),
 	MISSING_SOCIAL_INFO(HttpStatus.BAD_REQUEST, "소셜 로그인 필수 정보가 누락되었습니다."),
 	USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
-	CITY_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 도시를 찾을 수 없습니다.");
+	CITY_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 도시를 찾을 수 없습니다."),
+	INVALID_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인 되어있지 않습니다.");
 	private final HttpStatus errorCode;
     private final String message;
 
