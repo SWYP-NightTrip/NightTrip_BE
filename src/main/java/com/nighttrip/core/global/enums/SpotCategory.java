@@ -3,7 +3,6 @@ package com.nighttrip.core.global.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.nighttrip.core.global.exception.BusinessException;
-import org.springframework.http.HttpStatus;
 
 public enum SpotCategory {
     FOOD("음식"),
