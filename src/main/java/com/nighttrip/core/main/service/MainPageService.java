@@ -11,6 +11,7 @@ import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
+import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.main.dto.PartnerServiceDto;
 import com.nighttrip.core.main.dto.RecommendedSpotDto;
@@ -108,21 +109,21 @@ public class MainPageService {
     public List<RecommendedSpotDto> getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
 
         if (user == null) {
-            List<String> allCategories = touristSpotRepository.findAllDistinctCategories();
+            List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
             if (allCategories.isEmpty()) {
                 return Collections.emptyList();
             }
             Random random = new Random();
-            String favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
+            SpotCategory favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
 
             List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
             return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
         }
 
         // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
-        String favoriteCategory = determineFavoriteCategory(user);
+        SpotCategory favoriteCategory = determineFavoriteCategory(user);
         if (favoriteCategory == null) {
-            List<String> allCategories = touristSpotRepository.findAllDistinctCategories();
+            List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
 
             if (allCategories.isEmpty()) {
                 return Collections.emptyList();
@@ -190,7 +191,7 @@ public class MainPageService {
         return new RecommendedSpotDto(new TouristSpotWithDistance() {
             @Override public Long getId() { return spot.getId(); }
             @Override public String getSpotName() { return spot.getSpotName(); }
-            @Override public String getCategory() { return spot.getCategory(); }
+            @Override public String getCategory() { return spot.getCategory().getKoreanName(); }
             @Override public String getAddress() { return spot.getAddress(); }
             @Override public City getCity() { return spot.getCity(); }
             @Override public List<TouristSpotReview> getTouristSpotReviews() { return spot.getTouristSpotReviews(); }
@@ -198,11 +199,18 @@ public class MainPageService {
         });
     }
 
-    private String determineFavoriteCategory(User user) {
+    private SpotCategory determineFavoriteCategory(User user) {
         return bookMarkRepository.findByBookMarkFolder_User(user).stream()
                 .map(BookMark::getTouristSpot)
                 .filter(spot -> spot != null && spot.getCategory() != null)
-                .map(TouristSpot::getCategory)
+                .map(spot -> {
+                    try {
+                        return SpotCategory.fromValue(spot.getCategory().getKoreanName());
+                    } catch (Exception e) {
+                        return null; // 변환 실패 시 null
+                    }
+                })
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())

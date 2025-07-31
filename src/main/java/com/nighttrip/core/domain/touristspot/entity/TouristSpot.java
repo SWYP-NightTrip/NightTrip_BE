@@ -3,6 +3,8 @@ package com.nighttrip.core.domain.touristspot.entity;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.domain.user.entity.BookMark;
+import com.nighttrip.core.global.converter.SpotCategoryConverter;
+import com.nighttrip.core.global.enums.SpotCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,7 +39,8 @@ public class TouristSpot {
     private String address;
     private String link;
 
-    private String category;
+    @Convert(converter = SpotCategoryConverter.class)
+    private SpotCategory category;
 
     private String spotDescription;
     private String telephone;
@@ -64,7 +67,7 @@ public class TouristSpot {
 
 
     @Builder
-    public TouristSpot(String spotName, Double longitude, Double latitude, Integer checkCount, String address, String link, String category, String spotDescription, String telephone, Integer mainWeight, Integer subWeight, City city) {
+    public TouristSpot(String spotName, Double longitude, Double latitude, Integer checkCount, String address, String link, SpotCategory category, String spotDescription, String telephone, Integer mainWeight, Integer subWeight, City city) {
         this.spotName = spotName;
         this.longitude = longitude;
         this.latitude = latitude;

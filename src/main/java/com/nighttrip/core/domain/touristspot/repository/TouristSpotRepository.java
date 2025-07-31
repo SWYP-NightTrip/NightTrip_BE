@@ -4,6 +4,7 @@ import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.global.enums.SpotCategory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,7 +51,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     List<TouristSpot> findAll();
 
     @Query("SELECT DISTINCT t.category FROM TouristSpot t ORDER BY t.category ASC")
-    List<String> findAllDistinctCategories();
+    List<SpotCategory> findAllDistinctCategories();
 
     /**
      * 2-a. 여행계획이 없고, 위치 정보가 있는 경우
@@ -166,7 +167,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
                     "DESC " +
                     "LIMIT :limit", nativeQuery = true)
     List<TouristSpotWithDistance> findSpotsByCategoryAndLocation(
-            @Param("category") String category,
+            @Param("category") SpotCategory category,
             @Param("userLat") double userLat, @Param("userLon") double userLon,
             @Param("subWeightParam") double subWeightParam,
             @Param("distanceWeight") double distanceWeight,
@@ -175,11 +176,11 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 카테고리 추천용 (여행 계획 중): 해당 도시 & 카테고리 내에서 sub_weight로 정렬
      */
-    List<TouristSpot> findByCityAndCategoryOrderBySubWeightDesc(City city, String category, Pageable pageable);
+    List<TouristSpot> findByCityAndCategoryOrderBySubWeightDesc(City city, SpotCategory category, Pageable pageable);
 
     /**
      * 카테고리 추천용 (위치 정보 없을 때 폴백): 전국 단위로 해당 카테고리 내에서 sub_weight로 정렬
      */
-    List<TouristSpot> findByCategoryOrderBySubWeightDesc(String category, Pageable pageable);
+    List<TouristSpot> findByCategoryOrderBySubWeightDesc(SpotCategory category, Pageable pageable);
 
 }
