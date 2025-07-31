@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/oauth/status").permitAll()
+                        .requestMatchers("/api/v1/oauth/status", "/api/v1/main/**").permitAll()
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
