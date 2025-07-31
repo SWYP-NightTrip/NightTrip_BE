@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행 검색 자동완성</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .search-container { position: relative; width: 300px; }
+        #searchInput { width: 100%; padding: 10px; font-size: 16px; box-sizing: border-box; }
+        #suggestionsList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            width: 100%;
+            background-color: white;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none; /* 초기에는 숨김 */
+        }
+        #suggestionsList li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        #suggestionsList li:last-child {
+            border-bottom: none;
+        }
+        #suggestionsList li:hover {
+            background-color: #f0f0f0;
+        }
+        .suggestion-type {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>여행지 검색</h1>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="도시나 관광지를 검색하세요...">
+    <ul id="suggestionsList"></ul>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsList = document.getElementById('suggestionsList');
+    let debounceTimer;
+
+    // 검색 제안을 가져오는 함수
+    async function fetchSuggestions(query) {
+        if (query.length < 2) { // 최소 2글자 이상 입력 시 검색 시작
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/v1/search/autocomplete?query=${encodeURIComponent(query)}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const apiResponse = await response.json(); // 백엔드에서 받은 API 응답 (ApiResponse 객체 형태)
+
+            console.log("--- 백엔드에서 받은 Raw API 응답 객체 ---");
+            console.log(apiResponse); // apiResponse 객체 전체 출력
+
+            // ★★★ 핵심 수정 부분: apiResponse.data에서 실제 SearchDocument 배열 추출 ★★★
+            const actualSuggestions = apiResponse.data;
+
+            // 실제 데이터가 배열인지 확인하고, 배열이 아니라면 빈 배열로 처리
+            displaySuggestions(Array.isArray(actualSuggestions) ? actualSuggestions : []);
+
+        } catch (error) {
+            console.error("검색 제안을 가져오는 중 오류 발생:", error);
+            suggestionsList.innerHTML = '<li>검색 오류 발생 또는 서버 연결 문제</li>';
+            suggestionsList.style.display = 'block';
+        }
+    }
+
+    // 제안을 UI에 표시하는 함수
+    function displaySuggestions(suggestions) {
+        suggestionsList.innerHTML = ''; // 기존 제안 초기화
+
+        // 방어적 코딩: 전달된 데이터가 배열인지 다시 한번 확인
+        if (!Array.isArray(suggestions)) {
+            console.error("displaySuggestions: 전달된 데이터가 배열이 아닙니다.", suggestions);
+            suggestionsList.innerHTML = '<li>데이터 형식이 올바르지 않습니다.</li>';
+            suggestionsList.style.display = 'block';
+            return;
+        }
+
+        // 검색 결과가 없을 경우 메시지 표시
+        if (suggestions.length === 0) {
+            suggestionsList.innerHTML = '<li>검색 결과 없음</li>';
+            suggestionsList.style.display = 'block';
+            return;
+        }
+
+        // 각 제안 항목을 순회하며 HTML 리스트 아이템 생성
+        suggestions.forEach(item => {
+            const listItem = document.createElement('li');
+
+            // SearchDocument의 'type' 필드 값에 따라 '도시' 또는 '관광지'로 표시
+            const typeText = item.type === 'city' ? '도시' : (item.type === 'tourist_spot' ? '관광지' : item.type);
+
+            // `name`과 `type`을 활용하여 목록 항목의 내용 구성
+            listItem.innerHTML = `${item.name} <span class="suggestion-type">(${typeText})</span>`;
+
+            // 클릭 이벤트 처리를 위해 데이터 속성 추가
+            listItem.dataset.type = item.type;
+            listItem.dataset.id = item.id;
+            listItem.dataset.name = item.name;
+
+            // 클릭 이벤트: 선택된 항목을 검색창에 채우고 목록 숨김
+            listItem.addEventListener('click', () => {
+                searchInput.value = item.name; // 선택된 항목의 이름을 검색창에 표시
+                suggestionsList.innerHTML = ''; // 목록 비움
+                suggestionsList.style.display = 'none'; // 목록 숨김
+
+                // 선택된 항목의 상세 정보를 콘솔에 출력 (디버깅용)
+                console.log("--- 선택된 검색 제안 항목 ---");
+                console.log(`선택됨: 타입=${item.type}, ID=${item.id}, 이름=${item.name}`);
+                console.log("선택된 SearchDocument 객체 상세:", item);
+
+                alert(`${item.name} (${typeText}) 을(를) 선택하셨습니다.`); // 사용자에게 알림
+            });
+            suggestionsList.appendChild(listItem); // 생성된 리스트 아이템을 목록에 추가
+        });
+        suggestionsList.style.display = 'block'; // 제안 목록 표시
+    }
+
+    // 입력 이벤트 리스너 (디바운싱 적용): 사용자가 타이핑을 멈춘 후 일정 시간 뒤에 API 호출
+    searchInput.addEventListener('input', (event) => {
+        clearTimeout(debounceTimer); // 이전 타이머 초기화
+        const query = event.target.value;
+        debounceTimer = setTimeout(() => {
+            fetchSuggestions(query);
+        }, 300); // 300ms (0.3초) 이후에 API 호출
+    });
+
+    // 검색창 외부 클릭 시 제안 목록 숨기기
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.search-container')) {
+            suggestionsList.style.display = 'none';
+        }
+    });
+
+    // Escape 키를 눌렀을 때 목록 숨기기
+    searchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            suggestionsList.style.display = 'none';
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.DEV_USER }}
           key: ${{ secrets.DEV_SSH_KEY }}
           source: "build/libs/nighttrip-0.0.1-SNAPSHOT.jar"
-          target: "/opt/nighttrip/"
+          target: "/opt/nighttrip/build/libs/"
           strip_components: 0
           overwrite: true
           debug: true
