@@ -1,30 +1,22 @@
 package com.nighttrip.core.global.config;
 
 import com.nighttrip.core.oauth.service.CustomOAuth2UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession; // HttpSession 임포트 유지
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseCookie; // ResponseCookie 임포트 유지
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Configuration
@@ -62,21 +54,8 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-
-                            response.setContentType("text/html;charset=UTF-8");
-                            response.setStatus(HttpServletResponse.SC_OK);
-
-                            String html = String.format("""
-        <html>
-          <body>
-            <script>
-              window.location.href = "%s";
-            </script>
-          </body>
-        </html>
-        """, frontUrl + "/");
-
-                            response.getWriter().write(html);
+                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
+                            response.sendRedirect(frontUrl + "/");
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
