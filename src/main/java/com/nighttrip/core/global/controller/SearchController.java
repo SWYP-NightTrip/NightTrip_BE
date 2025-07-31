@@ -1,6 +1,7 @@
 package com.nighttrip.core.global.controller;
 
 import com.nighttrip.core.global.dto.ApiResponse;
+import com.nighttrip.core.global.dto.RecommendedKeyword;
 import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.service.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +43,14 @@ public class SearchController {
         return ResponseEntity.ok(ApiResponse.success(results));
     }
     @GetMapping("/popular")
-    public ResponseEntity<List<String>> getPopularSearchKeywords() {
-        List<String> popularKeywords = searchService.getPopularKeywords(10);
-        return ResponseEntity.ok(popularKeywords);
+    public ResponseEntity<List<RecommendedKeyword>> getPopularSearchKeywords() {
+        List<RecommendedKeyword> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded2();
+        return ResponseEntity.ok(recommendedKeywords);
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<List<String>> getRecommendedSearchKeywords() {
-        List<String> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded();
+    public ResponseEntity<List<RecommendedKeyword>> getRecommendedSearchKeywords() {
+        List<RecommendedKeyword> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded();
         return ResponseEntity.ok(recommendedKeywords);
     }
 
