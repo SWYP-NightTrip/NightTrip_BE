@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/trip-plan/{tripPlanId}/{tripDayId}")
+@RequestMapping("/api/v1/trip-plan")
 public class TripOrderController {
 
     private final TripOrderService orderService;
@@ -18,7 +18,7 @@ public class TripOrderController {
     }
 
 
-    @PostMapping("/add-place")
+    @PostMapping("/{tripPlanId}/{tripDayId}/add-place")
     public ResponseEntity<ApiResponse<?>> addPlace(@RequestBody PlaceAddRequest request,
                                                    @PathVariable("tripPlanId") Long tripPlanId,
                                                    @PathVariable("tripDayId") Integer tripDayId) {
