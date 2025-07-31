@@ -43,15 +43,15 @@ public class SearchController {
         return ResponseEntity.ok(ApiResponse.success(results));
     }
     @GetMapping("/popular")
-    public ResponseEntity<List<RecommendedKeyword>> getPopularSearchKeywords() {
+    public ResponseEntity<ApiResponse<List<RecommendedKeyword>>> getPopularSearchKeywords() {
         List<RecommendedKeyword> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded2();
-        return ResponseEntity.ok(recommendedKeywords);
+        return ResponseEntity.ok(ApiResponse.success(recommendedKeywords));
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<List<RecommendedKeyword>> getRecommendedSearchKeywords() {
+    public ResponseEntity<ApiResponse<List<RecommendedKeyword>>> getRecommendedSearchKeywords() {
         List<RecommendedKeyword> recommendedKeywords = searchService.getRecommendedKeywordsHardcoded();
-        return ResponseEntity.ok(recommendedKeywords);
+        return ResponseEntity.ok(ApiResponse.success(recommendedKeywords));
     }
 
 }

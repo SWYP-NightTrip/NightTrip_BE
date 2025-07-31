@@ -127,10 +127,10 @@ public class SearchService {
                 new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
                 new RecommendedKeyword("city_305", "강릉 카페"),
                 new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
-                new RecommendedKeyword("keyword_99", "가족 여행 추천"),
-                new RecommendedKeyword("keyword_88", "혼자 떠나는 여행"),
+                new RecommendedKeyword("tourist_spot_56", "서울88카페"),
+                new RecommendedKeyword("tourist_spot_51", "혼자 떠나는 여행"),
                 new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
-                new RecommendedKeyword("tourist_spot_1234", "속초 가볼만한곳"),
+                new RecommendedKeyword("tourist_spot_1234", "속초 맛집"),
                 new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
                 new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
         );
@@ -141,10 +141,10 @@ public class SearchService {
                 new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
                 new RecommendedKeyword("city_305", "강릉 카페"),
                 new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
-                new RecommendedKeyword("keyword_99", "가족 여행 추천"),
-                new RecommendedKeyword("keyword_88", "혼자 떠나는 여행"),
+                new RecommendedKeyword("city_31", "서울 특별시 서초구"),
+                new RecommendedKeyword("city_30", "서울 특별시 강남구"),
                 new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
-                new RecommendedKeyword("tourist_spot_1234", "속초 가볼만한곳"),
+                new RecommendedKeyword("city_33", "강원특별자치도 춘천시"),
                 new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
                 new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
         );
