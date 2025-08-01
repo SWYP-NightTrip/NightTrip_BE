@@ -39,7 +39,7 @@ spring:
   session:
     store-type: redis
     cookie:
-      #domain: .nighttrip.co.kr
+      domain: .nighttrip.co.kr
       same-site: none
       secure: true
       http-only: true
