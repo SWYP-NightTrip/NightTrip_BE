@@ -81,7 +81,7 @@ server:
         domain: nighttrip.co.kr # 도메인 설정
         http-only: true
         secure: true # HTTPS 환경에서만 쿠키 사용하도록 설정
-        same-site: none
+        #same-site: none
 frontend:
   url: ${FRONTEND_URL}
 
