@@ -35,7 +35,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().changeSessionId()
@@ -79,7 +79,8 @@ public class SecurityConfig {
                 "https://localhost:3000",
                 "http://localhost:3000",
                 "https://www.nighttrip.co.kr",
-                "https://dev.nighttrip.co.kr"
+                "https://dev.nighttrip.co.kr",
+                "https://local.nighttrip.co.kr"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
