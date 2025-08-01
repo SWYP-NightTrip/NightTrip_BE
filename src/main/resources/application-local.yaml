@@ -82,7 +82,7 @@ server:
         same-site: None
         path: /
         http-only: false
-        domain: dev.nighttrip.co.kr
+        domain: .nighttrip.co.kr
 
 frontend:
   url: ${FRONTEND_URL}
