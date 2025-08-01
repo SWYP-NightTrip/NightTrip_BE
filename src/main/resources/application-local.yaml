@@ -32,7 +32,9 @@ spring:
           endpoints: localhost:9200
 
   server:
-    forward-headers-strategy: native
+    tomcat:
+      protocol-header: X-Forwarded-Proto
+      remote-ip-header: X-Forwarded-For
 
   session:
     store-type: redis
