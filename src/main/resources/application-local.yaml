@@ -32,7 +32,7 @@ spring:
   session:
     store-type: redis
     cookie:
-      domain: .nighttrip.co.kr
+      #domain: .nighttrip.co.kr
       same-site: none
       secure: true
       http-only: false
@@ -90,7 +90,7 @@ server:
         same-site: None
         path: /
         http-only: false
-        domain: .nighttrip.co.kr
+        #domain: .nighttrip.co.kr
 
 frontend:
   url: ${FRONTEND_URL}
