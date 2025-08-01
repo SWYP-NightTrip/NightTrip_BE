@@ -10,7 +10,7 @@ import com.nighttrip.core.oauth.dto.LoginStatusResponse;
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity; // ResponseEntity 임포트 추가
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +27,7 @@ public class TestLoginController {
     private final UserRepository userRepository;
 
     @GetMapping("/login")
-    public  ApiResponse<LoginStatusResponse> testLogin() {
+    public ResponseEntity<ApiResponse<LoginStatusResponse>> testLogin() { // 반환 타입 변경
         User user = userRepository.findById(1L)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID 1 not found"));
 
@@ -42,6 +42,8 @@ public class TestLoginController {
         UserInfoResponse userInfo = new UserInfoResponse(user);
 
         LoginStatusResponse response = new LoginStatusResponse(true, userInfo);
-        return ApiResponse.success(response);
+
+        // ApiResponse 객체를 ResponseEntity.ok()로 감싸서 반환
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
