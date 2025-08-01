@@ -51,19 +51,19 @@ public class User implements Serializable {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "avatar_id")
-    private transient Avatar avatar;
+    private  Avatar avatar;
 
     @OneToMany(mappedBy = "user")
-    private transient List<TripPlan> tripPlans = new ArrayList<>();
+    private  List<TripPlan> tripPlans = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private transient List<PlanLike> planLikes = new ArrayList<>();
+    private  List<PlanLike> planLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private transient List<BookMarkFolder> bookMarkFolders = new ArrayList<>();
+    private  List<BookMarkFolder> bookMarkFolders = new ArrayList<>();
 
     @OneToMany(mappedBy = "user" )
-    private transient List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
+    private  List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
 
 
     public User(String email, String nickname, String socialId, OauthProvider provider) {
