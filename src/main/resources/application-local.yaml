@@ -28,13 +28,15 @@ spring:
       client:
         reactive:
           endpoints: localhost:9200
+server:
+  forward-headers-strategy: native
 
   session:
     store-type: redis
     cookie:
       #domain: .nighttrip.co.kr
       same-site: none
-      secure: false
+      secure: true
       http-only: false
 
   security:
