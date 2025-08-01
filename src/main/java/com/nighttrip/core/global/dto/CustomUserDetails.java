@@ -5,14 +5,16 @@ import com.nighttrip.core.domain.user.entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
 @Getter
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails , Serializable {
 
     private final User user;
-
+    private static final long serialVersionUID = 1L;
     public CustomUserDetails(User user) {
         this.user = user;
     }

@@ -15,6 +15,7 @@ import com.nighttrip.core.global.dto.CustomUserDetails;
 import com.nighttrip.core.oauth.dto.LoginStatusResponse;
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 
+
 @RestController
 @RequestMapping("/api/v1/test")
 public class TestLoginController {
@@ -39,12 +40,8 @@ public class TestLoginController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        String cookieValue = String.format("JSESSIONID=%s; Path=/; Domain=.nighttrip.co.kr; Secure; HttpOnly; SameSite=None", session.getId());
-        httpServletResponse.addHeader("Set-Cookie", cookieValue);
-
         UserInfoResponse userInfo = new UserInfoResponse(user);
         LoginStatusResponse response = new LoginStatusResponse(true, userInfo);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
