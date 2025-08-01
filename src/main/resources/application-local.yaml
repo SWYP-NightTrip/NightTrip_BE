@@ -82,6 +82,7 @@ server:
         same-site: None
         path: /
         http-only: true
+  forward-headers-strategy: framework
 frontend:
   url: ${FRONTEND_URL}
 
