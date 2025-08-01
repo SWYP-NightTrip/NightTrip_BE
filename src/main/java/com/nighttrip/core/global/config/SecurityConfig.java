@@ -80,7 +80,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "https://www.nighttrip.co.kr",
                 "https://dev.nighttrip.co.kr",
-                "https://local.nighttrip.co.kr"
+                "https://local.nighttrip.co.kr",
+                "https://local.nighttrip.co.kr:3000"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
