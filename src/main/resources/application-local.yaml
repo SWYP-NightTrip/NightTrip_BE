@@ -78,11 +78,10 @@ server:
   servlet:
     session:
       cookie:
-        secure: true         # ✅ HTTPS 환경이므로 true
-        same-site: None      # ✅ Cross-Origin 허용 필수 설정
-        path: /
-        http-only: true      # ✅ JS에서 접근 불가, 보안성 향상
-
+        domain: nighttrip.co.kr # 도메인 설정
+        http-only: true
+        secure: true # HTTPS 환경에서만 쿠키 사용하도록 설정
+        same-site: none
 frontend:
   url: ${FRONTEND_URL}
 
