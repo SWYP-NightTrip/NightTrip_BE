@@ -4,6 +4,7 @@ import com.nighttrip.core.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -96,5 +97,13 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+    @Bean
+    public FilterRegistrationBean<SameSiteCookieFilter> sameSiteCookieFilter() {
+        FilterRegistrationBean<SameSiteCookieFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new SameSiteCookieFilter());
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(0); // 가장 먼저 적용
+        return registrationBean;
     }
 }
