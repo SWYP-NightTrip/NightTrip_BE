@@ -57,7 +57,7 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/main");
+                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/");
                             response.sendRedirect(frontUrl + "/");
                         })
                         .failureHandler((request, response, exception) -> {
@@ -98,12 +98,12 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    @Bean
+    /*@Bean
     public FilterRegistrationBean<SameSiteCookieFilter> sameSiteCookieFilter() {
         FilterRegistrationBean<SameSiteCookieFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new SameSiteCookieFilter());
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(0); // 가장 먼저 적용
         return registrationBean;
-    }
+    }*/
 }
