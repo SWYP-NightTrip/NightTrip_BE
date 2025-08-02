@@ -1,6 +1,6 @@
 package com.nighttrip.core.global.config;
 
-import com.nighttrip.core.oauth.service.CustomOAuth2UserService;
+import com.nighttrip.core.global.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

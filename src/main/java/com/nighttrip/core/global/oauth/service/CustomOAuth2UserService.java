@@ -1,11 +1,11 @@
-package com.nighttrip.core.oauth.service;
+package com.nighttrip.core.global.oauth.service;
 
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.oauth.userinfo.OAuthUserInfoFactory;
-import com.nighttrip.core.oauth.userinfo.OAuthUserInfo;
+import com.nighttrip.core.global.oauth.userinfo.OAuthUserInfoFactory;
+import com.nighttrip.core.global.oauth.userinfo.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // 이 라인 추가
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

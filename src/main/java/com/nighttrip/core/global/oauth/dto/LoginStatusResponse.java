@@ -1,4 +1,4 @@
-package com.nighttrip.core.oauth.dto;
+package com.nighttrip.core.global.oauth.dto;
 
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 import lombok.Getter;

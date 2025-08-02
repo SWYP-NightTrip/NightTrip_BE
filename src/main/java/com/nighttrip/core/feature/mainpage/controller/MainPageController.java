@@ -1,12 +1,12 @@
-package com.nighttrip.core.main.controller;
+package com.nighttrip.core.feature.mainpage.controller;
 
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.service.UserService;
 import com.nighttrip.core.global.dto.ApiResponse;
-import com.nighttrip.core.main.dto.PartnerServiceDto;
-import com.nighttrip.core.main.dto.RecommendedSpotDto;
-import com.nighttrip.core.main.service.MainPageService;
-import com.nighttrip.core.oauth.util.SecurityUtils;
+import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
+import com.nighttrip.core.feature.mainpage.service.MainPageService;
+import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

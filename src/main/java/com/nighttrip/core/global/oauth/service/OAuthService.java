@@ -1,12 +1,12 @@
-package com.nighttrip.core.oauth.service;
+package com.nighttrip.core.global.oauth.service;
 
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.oauth.dto.LoginStatusResponse;
-import com.nighttrip.core.oauth.util.SecurityUtils;
+import com.nighttrip.core.global.oauth.dto.LoginStatusResponse;
+import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.nighttrip.core.oauth.userinfo;
+package com.nighttrip.core.global.oauth.userinfo;
 
 import com.nighttrip.core.global.enums.OauthProvider;
 
