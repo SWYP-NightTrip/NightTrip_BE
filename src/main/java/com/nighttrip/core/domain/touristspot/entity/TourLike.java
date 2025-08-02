@@ -4,6 +4,7 @@ package com.nighttrip.core.domain.touristspot.entity;
 import com.nighttrip.core.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,5 +38,11 @@ public class TourLike {
     @CreationTimestamp
     @Column(name = "liked_at", nullable = false, updatable = false)
     private LocalDateTime likedAt;
+
+    @Builder
+    public TourLike(User user, TouristSpot touristSpot) {
+        this.user = user;
+        this.touristSpot = touristSpot;
+    }
 
 }

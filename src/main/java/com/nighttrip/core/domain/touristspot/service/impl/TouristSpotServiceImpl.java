@@ -1,7 +1,9 @@
 package com.nighttrip.core.domain.touristspot.service.impl;
 
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
+import com.nighttrip.core.domain.touristspot.entity.TourLike;
 import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
+import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
@@ -74,5 +76,13 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
         return TouristSpotDetailResponse.fromEntity(touristSpot);
+    }
+
+    @Override
+    public void addLike(Long touristSpotId) {
+        TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+
+        TourLike tourLike = new TourLike(null, touristSpot);
     }
 }
