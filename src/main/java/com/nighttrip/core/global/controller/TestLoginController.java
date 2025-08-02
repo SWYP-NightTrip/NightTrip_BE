@@ -12,7 +12,7 @@ import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.dto.ApiResponse;
 import com.nighttrip.core.global.dto.CustomUserDetails;
-import com.nighttrip.core.oauth.dto.LoginStatusResponse;
+import com.nighttrip.core.global.oauth.dto.LoginStatusResponse;
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 
 

@@ -1,4 +1,4 @@
-package com.nighttrip.core.oauth.util;
+package com.nighttrip.core.global.oauth.util;
 
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;

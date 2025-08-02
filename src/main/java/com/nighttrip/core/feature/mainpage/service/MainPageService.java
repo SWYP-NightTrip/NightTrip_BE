@@ -1,4 +1,4 @@
-package com.nighttrip.core.main.service;
+package com.nighttrip.core.feature.mainpage.service;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
@@ -13,8 +13,8 @@ import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
-import com.nighttrip.core.main.dto.PartnerServiceDto;
-import com.nighttrip.core.main.dto.RecommendedSpotDto;
+import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
