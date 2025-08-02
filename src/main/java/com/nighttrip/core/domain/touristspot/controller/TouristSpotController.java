@@ -1,6 +1,7 @@
 package com.nighttrip.core.domain.touristspot.controller;
 
-import com.nighttrip.core.domain.touristspot.Implementation.TouristSpotService;
+import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
+import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,13 @@ public class TouristSpotController {
         List<TouristSpotResponseDto> recommendedSpots = touristSpotService.getRecommendedTouristSpotsInCity(cityId);
         return ResponseEntity.ok(ApiResponse.success(recommendedSpots));
     }
+
+    @GetMapping("/{touristSpotId}")
+    public ResponseEntity<ApiResponse<TouristSpotDetailResponse>> getTouristSpotDetail(
+            @PathVariable Long touristSpotId) {
+        return ResponseEntity.ok(ApiResponse.success(touristSpotService.getTouristSpotDetail(touristSpotId)));
+    }
+
 
 
 }

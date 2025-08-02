@@ -1,14 +1,15 @@
-package com.nighttrip.core.domain.touristspot.service;
+package com.nighttrip.core.domain.touristspot.service.impl;
 
+import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
+import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
+import com.nighttrip.core.global.enums.ErrorCode;
+import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import com.nighttrip.core.domain.city.repository.CityRepository;
-import com.nighttrip.core.domain.touristspot.Implementation.TouristSpotService;
-import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -66,5 +67,12 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         return recommendedSpots.stream()
                 .map(this::mapToTouristSpotResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TouristSpotDetailResponse getTouristSpotDetail(Long touristSpotId) {
+        TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+        return TouristSpotDetailResponse.fromEntity(touristSpot);
     }
 }

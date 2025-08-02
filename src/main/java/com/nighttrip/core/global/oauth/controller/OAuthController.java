@@ -1,9 +1,9 @@
-package com.nighttrip.core.oauth.controller;
+package com.nighttrip.core.global.oauth.controller;
 
 import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 import com.nighttrip.core.global.dto.ApiResponse;
-import com.nighttrip.core.oauth.dto.LoginStatusResponse;
-import com.nighttrip.core.oauth.service.OAuthService;
+import com.nighttrip.core.global.oauth.dto.LoginStatusResponse;
+import com.nighttrip.core.global.oauth.service.OAuthService;
 import jakarta.servlet.http.HttpServletRequest; // HttpServletRequest 임포트
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

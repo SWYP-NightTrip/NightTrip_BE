@@ -1,4 +1,4 @@
-package com.nighttrip.core.main.dto;
+package com.nighttrip.core.feature.mainpage.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
