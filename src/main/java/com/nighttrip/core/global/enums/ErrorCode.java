@@ -13,10 +13,10 @@ public enum ErrorCode {
 
     TRIP_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 여행일정입니다."),
     TRIP_DAY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 여행일입니다."),
+	TOURIST_SPOT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 여행지입니다."),
 
     FAVORITE_PLACE_IS_ALREADY_CREATED(HttpStatus.BAD_REQUEST, "이미 존재하는 나만의 장소입니다."),
     INVALID_TRIP_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 status입니다."),
-
 
     GEOCODE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "지오코딩 중 실패했습니다."),
 
