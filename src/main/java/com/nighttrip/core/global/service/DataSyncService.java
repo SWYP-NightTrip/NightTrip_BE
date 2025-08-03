@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.dto.SearchDocument;
+import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.image.entity.ImageUrl;
+import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.repository.SearchDocumentRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class DataSyncService {
     private final CityRepository cityRepository;
     private final TouristSpotRepository touristSpotRepository;
     private final ElasticsearchClient elasticsearchClient;
+    private final ImageRepository imageRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -101,11 +104,16 @@ public class DataSyncService {
                             suggestions.add(fullCityName.replace(" ", ""));
                             if (words.length >= 2) { suggestions.add(words[0] + words[1]); suggestions.add(words[1] + words[0]); }
                             if (fullCityName.startsWith("서울특별시")) { suggestions.add("서울특"); }
+
+                            String image = imageRepository.findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                                    .map(ImageUrl::getUrl)
+                                    .orElse(null);
+
                             return SearchDocument.builder()
                                     .id("city_" + city.getId())
                                     .type("city")
                                     .name(fullCityName)
-                                    .imageUrl(city.getImageUrl())
+                                    .imageUrl(image)
                                     .suggestName(new ArrayList<>(suggestions))
                                     .build();
                         })
@@ -122,14 +130,10 @@ public class DataSyncService {
             if (!touristSpots.isEmpty()) {
                 List<SearchDocument> touristSpotDocuments = touristSpots.stream()
                         .map(touristSpot -> {
-                            String mainImageUrl = null;
-                            if (touristSpot.getTouristSpotImageUris() != null && !touristSpot.getTouristSpotImageUris().isEmpty()) {
-                                mainImageUrl = touristSpot.getTouristSpotImageUris().stream()
-                                        .filter(TouristSpotImageUri::isMain)
-                                        .map(TouristSpotImageUri::getUri)
-                                        .findFirst()
-                                        .orElse(touristSpot.getTouristSpotImageUris().get(0).getUri());
-                            }
+                            String  mainImageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId())
+                                    .map(ImageUrl::getUrl)
+                                    .orElse(null);
+
                             Set<String> suggestions = new HashSet<>();
                             suggestions.add(touristSpot.getSpotName());
                             if (touristSpot.getCity() != null) {

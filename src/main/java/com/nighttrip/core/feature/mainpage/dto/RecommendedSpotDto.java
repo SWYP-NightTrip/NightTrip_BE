@@ -3,7 +3,6 @@ package com.nighttrip.core.feature.mainpage.dto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,14 +20,14 @@ public class RecommendedSpotDto {
     private String imgUrl;
     private Double distanceKm;
 
-    public RecommendedSpotDto(TouristSpotWithDistance projection) {
+    public RecommendedSpotDto(TouristSpotWithDistance projection, String imgUrl) {
         this.id = projection.getId();
         this.name = projection.getSpotName();
 
         City city = projection.getCity();
         if (city != null) {
             this.location = city.getCityName();
-            this.imgUrl = city.getImageUrl();
+            this.imgUrl = imgUrl;
         }
 
         List<TouristSpotReview> reviews = projection.getTouristSpotReviews();
@@ -51,7 +50,7 @@ public class RecommendedSpotDto {
         }
     }
 
-    public RecommendedSpotDto(TouristSpot spot) {
+    public RecommendedSpotDto(TouristSpot spot, String imgUrl) {
         this.id = spot.getId();
         this.name = spot.getSpotName();
 
@@ -59,11 +58,7 @@ public class RecommendedSpotDto {
             this.location = spot.getCity().getCityName();
         }
 
-        this.imgUrl = spot.getTouristSpotImageUris().stream()
-                .filter(TouristSpotImageUri::isMain)
-                .map(TouristSpotImageUri::getUri)
-                .findFirst()
-                .orElse(null);
+        this.imgUrl = imgUrl;
 
         List<TouristSpotReview> reviews = spot.getTouristSpotReviews();
         this.reviewCount = reviews.size();

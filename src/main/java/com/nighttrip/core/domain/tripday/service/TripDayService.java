@@ -17,14 +17,8 @@ public class TripDayService {
 
     private final TripDayRepository tripDayRepository;
 
-//    public void addPlan(TripPlan tripPlan, LocalDate visitedDate) {
-//        TripDay tripDay = tripDayRepository.findByTripPlanIdAndTripDayId(tripPlan.getId(), tripDayId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_DAY_NOT_FOUND));
-//
-//        tripDay.changeTripOrder(request.from_index(), request.to_index());
-//    }
-
     public void changePlanOrder(TripPlanChangeOrderRequest request, Long tripPlanId, Integer tripDayId) {
+
         TripDay tripDay = tripDayRepository.findByTripPlanIdAndTripDayId(tripPlanId, tripDayId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_DAY_NOT_FOUND));
 
