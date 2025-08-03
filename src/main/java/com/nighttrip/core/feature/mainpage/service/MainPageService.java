@@ -5,6 +5,7 @@ import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
@@ -167,24 +168,28 @@ public class MainPageService {
 
     private City findTargetCityFromPlan(TripPlan activePlan) {
         LocalDate today = LocalDate.now();
-        Optional<TripDay> currentTripDayOpt = activePlan.getTripDays().stream()
+
+        Optional<TripDay> todayTripDayOpt = activePlan.getTripDays().stream()
                 .filter(day -> {
                     LocalDate tripDate = activePlan.getStartDate().plusDays(day.getDayOrder() - 1);
                     return tripDate.equals(today);
-                }).findFirst();
+                })
+                .findFirst();
 
-        if (currentTripDayOpt.isPresent() && !currentTripDayOpt.get().getCities().isEmpty()) {
-            return currentTripDayOpt.get().getCities().get(0);
-        } else {
-            return activePlan.getTripDays().stream()
-                    .filter(day -> {
-                        LocalDate tripDate = activePlan.getStartDate().plusDays(day.getDayOrder() - 1);
-                        return !tripDate.isBefore(today) && !day.getCities().isEmpty();
-                    })
-                    .findFirst()
-                    .map(day -> day.getCities().get(0))
-                    .orElse(null);
-        }
+        Optional<City> todayCityOpt = todayTripDayOpt.flatMap(day -> day.getCityOnTripDays().stream()
+                .findFirst()
+                .map(CityOnTripDay::getCity)
+        );
+
+        return todayCityOpt.or(() ->
+                activePlan.getTripDays().stream()
+                        .filter(day -> !activePlan.getStartDate().plusDays(day.getDayOrder() - 1).isBefore(today))
+                        .sorted(Comparator.comparing(TripDay::getDayOrder))
+                        .flatMap(day -> day.getCityOnTripDays().stream())
+                        .map(CityOnTripDay::getCity)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+        ).orElse(null);
     }
 
     private RecommendedSpotDto convertToDtoWithoutDistance(TouristSpot spot) {
