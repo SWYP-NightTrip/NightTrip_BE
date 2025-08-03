@@ -6,6 +6,8 @@ import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +45,7 @@ public class TouristSpotController {
     @PostMapping("/{touristSpotId}/like")
     public ResponseEntity<ApiResponse<TouristSpotDetailResponse>> addLike(
             @PathVariable Long touristSpotId) {
+
         touristSpotService.addLike(touristSpotId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
