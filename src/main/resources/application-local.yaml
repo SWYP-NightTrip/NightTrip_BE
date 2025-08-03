@@ -81,8 +81,8 @@ server:
         secure: true
         same-site: None
         path: /
-        http-only: false
-        domain: dev.nighttrip.co.kr
+        http-only: true
+  forward-headers-strategy: framework
 frontend:
   url: ${FRONTEND_URL}
 

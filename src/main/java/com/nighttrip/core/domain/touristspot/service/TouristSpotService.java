@@ -1,5 +1,6 @@
-package com.nighttrip.core.domain.touristspot.Implementation;
+package com.nighttrip.core.domain.touristspot.service;
 
+import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 
 import java.util.List;
@@ -8,4 +9,6 @@ public interface TouristSpotService
 {
     List<TouristSpotResponseDto> getPopularTouristSpotsInCity(Long cityId);
     List<TouristSpotResponseDto> getRecommendedTouristSpotsInCity(Long cityId);
+
+    TouristSpotDetailResponse getTouristSpotDetail(Long touristSpotId);
 }
