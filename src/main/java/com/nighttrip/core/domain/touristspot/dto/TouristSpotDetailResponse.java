@@ -2,6 +2,8 @@ package com.nighttrip.core.domain.touristspot.dto;
 
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 
+import java.util.List;
+
 public record TouristSpotDetailResponse(
         String spotName,
         String address,
@@ -13,9 +15,13 @@ public record TouristSpotDetailResponse(
         String spotDescription,
         String telephone,
         Double latitude,
-        Double longitude
+        Double longitude,
+        Double starAverage,
+        Long starCountSum,
+        List<String> imageUrls,
+        List<String> spotDetails
 ) {
-    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot){
+    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, List<String> imageUrls, List<String> spotDetails) {
         return new TouristSpotDetailResponse(
                 touristSpot.getSpotName(),
                 touristSpot.getAddress(),
@@ -27,7 +33,11 @@ public record TouristSpotDetailResponse(
                 touristSpot.getSpotDescription(),
                 touristSpot.getTelephone(),
                 touristSpot.getLatitude(),
-                touristSpot.getLongitude()
+                touristSpot.getLongitude(),
+                avg,
+                starCountSum,
+                imageUrls,
+                spotDetails
         );
     }
 }

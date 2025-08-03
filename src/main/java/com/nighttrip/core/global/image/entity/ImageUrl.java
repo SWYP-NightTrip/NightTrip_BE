@@ -1,6 +1,6 @@
-package com.nighttrip.core.global.image;
+package com.nighttrip.core.global.image.entity;
 
-import com.nighttrip.core.global.enums.ItemType;
+import com.nighttrip.core.global.enums.ImageType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class ImageUrl {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ImageType itemType;
+    private ImageType imageType;
 
     private Long relatedId;
 
