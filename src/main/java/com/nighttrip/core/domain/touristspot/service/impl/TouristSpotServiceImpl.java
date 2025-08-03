@@ -6,7 +6,7 @@ import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
-import com.nighttrip.core.domain.touristspot.repository.TouristSpotLIkeRepository;
+import com.nighttrip.core.domain.touristspot.repository.TouristSpotLikeRepository;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotReviewRepository;
 import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class TouristSpotServiceImpl implements TouristSpotService {
 
     private final TouristSpotRepository touristSpotRepository;
-    private final TouristSpotLIkeRepository touristSpotLIkeRepository;
+    private final TouristSpotLikeRepository touristSpotLIkeRepository;
     private final TouristSpotReviewRepository touristSpotReviewRepository;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
@@ -97,7 +97,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
-        String  mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
+        String mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
 
@@ -112,7 +112,9 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .map(SpotDetails::getKoreanName)
                 .toList();
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage, images, spotDetails);
+        Boolean isLiked = touristSpotLIkeRepository.existsByTouristSpotId(touristSpotId);
+
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage, isLiked, images, spotDetails);
     }
 
     @Override
