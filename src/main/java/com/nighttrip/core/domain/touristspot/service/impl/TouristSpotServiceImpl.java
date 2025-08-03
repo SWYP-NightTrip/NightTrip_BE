@@ -2,11 +2,14 @@ package com.nighttrip.core.domain.touristspot.service.impl;
 
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
+import com.nighttrip.core.domain.touristspot.repository.TouristSpotLIkeRepository;
 import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
 import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
+import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,8 @@ import java.util.stream.Collectors;
 public class TouristSpotServiceImpl implements TouristSpotService {
 
     private final TouristSpotRepository touristSpotRepository;
+    private final TouristSpotLIkeRepository touristSpotLIkeRepository;
+    private final UserRepository userRepository;
     private final CityRepository cityRepository;
 
 
@@ -83,6 +89,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
 
-        TourLike tourLike = new TourLike(null, touristSpot);
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        TourLike tourLike = new TourLike(user, touristSpot);
+        touristSpotLIkeRepository.save(tourLike);
     }
 }
