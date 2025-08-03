@@ -23,8 +23,8 @@ public class Memo {
     @Column(name = "memo_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_order_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_order_id", nullable = false, unique = true)
     private TripOrder tripOrder;
 
     @Enumerated(EnumType.STRING)
