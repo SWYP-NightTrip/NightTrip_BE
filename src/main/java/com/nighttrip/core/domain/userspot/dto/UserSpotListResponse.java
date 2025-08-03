@@ -6,7 +6,7 @@ public record UserSpotListResponse(
     String placeName,
     String ThumbnailUrl
 ) {
-    public UserSpotListResponse(UserSpot userSpot) {
-        this(userSpot.getSpotName(), userSpot.getImageUrl());
+    public UserSpotListResponse(UserSpot userSpot, String imageUrl) {
+        this(userSpot.getSpotName(), imageUrl);
     }
 }

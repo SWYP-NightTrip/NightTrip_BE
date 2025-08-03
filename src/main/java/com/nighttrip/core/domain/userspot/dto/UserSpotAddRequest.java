@@ -6,7 +6,7 @@ public record UserSpotAddRequest(
         String placeName,
         String placeAddress,
         String placeExplain,
-        String imageUrl,
+        List<String> imageUrl,
         List<String> category
 ) {
 }

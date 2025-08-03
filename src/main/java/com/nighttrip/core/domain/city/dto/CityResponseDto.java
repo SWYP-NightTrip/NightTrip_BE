@@ -7,11 +7,11 @@ public record CityResponseDto(
         String cityName,
         String imageUrl
 ) {
-    public static CityResponseDto from(City city) {
+    public static CityResponseDto from(City city, String imageUrl) {
         return new CityResponseDto(
                 city.getId(),
                 city.getCityName(),
-                city.getImageUrl()
+                imageUrl
         );
     }
 }

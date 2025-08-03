@@ -40,6 +40,13 @@ public class TouristSpotController {
         return ResponseEntity.ok(ApiResponse.success(touristSpotService.getTouristSpotDetail(touristSpotId)));
     }
 
+    @PostMapping("/{touristSpotId}/like")
+    public ResponseEntity<ApiResponse<TouristSpotDetailResponse>> addLike(
+            @PathVariable Long touristSpotId) {
+        touristSpotService.addLike(touristSpotId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
 
 
 }

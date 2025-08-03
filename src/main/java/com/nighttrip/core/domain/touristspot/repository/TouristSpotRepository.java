@@ -40,8 +40,8 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
 
 
     @Query("SELECT ts FROM TouristSpot ts " +
-            "LEFT JOIN FETCH ts.touristSpotImageUris ti " +
-            "WHERE ts.city.id = :cityId " +
+            "LEFT JOIN FETCH ImageUrl i " +
+            "WHERE ts.city.id = i.relatedId and i.imageType = 'CITY' " +
             "ORDER BY (COALESCE(ts.checkCount, 0) + COALESCE(ts.mainWeight, 0) + COALESCE(ts.subWeight, 0)) DESC, " +
             "ts.category ASC")
     List<TouristSpot> findRecommendedTouristSpotsByCityId(@Param("cityId") Long cityId, Pageable pageable);

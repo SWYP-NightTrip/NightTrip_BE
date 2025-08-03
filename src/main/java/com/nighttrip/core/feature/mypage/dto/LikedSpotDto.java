@@ -1,7 +1,6 @@
 package com.nighttrip.core.feature.mypage.dto;
 
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import lombok.Getter;
 
 @Getter
@@ -13,28 +12,16 @@ public class LikedSpotDto {
     private final String category;
     private final String imageUrl;
 
-    private LikedSpotDto(TouristSpot spot) {
+    private LikedSpotDto(TouristSpot spot, String imageUrl) {
         this.spotId = spot.getId();
         this.spotName = spot.getSpotName();
         this.address = spot.getAddress();
         this.category = (spot.getCategory() != null) ? spot.getCategory().getKoreanName() : null;
-        this.imageUrl = extractMainImageUrl(spot);
+        this.imageUrl = imageUrl;
     }
 
-    public static LikedSpotDto from(TouristSpot spot) {
-        return new LikedSpotDto(spot);
+    public static LikedSpotDto from(TouristSpot spot,String imageUrl) {
+        return new LikedSpotDto(spot, imageUrl);
     }
 
-    private String extractMainImageUrl(TouristSpot spot) {
-        if (spot.getTouristSpotImageUris() == null || spot.getTouristSpotImageUris().isEmpty()) {
-            return null;
-        }
-
-        return spot.getTouristSpotImageUris().stream()
-                .filter(TouristSpotImageUri::isMain)
-                .findFirst()
-                .or(() -> spot.getTouristSpotImageUris().stream().findFirst())
-                .map(TouristSpotImageUri::getUri)
-                .orElse(null);
-    }
 }

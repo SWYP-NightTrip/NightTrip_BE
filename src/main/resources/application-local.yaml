@@ -93,9 +93,9 @@ naver:
 
 clova:
   api:
-    key: ${CLOVA_API_KEY}
+    key: ${NAVER_CLIENT_CLOUD}
   gateway:
-    key: ${CLOVA_GATEWAY_KEY}
+    key: ${NAVER_CLIENT_CLOUD}
 
 data:
   elasticsearch:

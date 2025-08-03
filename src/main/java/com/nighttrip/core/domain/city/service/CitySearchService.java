@@ -1,9 +1,13 @@
 package com.nighttrip.core.domain.city.service;
+
 import com.nighttrip.core.domain.city.Implementation.CitySearchServiceImpl;
 import com.nighttrip.core.domain.city.dto.CityPopularityDto;
 import com.nighttrip.core.domain.city.dto.CityResponseDto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
+import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.image.entity.ImageUrl;
+import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 public class CitySearchService implements CitySearchServiceImpl {
 
     private final CityRepository cityRepository;
+    private final ImageRepository imageRepository;
 
     @Override
     public List<CityResponseDto> searchCity(String keyword) {
@@ -28,25 +33,46 @@ public class CitySearchService implements CitySearchServiceImpl {
         List<City> cities = cityRepository.searchByKeyword(keyword, limit);
 
         return cities.stream()
-                .map(CityResponseDto::from)
-                .toList();
+                .map(city -> {
+                    String imageUrl = imageRepository
+                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+
+                    return CityResponseDto.from(city, imageUrl);
+                })
+                .collect(Collectors.toList());
     }
 
     public List<CityResponseDto> getRecommendedCities() {
         List<City> cities = cityRepository.findCitiesOrderByRecommendedScore();
 
         return cities.stream()
-                .map(CityResponseDto::from)
+                .map(city -> {
+                    String imageUrl = imageRepository
+                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+
+                    return CityResponseDto.from(city, imageUrl);
+                })
                 .collect(Collectors.toList());
     }
+
     public List<CityResponseDto> getPopularCities() {
         Pageable topSeven = PageRequest.of(0, 7);
 
         List<CityPopularityDto> popularCitiesDto = cityRepository.findPopularCitiesWithAggregatedScores(topSeven);
 
         return popularCitiesDto.stream()
-                .map(dto -> new CityResponseDto(
-                        dto.id(), dto.cityName(), dto.imageUrl()))
+                .map(dto -> {
+                    String imageUrl = imageRepository
+                            .findMainImageByTypeAndRelatedId(ImageType.CITY, dto.id())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+
+                    return new CityResponseDto(dto.id(), dto.cityName(), imageUrl);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -56,7 +82,14 @@ public class CitySearchService implements CitySearchServiceImpl {
         List<City> defaultCities = cityRepository.findAllByOrderByIdAsc(pageable);
 
         return defaultCities.stream()
-                .map(city -> new CityResponseDto(city.getId(), city.getCityName(), city.getImageUrl()))
+                .map(city -> {
+                    String imageUrl = imageRepository
+                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+
+                    return CityResponseDto.from(city, imageUrl);
+                })
                 .collect(Collectors.toList());
     }
 

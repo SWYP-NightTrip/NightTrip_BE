@@ -2,7 +2,7 @@ package com.nighttrip.core.feature.mypage.service;
 
 import com.nighttrip.core.domain.avatar.entity.Avatar;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TourLikeRepository;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
@@ -12,11 +12,14 @@ import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.feature.mypage.dto.LikedSpotDto;
-import com.nighttrip.core.global.enums.ErrorCode;
-import com.nighttrip.core.global.enums.TripStatus;
-import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.feature.mypage.dto.MyPageResponseDto;
 import com.nighttrip.core.feature.mypage.dto.RecentPlanDto;
+import com.nighttrip.core.global.enums.ErrorCode;
+import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.enums.TripStatus;
+import com.nighttrip.core.global.exception.BusinessException;
+import com.nighttrip.core.global.image.entity.ImageUrl;
+import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +39,7 @@ public class MyPageService {
     private final TripPlanRepository tripPlanRepository;
     private final TourLikeRepository tourLikeRepository;
     private final BookMarkRepository bookMarkRepository;
+    private final ImageRepository imageRepository;
 
     public MyPageResponseDto getMyPageData(String email) {
 
@@ -43,8 +47,10 @@ public class MyPageService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Avatar avatar = user.getAvatar();
-        String avatarUrl = (avatar != null) ? avatar.getImageUrl() : null;
-        int level = (avatar != null) ? avatar.getLevel() : 1;
+        String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, avatar.getId())
+                .map(ImageUrl::getUrl)
+                .orElse(null);
+        int level = avatar.getLevel();
 
         long bookmarkedCount = bookMarkRepository.countByUser(user);
         long likedCount = tourLikeRepository.countByUser(user);
@@ -74,7 +80,15 @@ public class MyPageService {
 
         Page<TourLike> likedSpotsPage = tourLikeRepository.findByUserOrderByLikedAtDesc(user, pageable);
 
-        return likedSpotsPage.map(tourLike -> LikedSpotDto.from(tourLike.getTouristSpot()));
+        return likedSpotsPage.map(tourLike -> {
+            TouristSpot touristSpot = tourLike.getTouristSpot();
+
+            String image = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId())
+                    .map(ImageUrl::getUrl)
+                    .orElse(null);
+
+            return LikedSpotDto.from(touristSpot, image);
+        });
     }
 
     private RecentPlanDto mapToRecentPlanDto(TripPlan plan) {
@@ -96,13 +110,9 @@ public class MyPageService {
         return firstDay.getTripOrders().stream()
                 .map(TripOrder::getTouristSpot)
                 .filter(Objects::nonNull)
-                .findFirst()
-                .flatMap(spot -> spot.getTouristSpotImageUris().stream()
-                        .filter(TouristSpotImageUri::isMain)
-                        .findFirst()
-                        .or(() -> spot.getTouristSpotImageUris().stream().findFirst())
-                )
-                .map(TouristSpotImageUri::getUri)
+                .findFirst().flatMap(spot -> imageRepository
+                        .findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl))
                 .orElse(null);
     }
 }
