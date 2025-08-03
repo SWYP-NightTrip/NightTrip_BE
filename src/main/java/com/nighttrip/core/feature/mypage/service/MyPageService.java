@@ -1,6 +1,7 @@
-package com.nighttrip.core.mypage.service;
+package com.nighttrip.core.feature.mypage.service;
 
 import com.nighttrip.core.domain.avatar.entity.Avatar;
+import com.nighttrip.core.domain.touristspot.entity.TourLike;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import com.nighttrip.core.domain.touristspot.repository.TourLikeRepository;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
@@ -10,19 +11,21 @@ import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.domain.user.repository.UserRepository;
+import com.nighttrip.core.feature.mypage.dto.LikedSpotDto;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.mypage.dto.MyPageResponseDto;
-import com.nighttrip.core.mypage.dto.RecentPlanDto;
+import com.nighttrip.core.feature.mypage.dto.MyPageResponseDto;
+import com.nighttrip.core.feature.mypage.dto.RecentPlanDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +65,16 @@ public class MyPageService {
                 .likedSpotsCount(likedCount)
                 .recentPlans(recentPlanDtos)
                 .build();
+    }
+
+    public Page<LikedSpotDto> getLikedSpots(String email, Pageable pageable) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Page<TourLike> likedSpotsPage = tourLikeRepository.findByUserOrderByLikedAtDesc(user, pageable);
+
+        return likedSpotsPage.map(tourLike -> LikedSpotDto.from(tourLike.getTouristSpot()));
     }
 
     private RecentPlanDto mapToRecentPlanDto(TripPlan plan) {

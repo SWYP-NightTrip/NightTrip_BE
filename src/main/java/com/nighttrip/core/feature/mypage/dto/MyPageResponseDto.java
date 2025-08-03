@@ -1,4 +1,4 @@
-package com.nighttrip.core.mypage.dto;
+package com.nighttrip.core.feature.mypage.dto;
 
 import lombok.Builder;
 import lombok.Getter;
