@@ -24,8 +24,16 @@ public class OAuthService {
 
     public LoginStatusResponse getLoginStatus() {
         return SecurityUtils.findCurrentUserEmail()
-                .flatMap(userRepository::findByEmailWithAvatar)
-                .map(user -> createLoggedInResponse(user))
+                .flatMap(userRepository::findByEmail)
+                .map(user -> {
+                    String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, user.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+
+                    UserInfoResponse userInfo = new UserInfoResponse(user, avatarUrl);
+
+                    return new LoginStatusResponse(true, userInfo);
+                })
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_UNAUTHORIZED));
     }
 
