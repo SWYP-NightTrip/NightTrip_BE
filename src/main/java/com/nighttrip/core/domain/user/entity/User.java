@@ -45,13 +45,12 @@ public class User implements Serializable {
     @Column(name = "point")
     private Integer point = 0;
 
+    @Column(name = "avartar_level")
+    private Integer avartarLevel = 1;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role = UserRole.USER;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "avatar_id")
-    private  Avatar avatar;
 
     @OneToMany(mappedBy = "user")
     private  List<TripPlan> tripPlans = new ArrayList<>();

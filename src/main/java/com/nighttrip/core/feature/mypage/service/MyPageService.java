@@ -46,11 +46,11 @@ public class MyPageService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Avatar avatar = user.getAvatar();
-        String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, avatar.getId())
+        String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, user.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
-        int level = avatar.getLevel();
+
+        int level = (user.getAvartarLevel() != null) ? user.getAvartarLevel() : 1;
 
         long bookmarkedCount = bookMarkRepository.countByUser(user);
         long likedCount = tourLikeRepository.countByUser(user);

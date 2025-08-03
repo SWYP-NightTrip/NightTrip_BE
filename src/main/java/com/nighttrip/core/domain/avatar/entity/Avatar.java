@@ -18,4 +18,6 @@ public class Avatar {
     private Long id;
 
     private int level;
+
+    private String uri;
 }
