@@ -54,6 +54,16 @@ public class MainPageController {
         return ApiResponse.success(spots);
     }
 
+    @GetMapping("/recommend/random-category")
+    public ApiResponse<List<RecommendedSpotDto>> getRandomCategorySpots(
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lon) {
+
+        List<RecommendedSpotDto> spots = mainPageService.getCategoryRecommendedSpots(null, lat, lon);
+
+        return ApiResponse.success(spots);
+    }
+
     @GetMapping("/partner-services")
     public ApiResponse<List<PartnerServiceDto>> getPartnerServices() {
         List<PartnerServiceDto> partnerServices = mainPageService.getPartnerServices();
