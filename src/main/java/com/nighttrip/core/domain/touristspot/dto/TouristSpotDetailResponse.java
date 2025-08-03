@@ -19,7 +19,7 @@ public record TouristSpotDetailResponse(
         Double starAverage,
         Long starCountSum,
         String mainImage,
-        List<String> imageUrls,
+        List<String> spotImages,
         List<String> spotDetails
 ) {
     public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, String mainImage, List<String> imageUrls, List<String> spotDetails) {
