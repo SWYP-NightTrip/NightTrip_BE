@@ -34,9 +34,6 @@ public class Memo {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
-
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;

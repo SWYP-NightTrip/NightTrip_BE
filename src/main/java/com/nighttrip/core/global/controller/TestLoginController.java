@@ -31,7 +31,7 @@ public class TestLoginController {
             HttpServletResponse httpServletResponse,
             HttpSession session
     ) {
-        User user = userRepository.findById(1L)
+        User user = userRepository.findById(2L)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID 1 not found"));
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -40,7 +40,7 @@ public class TestLoginController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        UserInfoResponse userInfo = new UserInfoResponse(user);
+        UserInfoResponse userInfo = new UserInfoResponse(user, "http://iolkjasf.img");
         LoginStatusResponse response = new LoginStatusResponse(true, userInfo);
         return ResponseEntity.ok(ApiResponse.success(response));
     }

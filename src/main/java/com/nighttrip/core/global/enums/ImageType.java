@@ -1,5 +1,5 @@
 package com.nighttrip.core.global.enums;
 
 public enum ImageType {
-    USER, CITY, TOURLIST_SPOT, MEMO
+    AVATAR, CITY, TOURIST_SPOT, MEMO, USER_SPOT, REVIEW
 }

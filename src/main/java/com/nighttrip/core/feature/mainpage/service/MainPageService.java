@@ -12,10 +12,13 @@ import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
-import com.nighttrip.core.global.enums.SpotCategory;
-import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
+import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.enums.SpotCategory;
+import com.nighttrip.core.global.enums.TripStatus;
+import com.nighttrip.core.global.image.entity.ImageUrl;
+import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,22 +34,18 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MainPageService {
 
-    private final TouristSpotRepository touristSpotRepository;
-    private final TripPlanRepository tripPlanRepository;
-    private final BookMarkRepository bookMarkRepository;
-
     private static final int SPOT_COUNT = 10;
-
     private static final double DISTANCE_WEIGHT = 0.50;
     private static final double MAIN_WEIGHT_FOR_DISTANCE = 0.35;
     private static final double REVIEW_WEIGHT_FOR_DISTANCE = 0.15;
-
     private static final double MAIN_WEIGHT_NO_DISTANCE = 0.70;
     private static final double REVIEW_WEIGHT_NO_DISTANCE = 0.30;
-
     private static final double CATEGORY_SUB_WEIGHT = 0.5;
     private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
-
+    private final TouristSpotRepository touristSpotRepository;
+    private final TripPlanRepository tripPlanRepository;
+    private final BookMarkRepository bookMarkRepository;
+    private final ImageRepository imageRepository;
 
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
 
@@ -55,7 +54,13 @@ public class MainPageService {
                     MAIN_WEIGHT_NO_DISTANCE,
                     REVIEW_WEIGHT_NO_DISTANCE,
                     SPOT_COUNT);
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+
+            return spots.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
 
         // 1. [최우선] 여행 계획 확인
@@ -71,7 +76,13 @@ public class MainPageService {
                             DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE,
                             SPOT_COUNT
                     );
-                    return projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+                    return projections.stream().map(spot -> {
+                        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                                .map(ImageUrl::getUrl)
+                                .orElse(null);
+
+                        return new RecommendedSpotDto(spot, imageUrl);
+                    }).collect(Collectors.toList());
                 }
                 // 1-b. 여행 계획은 있지만, 위치 정보는 없는 경우: 해당 도시 내에서 인기/리뷰 점수 기반 추천
                 else {
@@ -81,7 +92,13 @@ public class MainPageService {
                             REVIEW_WEIGHT_NO_DISTANCE,
                             SPOT_COUNT
                     );
-                    return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+
+                    return spots.stream().map(spot -> {
+                        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                                .map(ImageUrl::getUrl)
+                                .orElse(null);
+                        return new RecommendedSpotDto(spot, imageUrl);
+                    }).collect(Collectors.toList());
                 }
             }
         }
@@ -93,7 +110,13 @@ public class MainPageService {
                     userLat, userLon,
                     DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE,
                     SPOT_COUNT);
-            return projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return projections.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
         // 2-b. 위치 정보가 없는 경우 (최종 폴백): 전국 단위로 인기/리뷰 점수 기반 추천
         else {
@@ -102,7 +125,12 @@ public class MainPageService {
                     REVIEW_WEIGHT_NO_DISTANCE,
                     SPOT_COUNT
             );
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return spots.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
     }
 
@@ -118,7 +146,12 @@ public class MainPageService {
             SpotCategory favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
 
             List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return spots.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
 
         // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
@@ -140,7 +173,13 @@ public class MainPageService {
             City targetCity = findTargetCityFromPlan(activePlanOpt.get());
             if (targetCity != null) {
                 List<TouristSpot> spots = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-                return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+
+                return spots.stream().map(spot -> {
+                    String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+                    return new RecommendedSpotDto(spot, imageUrl);
+                }).collect(Collectors.toList());
             }
         }
 
@@ -155,15 +194,26 @@ public class MainPageService {
                     DISTANCE_WEIGHT_FOR_CAT,
                     SPOT_COUNT
             );
-            return projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+
+            return projections.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
         // 3-b. 위치 정보가 없는 경우: 전국 단위 + 선호 카테고리 추천 (폴백)
         else {
             List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return spots.stream().map(spot -> {
+                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .map(ImageUrl::getUrl)
+                        .orElse(null);
+                return new RecommendedSpotDto(spot, imageUrl);
+            }).collect(Collectors.toList());
         }
     }
-
 
 
     private City findTargetCityFromPlan(TripPlan activePlan) {
@@ -192,17 +242,6 @@ public class MainPageService {
         ).orElse(null);
     }
 
-    private RecommendedSpotDto convertToDtoWithoutDistance(TouristSpot spot) {
-        return new RecommendedSpotDto(new TouristSpotWithDistance() {
-            @Override public Long getId() { return spot.getId(); }
-            @Override public String getSpotName() { return spot.getSpotName(); }
-            @Override public String getCategory() { return spot.getCategory().getKoreanName(); }
-            @Override public String getAddress() { return spot.getAddress(); }
-            @Override public City getCity() { return spot.getCity(); }
-            @Override public List<TouristSpotReview> getTouristSpotReviews() { return spot.getTouristSpotReviews(); }
-            @Override public Double getDistance() { return null; }
-        });
-    }
 
     private SpotCategory determineFavoriteCategory(User user) {
         return bookMarkRepository.findByBookMarkFolder_User(user).stream()

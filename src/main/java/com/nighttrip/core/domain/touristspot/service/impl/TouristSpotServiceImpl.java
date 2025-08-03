@@ -5,7 +5,6 @@ import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpotImageUri;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotLIkeRepository;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
@@ -45,19 +44,17 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
 
     private TouristSpotResponseDto mapToTouristSpotResponseDto(TouristSpot spot) {
-        List<ImageUrl> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURLIST_SPOT, spot.getId());
-        String mainImageUrl = spot.getTouristSpotImageUris().stream()
-                .filter(TouristSpotImageUri::isMain)
-                .map(TouristSpotImageUri::getUri)
-                .findFirst()
+        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                .map(ImageUrl::getUrl)
                 .orElse(null);
+
         return new TouristSpotResponseDto(
                 spot.getId(),
                 spot.getSpotName(),
                 spot.getAddress(),
                 spot.getCategory().getKoreanName(),
                 spot.getSpotDescription(),
-                mainImageUrl
+                imageUrl
         );
     }
 
@@ -100,9 +97,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
-        ImageUrl mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURLIST_SPOT, touristSpotId);
+        String  mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
+                .map(ImageUrl::getUrl)
+                .orElse(null);
 
-        List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURLIST_SPOT, touristSpotId)
+        List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .stream()
                 .filter(image -> !image.isMain())
                 .map(ImageUrl::getUrl)
@@ -113,7 +112,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .map(SpotDetails::getKoreanName)
                 .toList();
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage.getUrl(), images, spotDetails);
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage, images, spotDetails);
     }
 
     @Override

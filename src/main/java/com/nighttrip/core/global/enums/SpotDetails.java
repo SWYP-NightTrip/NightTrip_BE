@@ -2,7 +2,8 @@ package com.nighttrip.core.global.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.nighttrip.core.global.exception.BusinessException;
+
+import java.util.Arrays;
 
 public enum SpotDetails {
     PARKING_AVAILABLE("주차 가능"),
@@ -18,6 +19,14 @@ public enum SpotDetails {
         this.koreanName = koreanName;
     }
 
+    @JsonCreator
+    public static SpotDetails fromValue(String value) {
+        return Arrays.stream(values())
+                .filter(v -> v.getKoreanName().equals(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown value: " + value));
+    }
+
     public String getKoreanName() {
         return koreanName;
     }
@@ -26,15 +35,5 @@ public enum SpotDetails {
     public String toValue() {
         return koreanName;
     }
-
-    @JsonCreator
-    public static SpotDetails fromValue(String value) {
-        for (SpotDetails spotDetails : values()) {
-            if (spotDetails.koreanName.equals(value)) {
-                return spotDetails;
-            }
-        }
-        throw new BusinessException(ErrorCode.INVALID_PLACE_CATEGORY);
-    }
-
 }
+

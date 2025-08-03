@@ -25,4 +25,11 @@ public class ImageUrl {
     private String url;
 
     private boolean isMain;
+
+    public ImageUrl(ImageType imageType, Long relatedId, String url, boolean isMain) {
+        this.imageType = imageType;
+        this.relatedId = relatedId;
+        this.url = url;
+        this.isMain = isMain;
+    }
 }
