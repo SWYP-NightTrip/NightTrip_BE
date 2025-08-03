@@ -49,10 +49,6 @@ public class User implements Serializable {
     @Column(nullable = false, length = 20)
     private UserRole role = UserRole.USER;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "avatar_id")
-    private  Avatar avatar;
-
     @OneToMany(mappedBy = "user")
     private  List<TripPlan> tripPlans = new ArrayList<>();
 
