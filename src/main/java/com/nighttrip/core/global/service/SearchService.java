@@ -1,5 +1,6 @@
 package com.nighttrip.core.global.service;
 
+import com.nighttrip.core.global.dto.RecommendedKeyword;
 import com.nighttrip.core.global.dto.SearchDocument;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -119,18 +120,33 @@ public class SearchService {
      * (사용자 유입이 적은 서비스 초반에 활용)
      * @return 추천 검색어 문자열 리스트 (최대 10개)
      */
-    public List<String> getRecommendedKeywordsHardcoded() {
+
+    public List<RecommendedKeyword> getRecommendedKeywordsHardcoded() {
         return Arrays.asList(
-                "제주도 여행",
-                "서울 맛집",
-                "강릉 카페",
-                "부산 해운대",
-                "가족 여행 추천",
-                "혼자 떠나는 여행",
-                "경주 한옥마을",
-                "속초 가볼만한곳",
-                "여수 밤바다",
-                "춘천 닭갈비"
+                new RecommendedKeyword("city_201", "제주도 여행"),
+                new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
+                new RecommendedKeyword("city_305", "강릉 카페"),
+                new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
+                new RecommendedKeyword("tourist_spot_56", "서울88카페"),
+                new RecommendedKeyword("tourist_spot_51", "혼자 떠나는 여행"),
+                new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
+                new RecommendedKeyword("tourist_spot_1234", "속초 맛집"),
+                new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
+                new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
+        );
+    }
+    public List<RecommendedKeyword> getRecommendedKeywordsHardcoded2() {
+        return Arrays.asList(
+                new RecommendedKeyword("city_201", "제주도 여행"),
+                new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
+                new RecommendedKeyword("city_305", "강릉 카페"),
+                new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
+                new RecommendedKeyword("city_31", "서울 특별시 서초구"),
+                new RecommendedKeyword("city_30", "서울 특별시 강남구"),
+                new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
+                new RecommendedKeyword("city_33", "강원특별자치도 춘천시"),
+                new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
+                new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
         );
     }
 }

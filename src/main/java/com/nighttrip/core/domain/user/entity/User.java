@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.io.Serializable; // Serializable 임포트 추가
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,9 @@ import java.util.List;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,19 +51,19 @@ public class User {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "avatar_id")
-    private Avatar avatar;
+    private  Avatar avatar;
 
     @OneToMany(mappedBy = "user")
-    private List<TripPlan> tripPlans = new ArrayList<>();
+    private  List<TripPlan> tripPlans = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PlanLike> planLikes = new ArrayList<>();
+    private  List<PlanLike> planLikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookMarkFolder> bookMarkFolders = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private  List<BookMarkFolder> bookMarkFolders = new ArrayList<>();
 
     @OneToMany(mappedBy = "user" )
-    private List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
+    private  List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
 
 
     public User(String email, String nickname, String socialId, OauthProvider provider) {

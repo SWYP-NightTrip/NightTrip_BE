@@ -40,7 +40,9 @@ public class CitySearchService implements CitySearchServiceImpl {
                 .collect(Collectors.toList());
     }
     public List<CityResponseDto> getPopularCities() {
-        List<CityPopularityDto> popularCitiesDto = cityRepository.findPopularCitiesWithAggregatedScores();
+        Pageable topSeven = PageRequest.of(0, 7);
+
+        List<CityPopularityDto> popularCitiesDto = cityRepository.findPopularCitiesWithAggregatedScores(topSeven);
 
         return popularCitiesDto.stream()
                 .map(dto -> new CityResponseDto(

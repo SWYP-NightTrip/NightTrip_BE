@@ -30,15 +30,15 @@ public interface CityRepository extends JpaRepository<City, Long> {
             "LEFT JOIN ts.tourLikes tl " +
             "LEFT JOIN ts.touristSpotReviews tsr " +
             "LEFT JOIN ts.bookMarks bm " +
-            "LEFT JOIN c.tripDay td " +
+            "LEFT JOIN c.cityOnTripDays cotd " +
+            "LEFT JOIN cotd.tripDay td " +
             "LEFT JOIN td.tripPlan tp " +
             "GROUP BY c.id, c.cityName, c.imageUrl " +
             "ORDER BY (COALESCE(COUNT(DISTINCT tl.id), 0L) + " +
             "COALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
             "COALESCE(COUNT(DISTINCT bm.id), 0L) + " +
-            "COALESCE(COUNT(DISTINCT tp.id), 0L)) DESC " +
-            "LIMIT 7")
-    List<CityPopularityDto> findPopularCitiesWithAggregatedScores();
+            "COALESCE(COUNT(DISTINCT tp.id), 0L)) DESC")
+    List<CityPopularityDto> findPopularCitiesWithAggregatedScores(Pageable pageable);
 
     List<City> findAllByOrderByIdAsc(Pageable pageable);
 

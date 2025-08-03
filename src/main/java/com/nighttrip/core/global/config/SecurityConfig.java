@@ -1,30 +1,24 @@
 package com.nighttrip.core.global.config;
 
-import com.nighttrip.core.oauth.service.CustomOAuth2UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession; // HttpSession 임포트 유지
+import com.nighttrip.core.global.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseCookie; // ResponseCookie 임포트 유지
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Configuration
@@ -48,9 +42,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().changeSessionId()
                 )
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/oauth/status").permitAll()
-                        .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular").permitAll()
+                        .requestMatchers("/api/v1/oauth/status", "/api/v1/main/**").permitAll()
+                        .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular","/api/v1/test/login").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
@@ -62,23 +57,8 @@ public class SecurityConfig {
                         )
                         .successHandler((request, response, authentication) -> {
                             log.info(">>>> OAuth2 로그인 성공 핸들러 호출됨!");
-
-                            // Content-Type과 상태 설정
-                            response.setContentType("text/html;charset=UTF-8");
-                            response.setStatus(HttpServletResponse.SC_OK);
-
-                            // 최종 응답으로 HTML 내려주고 JS에서 메인 페이지로 이동
-                            String html = """
-        <html>
-          <body>
-            <script>
-              window.location.href = "/";
-            </script>
-          </body>
-        </html>
-        """;
-
-                            response.getWriter().write(html);
+                            log.info(">>>> {}로 리다이렉트합니다.", frontUrl + "/");
+                            response.sendRedirect(frontUrl + "/");
                         })
                         .failureHandler((request, response, exception) -> {
                             log.error(">>>> OAuth2 로그인 실패 핸들러 호출됨!", exception);
@@ -102,7 +82,9 @@ public class SecurityConfig {
                 "https://localhost:3000",
                 "http://localhost:3000",
                 "https://www.nighttrip.co.kr",
-                "https://dev.nighttrip.co.kr"
+                "https://dev.nighttrip.co.kr",
+                "https://local.nighttrip.co.kr",
+                "https://local.nighttrip.co.kr:3000"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -116,4 +98,12 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    /*@Bean
+    public FilterRegistrationBean<SameSiteCookieFilter> sameSiteCookieFilter() {
+        FilterRegistrationBean<SameSiteCookieFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new SameSiteCookieFilter());
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(0); // 가장 먼저 적용
+        return registrationBean;
+    }*/
 }

@@ -41,8 +41,9 @@ public class TripOrder {
     @OneToMany(mappedBy = "tripOrder")
     private List<Memo> memos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tripOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpot> touristSpots = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tourist_spot_id")
+    private TouristSpot touristSpot;
 
 
     @Builder
