@@ -53,10 +53,6 @@ public class TouristSpot {
     @JoinColumn(name = "city_id")
     private City city;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_order_id")
-    private TripOrder tripOrder;
-
     @OneToMany(mappedBy = "touristSpot")
     private List<BookMark> bookMarks = new ArrayList<>();
 

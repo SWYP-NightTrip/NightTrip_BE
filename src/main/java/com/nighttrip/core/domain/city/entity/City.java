@@ -2,6 +2,7 @@
 package com.nighttrip.core.domain.city.entity;
 
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,9 +38,8 @@ public class City {
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_day_id")
-    private TripDay tripDay;
+    @OneToMany(mappedBy = "city")
+    private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
 
     @Builder
     public City(String cityName, Integer checkCount, double cityConsum, double cityPepoleVisitied, String imageUrl) {

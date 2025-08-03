@@ -31,8 +31,8 @@ public class TripDay {
     @JoinColumn(name = "trip_plan_id")
     private TripPlan tripPlan;
 
-    @OneToMany(mappedBy = "tripDay")
-    private List<City> cities = new ArrayList<>();
+    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")

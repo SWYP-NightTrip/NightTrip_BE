@@ -1,6 +1,5 @@
 package com.nighttrip.core.domain.tripplan.controller;
 
-import com.nighttrip.core.domain.tripplan.dto.TripPlanAddRequest;
 import com.nighttrip.core.domain.tripplan.dto.TripPlanStatusChangeRequest;
 import com.nighttrip.core.domain.tripplan.service.TripPlanService;
 import com.nighttrip.core.global.dto.ApiResponse;
@@ -17,15 +16,6 @@ public class TripPlanController {
     public TripPlanController(TripPlanService tripPlanService) {
         this.tripPlanService = tripPlanService;
     }
-
-//    @PostMapping("/add-plan")
-//    public ResponseEntity<ApiResponse<?>> addPlan(@RequestBody TripPlanAddRequest request) {
-//        tripPlanService.addPlan(request);
-//
-//        return ResponseEntity
-//                .status(HttpStatus.CREATED)
-//                .body(ApiResponse.success(null));
-//    }
 
     @PatchMapping("/{planId}/status")
     public ResponseEntity<ApiResponse<?>> changePlanStatus(@RequestBody TripPlanStatusChangeRequest request,
