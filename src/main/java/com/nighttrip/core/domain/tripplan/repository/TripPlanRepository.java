@@ -14,5 +14,5 @@ public interface TripPlanRepository extends JpaRepository<TripPlan, Long> {
 
     Optional<TripPlan> findFirstByUserAndStatusInOrderByStartDateAsc(User user, List<TripStatus> statuses);
 
-    List<TripPlan> findTop3ByUserOrderByCreatedAtDesc(User user);
+    Optional<TripPlan> findTopByUserAndStatusInOrderByUpdatedAtDesc(User user, List<TripStatus> statuses);
 }

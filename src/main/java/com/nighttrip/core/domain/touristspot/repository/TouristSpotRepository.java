@@ -32,7 +32,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             "WHERE ts.city.id = :cityId " +
             "GROUP BY ts.id, ts.spotName, ts.address, ts.category, ts.spotDescription, " +
             "ts.longitude, ts.latitude, ts.checkCount, ts.link, ts.telephone, " +
-            "ts.mainWeight, ts.subWeight, ts.city, ts.tripOrder " +
+            "ts.mainWeight, ts.subWeight, ts.city " +
             "ORDER BY (COALESCE(COUNT(DISTINCT tl.id), 0) + " +
             "COALESCE(COUNT(DISTINCT tsr.reviewId), 0) + " +
             "COALESCE(COUNT(DISTINCT bm.id), 0)) DESC")
