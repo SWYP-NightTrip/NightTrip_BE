@@ -12,12 +12,16 @@ import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
+import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,60 +111,135 @@ public class MainPageService {
     }
 
 
-    public List<RecommendedSpotDto> getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
+    public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
+
+        SpotCategory recommendedCategory;
 
         if (user == null) {
             List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
             if (allCategories.isEmpty()) {
-                return Collections.emptyList();
+                return new CategoryRecommendationDto(null, Collections.emptyList());
             }
             Random random = new Random();
-            SpotCategory favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
+            recommendedCategory = allCategories.get(random.nextInt(allCategories.size()));
 
-            List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
-        }
-
-        // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
-        SpotCategory favoriteCategory = determineFavoriteCategory(user);
-        if (favoriteCategory == null) {
-            List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
-
-            if (allCategories.isEmpty()) {
-                return Collections.emptyList();
+        } else { // user가 null이 아닐 때
+            // 1. 사용자의 북마크 기록을 바탕으로 가장 선호하는 카테고리를 찾습니다.
+            SpotCategory favoriteCategory = determineFavoriteCategory(user);
+            if (favoriteCategory == null) {
+                List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
+                if (allCategories.isEmpty()) {
+                    return new CategoryRecommendationDto(null, Collections.emptyList());
+                }
+                Random random = new Random();
+                recommendedCategory = allCategories.get(random.nextInt(allCategories.size()));
+            } else {
+                recommendedCategory = favoriteCategory;
             }
-
-            Random random = new Random();
-            favoriteCategory = allCategories.get(random.nextInt(allCategories.size()));
         }
 
-        // 2. [최우선] 사용자가 진행 중이거나 예정된 여행 계획이 있는지 확인합니다.
-        Optional<TripPlan> activePlanOpt = tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING));
+
+        // (user가 null이면 activePlanOpt는 항상 비어있습니다)
+        Optional<TripPlan> activePlanOpt = (user != null) ? tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING)) : Optional.empty();
+
         if (activePlanOpt.isPresent()) {
             City targetCity = findTargetCityFromPlan(activePlanOpt.get());
             if (targetCity != null) {
-                List<TouristSpot> spots = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-                return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+                List<TouristSpot> spots = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, recommendedCategory, PageRequest.of(0, SPOT_COUNT)).getContent();
+                List<RecommendedSpotDto> spotDtos = spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+                return new CategoryRecommendationDto(recommendedCategory, spotDtos);
             }
         }
 
-        // 3. 여행 계획이 없는 일반 사용자
+        // 3. 여행 계획이 없는 일반 사용자 (또는 비로그인 사용자)
         // 3-a. 위치 정보가 있는 경우: 위치 기반 + 선호 카테고리 추천
         if (userLat != null && userLon != null) {
             List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsByCategoryAndLocation(
-                    favoriteCategory,
+                    recommendedCategory,
                     userLat,
                     userLon,
                     CATEGORY_SUB_WEIGHT,
                     DISTANCE_WEIGHT_FOR_CAT,
                     SPOT_COUNT
             );
-            return projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            List<RecommendedSpotDto> spotDtos = projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return new CategoryRecommendationDto(recommendedCategory, spotDtos);
         }
         // 3-b. 위치 정보가 없는 경우: 전국 단위 + 선호 카테고리 추천 (폴백)
         else {
-            List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
-            return spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(recommendedCategory, PageRequest.of(0, SPOT_COUNT)).getContent();
+            List<RecommendedSpotDto> spotDtos = spots.stream().map(RecommendedSpotDto::new).collect(Collectors.toList());
+            return new CategoryRecommendationDto(recommendedCategory, spotDtos);
+        }
+    }
+
+    // --- "더보기(페이지네이션)" 추천 로직 ---
+
+    public Page<RecommendedSpotDto> getNightPopularSpotsPaginated(User user, Double userLat, Double userLon, Pageable pageable) {
+        // [수정] 이 메소드 전체가 수정 대상입니다.
+        if (user == null) {
+            if (userLat != null && userLon != null) {
+                // 비로그인 + 위치 O
+                long total = touristSpotRepository.countNearbyPopularSpots(userLat, userLon);
+                List<TouristSpotWithDistance> projections = touristSpotRepository.findNearbyPopularSpotsPaginated(userLat, userLon, DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE, pageable.getPageSize(), pageable.getOffset());
+                return new PageImpl<>(projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList()), pageable, total);
+            } else {
+                // 비로그인 + 위치 X
+                Page<TouristSpot> spots = touristSpotRepository.findSpotsByScoresWithoutLocationPaginated(MAIN_WEIGHT_NO_DISTANCE, REVIEW_WEIGHT_NO_DISTANCE, pageable);
+                return spots.map(RecommendedSpotDto::new);
+            }
+        }
+
+        Optional<TripPlan> activePlanOpt = tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING));
+        if (activePlanOpt.isPresent()) {
+            City targetCity = findTargetCityFromPlan(activePlanOpt.get());
+            if (targetCity != null) {
+                if (userLat != null && userLon != null) {
+                    // 로그인 + 여행 계획 O + 위치 O
+                    long total = touristSpotRepository.countSpotsInCityWithScores(targetCity.getId(), userLat, userLon);
+                    List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsInCityWithScoresPaginated(targetCity.getId(), userLat, userLon, DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE, pageable.getPageSize(), pageable.getOffset());
+                    return new PageImpl<>(projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList()), pageable, total);
+                } else {
+                    // 로그인 + 여행 계획 O + 위치 X
+                    Page<TouristSpot> spots = touristSpotRepository.findSpotsInCityByScoresWithoutLocationPaginated(targetCity.getId(), MAIN_WEIGHT_NO_DISTANCE, REVIEW_WEIGHT_NO_DISTANCE, pageable);
+                    return spots.map(RecommendedSpotDto::new);
+                }
+            }
+        }
+
+        // 로그인 + 여행 계획 X
+        if (userLat != null && userLon != null) {
+            long total = touristSpotRepository.countNearbyPopularSpots(userLat, userLon);
+            List<TouristSpotWithDistance> projections = touristSpotRepository.findNearbyPopularSpotsPaginated(userLat, userLon, DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE, pageable.getPageSize(), pageable.getOffset());
+            return new PageImpl<>(projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList()), pageable, total);
+        } else {
+            // 로그인 + 여행 계획 X + 위치 X
+            Page<TouristSpot> spots = touristSpotRepository.findSpotsByScoresWithoutLocationPaginated(MAIN_WEIGHT_NO_DISTANCE, REVIEW_WEIGHT_NO_DISTANCE, pageable);
+            return spots.map(RecommendedSpotDto::new);
+        }
+    }
+
+    public Page<RecommendedSpotDto> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+
+        SpotCategory targetCategory = SpotCategory.fromValue(categoryName);
+
+        Optional<TripPlan> activePlanOpt = (user != null) ? tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING)) : Optional.empty();
+        if (activePlanOpt.isPresent()) {
+            City targetCity = findTargetCityFromPlan(activePlanOpt.get());
+            if (targetCity != null) {
+                // 여행 계획 O
+                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, targetCategory, pageable).map(RecommendedSpotDto::new);
+            }
+        }
+
+        if (userLat != null && userLon != null) {
+            // 여행 계획 X + 위치 O
+            long total = touristSpotRepository.countSpotsByCategoryAndLocation(targetCategory.name(), userLat, userLon);
+            List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsByCategoryAndLocationPaginated(targetCategory.name(), userLat, userLon, CATEGORY_SUB_WEIGHT, DISTANCE_WEIGHT_FOR_CAT, pageable.getPageSize(), pageable.getOffset());
+            return new PageImpl<>(projections.stream().map(RecommendedSpotDto::new).collect(Collectors.toList()), pageable, total);
+        } else {
+            // 여행 계획 X + 위치 X
+            return touristSpotRepository.findByCategoryOrderBySubWeightDesc(targetCategory, pageable).map(RecommendedSpotDto::new);
         }
     }
 
