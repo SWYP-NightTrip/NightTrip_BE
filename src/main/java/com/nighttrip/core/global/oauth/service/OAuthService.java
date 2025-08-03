@@ -4,7 +4,10 @@ import com.nighttrip.core.domain.user.dto.UserInfoResponse;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
+import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.exception.BusinessException;
+import com.nighttrip.core.global.image.entity.ImageUrl;
+import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.oauth.dto.LoginStatusResponse;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OAuthService {
 
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
     public LoginStatusResponse getLoginStatus() {
         return SecurityUtils.findCurrentUserEmail()
@@ -26,7 +30,10 @@ public class OAuthService {
     }
 
     private LoginStatusResponse createLoggedInResponse(User user) {
-        UserInfoResponse userInfo = new UserInfoResponse(user);
+        String  url = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, user.getId())
+                .map(ImageUrl::getUrl)
+                .orElse(null);
+        UserInfoResponse userInfo = new UserInfoResponse(user, url);
         return new LoginStatusResponse(true, userInfo);
     }
 

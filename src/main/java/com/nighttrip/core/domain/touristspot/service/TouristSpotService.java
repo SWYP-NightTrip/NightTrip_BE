@@ -11,4 +11,7 @@ public interface TouristSpotService
     List<TouristSpotResponseDto> getRecommendedTouristSpotsInCity(Long cityId);
 
     TouristSpotDetailResponse getTouristSpotDetail(Long touristSpotId);
+
+    void addLike(Long touristSpotId);
+
 }

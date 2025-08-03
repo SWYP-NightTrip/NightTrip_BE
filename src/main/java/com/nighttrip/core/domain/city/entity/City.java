@@ -32,9 +32,6 @@ public class City {
     @Column(name = "city_pepole_visitied")
     private Double cityPepoleVisitied;
 
-    @Column(name = "city_image_url")
-    private String imageUrl;
-
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
 
@@ -42,11 +39,10 @@ public class City {
     private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
 
     @Builder
-    public City(String cityName, Integer checkCount, double cityConsum, double cityPepoleVisitied, String imageUrl) {
+    public City(String cityName, Integer checkCount, double cityConsum, double cityPepoleVisitied) {
         this.cityName = cityName;
         this.checkCount = checkCount;
         this.cityConsum = cityConsum;
         this.cityPepoleVisitied = cityPepoleVisitied;
-        this.imageUrl = imageUrl;
     }
 }

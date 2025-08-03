@@ -30,7 +30,4 @@ public class TouristSpotReview {
     @JoinColumn(name="tourist_spot_id")
     private TouristSpot touristSpot;
 
-    @OneToMany(mappedBy = "review")
-    private List<ReviewUri> reviewUris;
-
 }

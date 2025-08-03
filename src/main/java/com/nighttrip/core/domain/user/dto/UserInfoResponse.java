@@ -1,6 +1,7 @@
 package com.nighttrip.core.domain.user.dto;
 
 import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.global.image.entity.ImageUrl;
 import lombok.Getter;
 
 @Getter
@@ -13,11 +14,11 @@ public class UserInfoResponse {
     private final String role;
     private final Integer point;
 
-    public UserInfoResponse(User user) {
+    public UserInfoResponse(User user, String avatarImageUrl) {
         this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
-        this.avatarImageUrl = user.getAvatar() != null ? user.getAvatar().getImageUrl() : null;
+        this.avatarImageUrl = avatarImageUrl;
         this.role = user.getRole().name();
         this.point = user.getPoint();
     }

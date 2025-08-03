@@ -33,7 +33,6 @@ public class UserSpot {
 
     private Double latitude;
     private Double longitude;
-    private String imageUrl;
 
     @ElementCollection
     @CollectionTable(
@@ -43,13 +42,12 @@ public class UserSpot {
     @Column(name = "category", nullable = false)
     private List<String> categories = new ArrayList<>();
 
-    public UserSpot(User user, String spotName, String spotMemo, Double latitude, Double longitude, String  imageUrl, List<String> categories) {
+    public UserSpot(User user, String spotName, String spotMemo, Double latitude, Double longitude, List<String> categories) {
         this.user = user;
         this.spotName = spotName;
         this.spotMemo = spotMemo;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.imageUrl = imageUrl;
         this.categories = categories;
     }
 }
