@@ -1,6 +1,7 @@
 package com.nighttrip.core.feature.mypage.service;
 
 import com.nighttrip.core.domain.avatar.entity.Avatar;
+import com.nighttrip.core.domain.avatar.repository.AvatarRepository;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TourLikeRepository;
@@ -40,14 +41,17 @@ public class MyPageService {
     private final TourLikeRepository tourLikeRepository;
     private final BookMarkRepository bookMarkRepository;
     private final ImageRepository imageRepository;
+    private final AvatarRepository avatarRepository;
 
     public MyPageResponseDto getMyPageData(String email) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, user.getId())
-                .map(ImageUrl::getUrl)
+        int userLevel = (user.getAvartarLevel() != null) ? user.getAvartarLevel() : 1;
+
+        String avatarUrl = avatarRepository.findByLevel(userLevel)
+                .map(Avatar::getUri)
                 .orElse(null);
 
         int level = (user.getAvartarLevel() != null) ? user.getAvartarLevel() : 1;
