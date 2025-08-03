@@ -18,10 +18,11 @@ public record TouristSpotDetailResponse(
         Double longitude,
         Double starAverage,
         Long starCountSum,
+        String mainImage,
         List<String> imageUrls,
         List<String> spotDetails
 ) {
-    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, List<String> imageUrls, List<String> spotDetails) {
+    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, String mainImage, List<String> imageUrls, List<String> spotDetails) {
         return new TouristSpotDetailResponse(
                 touristSpot.getSpotName(),
                 touristSpot.getAddress(),
@@ -36,6 +37,7 @@ public record TouristSpotDetailResponse(
                 touristSpot.getLongitude(),
                 avg,
                 starCountSum,
+                mainImage,
                 imageUrls,
                 spotDetails
         );

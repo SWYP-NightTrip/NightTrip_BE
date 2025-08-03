@@ -45,6 +45,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
 
     private TouristSpotResponseDto mapToTouristSpotResponseDto(TouristSpot spot) {
+        List<ImageUrl> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURLIST_SPOT, spot.getId());
         String mainImageUrl = spot.getTouristSpotImageUris().stream()
                 .filter(TouristSpotImageUri::isMain)
                 .map(TouristSpotImageUri::getUri)
@@ -99,8 +100,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
+        ImageUrl mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURLIST_SPOT, touristSpotId);
+
         List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURLIST_SPOT, touristSpotId)
                 .stream()
+                .filter(image -> !image.isMain())
                 .map(ImageUrl::getUrl)
                 .collect(Collectors.toList());
 
@@ -109,7 +113,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .map(SpotDetails::getKoreanName)
                 .toList();
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, images, spotDetails);
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage.getUrl(), images, spotDetails);
     }
 
     @Override
