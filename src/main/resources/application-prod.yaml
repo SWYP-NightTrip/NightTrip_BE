@@ -27,7 +27,12 @@ spring:
       port: 6379
       session:
         store-type: redis
-
+  elasticsearch:
+    uris: http://elasticsearch:9200
+    connection-timeout: 5s
+    socket-timeout: 10s
+    rest:
+      max-retries: 10
 
   security:
     oauth2:
@@ -96,9 +101,4 @@ clova:
     key: ${NAVER_CLIENT_CLOUD}
   gateway:
     key: ${NAVER_CLIENT_CLOUD}
-
-elasticsearch:
-  client:
-    reactive:
-      endpoints: elasticsearch:9200
 
