@@ -1,0 +1,48 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "edge_ngram_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "autocomplete_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": ["lowercase", "edge_ngram_filter"]
+        },
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword" },
+      "type": { "type": "keyword" },
+      "name": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "fields": {
+          "completion": {
+            "type": "completion",
+            "analyzer": "autocomplete_analyzer"
+          },
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "description": { "type": "text", "analyzer": "nori_analyzer" },
+      "city_name": { "type": "text", "analyzer": "nori_analyzer" },
+      "category": { "type": "keyword" },
+      "image_url": { "type": "keyword", "index": false }
+    }
+  }
+}
