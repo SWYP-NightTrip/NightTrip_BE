@@ -23,7 +23,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       session:
         store-type: redis
@@ -97,9 +97,8 @@ clova:
   gateway:
     key: ${NAVER_CLIENT_CLOUD}
 
-data:
-  elasticsearch:
-    client:
-      reactive:
-        endpoints: localhost:9200
+elasticsearch:
+  client:
+    reactive:
+      endpoints: elasticsearch:9200
 
