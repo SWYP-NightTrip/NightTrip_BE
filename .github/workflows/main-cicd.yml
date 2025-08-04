@@ -29,7 +29,7 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: . # 현재 워크플로 디렉토리 (최신 소스코드)를 빌드 컨텍스트로 사용
+          context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip-backend:latest
           
@@ -44,5 +44,5 @@ jobs:
             cd /home/${{ secrets.PROD_USER }}/nighttrip/deploy
             docker compose down -v
             docker system prune -f
-            docker compose build --no-cache
+            docker compose pull
             docker compose up -d
