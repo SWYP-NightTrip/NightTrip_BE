@@ -44,8 +44,8 @@ public class SecurityConfig {
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers( "/api/v1/main/**").permitAll()
-                        .requestMatchers("/api/v1/test/login").permitAll()
+                        .requestMatchers("/api/v1/main/**").permitAll()
+                        .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular", "/api/v1/test/login").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/touristspot/*").permitAll()
@@ -89,7 +89,8 @@ public class SecurityConfig {
                 "https://www.nighttrip.co.kr",
                 "https://dev.nighttrip.co.kr",
                 "https://local.nighttrip.co.kr",
-                "https://local.nighttrip.co.kr:3000"
+                "https://local.nighttrip.co.kr:3000",
+                "https://nighttrip.co.kr/"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
