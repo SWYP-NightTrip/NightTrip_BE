@@ -39,9 +39,13 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            cd ~/nighttrip
-            docker compose down -v
-            docker compose pull || true
-            docker compose up --build -d
-            docker image prune -f
+                  cd ~/nighttrip
+                  chmod +x ./gradlew
+                  ./gradlew clean build
+                  
+                  cp build/libs/*.jar deploy/
+                  cd ~/nighttrip/deploy
+                  docker compose down -v
+                  docker compose up --build -d
+                  docker image prune -f
 
