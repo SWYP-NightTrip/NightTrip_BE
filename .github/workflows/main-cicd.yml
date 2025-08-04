@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: yourdockerhub/nighttrip:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
 
       - name: SSH Deploy on NCP Server
         uses: appleboy/ssh-action@master
@@ -35,8 +35,28 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            docker pull yourdockerhub/nighttrip:latest
             cd ~/nighttrip
+            
+            git pull origin main
+            
+            echo "DB_DOMAIN=${{ secrets.DB_DOMAIN }}" > .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+            echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+            echo "OAUTH_DOMAIN=${{ secrets.OAUTH_DOMAIN }}" >> .env
+            echo "CLOVA_API_KEY=${{ secrets.CLOVA_API_KEY }}" >> .env
+            echo "CLOVA_GATEWAY_KEY=${{ secrets.CLOVA_GATEWAY_KEY }}" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+            echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
+            echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
+            echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
+            echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
+            
             docker compose down -v
+            docker compose pull
             docker compose up -d
+            
             docker image prune -f
