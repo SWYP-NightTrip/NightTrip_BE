@@ -57,5 +57,5 @@ jobs:
 
             docker compose down -v
             docker compose pull
-            ddocker compose up
+            docker compose up
             docker image prune -f
