@@ -103,3 +103,6 @@ data:
       reactive:
         endpoints: localhost:9200
 
+logging:
+  level:
+    org.springframework.security: DEBUG
