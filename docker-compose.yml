@@ -2,9 +2,6 @@ version: '3.8'
 
 services:
   app:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     image: ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
     ports:
       - "8080:8080"
@@ -40,6 +37,7 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+
   redis:
     image: redis:7.2
     container_name: redis-container
