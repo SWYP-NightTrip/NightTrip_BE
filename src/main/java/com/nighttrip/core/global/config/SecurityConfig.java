@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular","/api/v1/test/login").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/tourist-spot/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/touristspot/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         .anyRequest().authenticated()
                 )
