@@ -23,8 +23,8 @@ public class Memo {
     @Column(name = "memo_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_order_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_order_id", nullable = false, unique = true)
     private TripOrder tripOrder;
 
     @Enumerated(EnumType.STRING)
@@ -34,14 +34,8 @@ public class Memo {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "thumbnail_url")
-    private String thumbnailUrl;
-
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;
-
-    @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImageUrl> ImageUrl = new ArrayList<>();
 
 }

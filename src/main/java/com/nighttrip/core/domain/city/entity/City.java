@@ -1,10 +1,12 @@
+// domain/city/entity/City.java (Lombok @Builder 사용)
 package com.nighttrip.core.domain.city.entity;
 
-
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.tripspot.entity.TouristSpot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,23 +24,25 @@ public class City {
     @Column(name = "city_id")
     private Long id;
 
-    @Column(name = "city_name", nullable = false, length = 50)
+    @Column(name = "city_name", nullable = false, length = 100)
     private String cityName;
-
-    @Column(name = "country_name", nullable = false, length = 50)
-    private String countryName;
-
-    private Double longitude;
-    private Double latitude;
-
-    @Column(name = "city_image_url")
-    private String imageUrl;
-
+    private Integer checkCount;
+    @Column(name = "city_consum")
+    private Double cityConsum;
+    @Column(name = "city_pepole_visitied")
+    private Double cityPepoleVisitied;
 
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpot> touristSpots = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_day_id")
-    private TripDay tripDay;
+    @OneToMany(mappedBy = "city")
+    private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
+
+    @Builder
+    public City(String cityName, Integer checkCount, double cityConsum, double cityPepoleVisitied) {
+        this.cityName = cityName;
+        this.checkCount = checkCount;
+        this.cityConsum = cityConsum;
+        this.cityPepoleVisitied = cityPepoleVisitied;
+    }
 }

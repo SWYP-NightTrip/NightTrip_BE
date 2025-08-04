@@ -1,12 +1,16 @@
 package com.nighttrip.core.domain.user.entity;
 
 import com.nighttrip.core.domain.avatar.entity.Avatar;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
+import com.nighttrip.core.domain.tripplan.entity.PlanLike;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
-import com.nighttrip.core.global.enums.User_role;
+import com.nighttrip.core.global.enums.OauthProvider;
+import com.nighttrip.core.global.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.io.Serializable; // Serializable 임포트 추가
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +20,9 @@ import java.util.List;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +35,9 @@ public class User {
     @Column(length = 100)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String provider;
+    private OauthProvider provider;
 
     @Column(name = "social_id", nullable = false)
     private String socialId;
@@ -38,14 +45,30 @@ public class User {
     @Column(name = "point")
     private Integer point = 0;
 
+    @Column(name = "avartar_level")
+    private Integer avartarLevel = 1;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private User_role role = User_role.USER;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "avatar_id")
-    private Avatar avatar;
+    private UserRole role = UserRole.USER;
 
     @OneToMany(mappedBy = "user")
-    private List<TripPlan> tripPlans = new ArrayList<>();
+    private  List<TripPlan> tripPlans = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private  List<PlanLike> planLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private  List<BookMarkFolder> bookMarkFolders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user" )
+    private  List<TouristSpotReview> touristSpotReviews = new ArrayList<>();
+
+
+    public User(String email, String nickname, String socialId, OauthProvider provider) {
+        this.email = email;
+        this.nickname = nickname;
+        this.socialId = socialId;
+        this.provider = provider;
+    }
 }
