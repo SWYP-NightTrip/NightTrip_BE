@@ -15,7 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       show-sql: true
       properties:
         hibernate:
@@ -27,6 +27,7 @@ spring:
       port: 6379
       session:
         store-type: redis
+
   elasticsearch:
     uris: http://elasticsearch:9200
     connection-timeout: 5s
