@@ -44,7 +44,7 @@ public class SecurityConfig {
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/oauth/status", "/api/v1/main/**").permitAll()
+                        .requestMatchers( "/api/v1/main/**").permitAll()
                         .requestMatchers("/api/v1/test/login").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
