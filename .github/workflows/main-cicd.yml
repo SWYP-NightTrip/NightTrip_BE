@@ -37,8 +37,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           source: "build/libs/nighttrip-0.0.1-SNAPSHOT.jar"
           target: "/home/${{ secrets.PROD_USER }}/nighttrip/deploy/"
-          overwrite: true
-          
+
       - name: Run Docker Compose on Server
         uses: appleboy/ssh-action@master
         with:
