@@ -35,8 +35,8 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            cd ~/nighttrip
-            
+            cd ~/nighttrip/deploy
+  
             git pull origin main
             
             echo "DB_DOMAIN=${{ secrets.DB_DOMAIN }}" > .env
@@ -54,7 +54,7 @@ jobs:
             echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
             echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
             echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
-            
+
             docker compose down -v
             docker compose pull
             docker compose up --abort-on-container-exit
