@@ -44,4 +44,4 @@ jobs:
             cd /home/${{ secrets.PROD_USER }}/nighttrip/deploy
             docker compose down -v
             docker system prune -f
-            docker compose up --build -d # --build는 삭제하고 up -d로 변경하는게 좋습니다.
+            docker compose up --build --no-cache -d
