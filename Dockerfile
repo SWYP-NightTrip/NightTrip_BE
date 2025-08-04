@@ -9,7 +9,7 @@ COPY build.gradle .
 COPY gradle gradle
 
 COPY src src
-
+RUN chmod +x gradlew
 RUN ./gradlew clean bootJar --no-daemon
 
 FROM openjdk:17-jdk-slim
