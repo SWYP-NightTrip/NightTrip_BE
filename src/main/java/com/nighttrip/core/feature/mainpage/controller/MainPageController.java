@@ -84,7 +84,7 @@ public class MainPageController {
 
     @GetMapping("/recommend/category/all")
     public ApiResponse<Page<RecommendedSpotDto>> getCategoryRecommendedSpotsAll(
-            @RequestParam String category,
+            @RequestParam("type") String category,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             @PageableDefault(size = 6) Pageable pageable) {
@@ -99,7 +99,7 @@ public class MainPageController {
 
     @GetMapping("/recommend/random-category/all")
     public ApiResponse<Page<RecommendedSpotDto>> getRandomCategorySpotsAll(
-            @RequestParam String category,
+            @RequestParam("type") String category,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             @PageableDefault(size = 6) Pageable pageable) {
