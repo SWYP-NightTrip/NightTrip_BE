@@ -4,7 +4,6 @@ import com.nighttrip.core.global.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -48,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular","/api/v1/test/login").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/touristspot/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         .anyRequest().authenticated()
                 )
