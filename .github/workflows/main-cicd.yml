@@ -35,8 +35,9 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
             cd ~/nighttrip
+            git pull origin main
             docker compose down -v
+            docker compose pull 
             docker compose up -d
             docker image prune -f
