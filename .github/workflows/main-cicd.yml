@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            docker pull yourdockerhub/nighttrip:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
             cd ~/nighttrip
             docker compose down -v
             docker compose up -d
