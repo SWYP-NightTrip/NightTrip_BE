@@ -24,12 +24,14 @@ public class ImageUrl {
 
     private String url;
 
-    private boolean isMain;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ImageSizeType imageSizeType;
 
-    public ImageUrl(ImageType imageType, Long relatedId, String url, boolean isMain) {
+    public ImageUrl(ImageType imageType, Long relatedId, String url, ImageSizeType imageSizeType) {
         this.imageType = imageType;
         this.relatedId = relatedId;
         this.url = url;
-        this.isMain = isMain;
+        this.imageSizeType = imageSizeType;
     }
 }

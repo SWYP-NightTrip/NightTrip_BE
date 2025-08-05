@@ -40,7 +40,7 @@ public class MainPageService {
     private final TouristSpotRepository touristSpotRepository;
     private final TripPlanRepository tripPlanRepository;
     private final BookMarkRepository bookMarkRepository;
-    private final ImageRepository imageRepository; // dev 브랜치에서 추가된 의존성 유지
+    private final ImageRepository imageRepository;
 
     private static final int SPOT_COUNT = 10;
     private static final double DISTANCE_WEIGHT = 0.50;
@@ -51,8 +51,6 @@ public class MainPageService {
     private static final double CATEGORY_SUB_WEIGHT = 0.5;
     private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
 
-
-    // --- "TOP 10" 추천 로직 ---
 
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
@@ -200,4 +198,5 @@ public class MainPageService {
                 new PartnerServiceDto(4L, "렌터카", null)
         );
     }
+
 }

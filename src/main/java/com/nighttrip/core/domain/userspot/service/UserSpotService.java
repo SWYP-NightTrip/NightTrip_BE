@@ -9,6 +9,7 @@ import com.nighttrip.core.domain.userspot.repository.UserSpotRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.exception.BusinessException;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.maps.GeocodeResponse;
@@ -53,7 +54,7 @@ public class UserSpotService {
                             ImageType.USER_SPOT,
                             spot.getId(),
                             url,
-                            isMain
+                            ImageSizeType.THUMBNAIL
                     );
                 })
                 .collect(Collectors.toList());
@@ -71,7 +72,7 @@ public class UserSpotService {
 
         return favoriteSpots.stream()
                 .map(userSpot -> {
-                            String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.USER_SPOT, userSpot.getId())
+                            String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.USER_SPOT, userSpot.getId(), ImageSizeType.SEARCH)
                                     .map(ImageUrl::getUrl)
                                     .orElse(null);
 
