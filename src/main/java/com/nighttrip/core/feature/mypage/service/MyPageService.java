@@ -18,6 +18,7 @@ import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class MyPageService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Avatar avatar = user.getAvatar();
-        String avatarUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, avatar.getId())
+        String avatarUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.AVATAR, avatar.getId(), ImageSizeType.THUMBNAIL)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         int level = avatar.getLevel();
@@ -83,7 +84,7 @@ public class MyPageService {
         return likedSpotsPage.map(tourLike -> {
             TouristSpot touristSpot = tourLike.getTouristSpot();
 
-            String image = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId())
+            String image = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId(), ImageSizeType.SEARCH)
                     .map(ImageUrl::getUrl)
                     .orElse(null);
 
@@ -111,7 +112,7 @@ public class MyPageService {
                 .map(TripOrder::getTouristSpot)
                 .filter(Objects::nonNull)
                 .findFirst().flatMap(spot -> imageRepository
-                        .findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        .findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.SEARCH)
                         .map(ImageUrl::getUrl))
                 .orElse(null);
     }

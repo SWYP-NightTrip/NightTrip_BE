@@ -17,6 +17,7 @@ import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class MainPageService {
                     SPOT_COUNT);
 
             return spots.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
                 return new RecommendedSpotDto(spot, imageUrl);
@@ -77,7 +78,7 @@ public class MainPageService {
                             SPOT_COUNT
                     );
                     return projections.stream().map(spot -> {
-                        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                                 .map(ImageUrl::getUrl)
                                 .orElse(null);
 
@@ -94,7 +95,7 @@ public class MainPageService {
                     );
 
                     return spots.stream().map(spot -> {
-                        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                                 .map(ImageUrl::getUrl)
                                 .orElse(null);
                         return new RecommendedSpotDto(spot, imageUrl);
@@ -111,7 +112,7 @@ public class MainPageService {
                     DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE,
                     SPOT_COUNT);
             return projections.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
 
@@ -126,7 +127,7 @@ public class MainPageService {
                     SPOT_COUNT
             );
             return spots.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
                 return new RecommendedSpotDto(spot, imageUrl);
@@ -147,7 +148,7 @@ public class MainPageService {
 
             List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
             return spots.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
                 return new RecommendedSpotDto(spot, imageUrl);
@@ -175,7 +176,7 @@ public class MainPageService {
                 List<TouristSpot> spots = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, favoriteCategory, PageRequest.of(0, SPOT_COUNT));
 
                 return spots.stream().map(spot -> {
-                    String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                    String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                             .map(ImageUrl::getUrl)
                             .orElse(null);
                     return new RecommendedSpotDto(spot, imageUrl);
@@ -196,7 +197,7 @@ public class MainPageService {
             );
 
             return projections.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
 
@@ -207,7 +208,7 @@ public class MainPageService {
         else {
             List<TouristSpot> spots = touristSpotRepository.findByCategoryOrderBySubWeightDesc(favoriteCategory, PageRequest.of(0, SPOT_COUNT));
             return spots.stream().map(spot -> {
-                String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+                String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                         .map(ImageUrl::getUrl)
                         .orElse(null);
                 return new RecommendedSpotDto(spot, imageUrl);

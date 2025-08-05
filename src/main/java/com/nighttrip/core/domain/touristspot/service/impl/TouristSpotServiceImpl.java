@@ -17,6 +17,7 @@ import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotDetails;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
@@ -44,7 +45,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
 
     private TouristSpotResponseDto mapToTouristSpotResponseDto(TouristSpot spot) {
-        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.SEARCH)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
 
@@ -97,13 +98,13 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
-        String mainImage = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
+        String mainImage = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId, ImageSizeType.SEARCH)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
 
         List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .stream()
-                .filter(image -> !image.isMain())
+                .filter(image -> image.getImageSizeType()==ImageSizeType.DETAIL)
                 .map(ImageUrl::getUrl)
                 .collect(Collectors.toList());
 

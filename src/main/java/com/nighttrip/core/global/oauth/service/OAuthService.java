@@ -6,6 +6,7 @@ import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.exception.BusinessException;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.oauth.dto.LoginStatusResponse;
@@ -30,7 +31,7 @@ public class OAuthService {
     }
 
     private LoginStatusResponse createLoggedInResponse(User user) {
-        String  url = imageRepository.findMainImageByTypeAndRelatedId(ImageType.AVATAR, user.getId())
+        String  url = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.AVATAR, user.getId(), ImageSizeType.THUMBNAIL)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         UserInfoResponse userInfo = new UserInfoResponse(user, url);
