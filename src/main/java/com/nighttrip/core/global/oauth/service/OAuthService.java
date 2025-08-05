@@ -27,7 +27,7 @@ public class OAuthService {
         return SecurityUtils.findCurrentUserEmail()
                 .flatMap(userRepository::findByEmail)
                 .map(user -> {
-                    String avatarUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.AVATAR, user.getId(), ImageSizeType.THUMBNAIL)
+                    String avatarUrl = imageRepository.findTHUMBNAILImage(String.valueOf(ImageType.AVATAR), user.getId())
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -39,7 +39,7 @@ public class OAuthService {
     }
 
     private LoginStatusResponse createLoggedInResponse(User user) {
-        String  url = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.AVATAR, user.getId(), ImageSizeType.THUMBNAIL)
+        String  url = imageRepository.findTHUMBNAILImage(String.valueOf(ImageType.AVATAR), user.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         UserInfoResponse userInfo = new UserInfoResponse(user, url);
