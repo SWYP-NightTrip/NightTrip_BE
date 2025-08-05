@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 자동완성 검색 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .autocomplete-container {
+            position: relative;
+            width: 400px;
+            margin: auto;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #suggestionsList {
+            position: absolute;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            z-index: 10;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #suggestionsList li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        #suggestionsList li:hover {
+            background-color: #f0f0f0;
+        }
+        #suggestionsList li:last-child {
+            border-bottom: none;
+        }
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+        }
+        .suggestion-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .suggestion-text {
+            flex-grow: 1;
+        }
+        .no-results {
+            padding: 10px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="autocomplete-container">
+    <h1>실시간 자동완성 검색</h1>
+    <input type="text" id="searchInput" placeholder="검색어를 입력하세요..." autocomplete="off">
+    <ul id="suggestionsList"></ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const API_URL = 'http://localhost:8080/api/autocomplete'; // 실제 API URL로 변경해야 합니다.
+
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        const fetchSuggestions = async (query) => {
+            if (query.length < 2) {
+                suggestionsList.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?query=${query}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const apiResponse = await response.json();
+                displaySuggestions(apiResponse.data);
+            } catch (error) {
+                console.error('검색 제안을 가져오는 중 오류 발생:', error);
+                suggestionsList.innerHTML = `<li class="no-results">오류가 발생했습니다.</li>`;
+            }
+        };
+
+        const displaySuggestions = (suggestions) => {
+            suggestionsList.innerHTML = '';
+            if (!suggestions || suggestions.length === 0) {
+                suggestionsList.innerHTML = `<li class="no-results">일치하는 결과가 없습니다.</li>`;
+                return;
+            }
+
+            suggestions.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                        <div class="suggestion-item">
+                            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" class="suggestion-image">` : ''}
+                            <div class="suggestion-text">
+                                <strong>${item.name}</strong>
+                                <br>
+                                <small>(${item.type === 'city' ? '도시' : '관광지'})</small>
+                            </div>
+                        </div>
+                    `;
+                li.addEventListener('click', () => {
+                    searchInput.value = item.name;
+                    suggestionsList.innerHTML = '';
+                });
+                suggestionsList.appendChild(li);
+            });
+        };
+
+        searchInput.addEventListener('input', debounce(e => {
+            const query = e.target.value.trim();
+            fetchSuggestions(query);
+        }, 300));
+    });
+</script>
+</body>
+</html>
