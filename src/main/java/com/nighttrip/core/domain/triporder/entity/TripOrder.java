@@ -38,8 +38,8 @@ public class TripOrder {
     private TripDay tripDay;
 
     // todo 이거는 cascade 할지 말지 고민됩니다.
-    @OneToMany(mappedBy = "tripOrder")
-    private List<Memo> memos = new ArrayList<>();
+    @OneToOne(mappedBy = "tripOrder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Memo memo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tourist_spot_id")

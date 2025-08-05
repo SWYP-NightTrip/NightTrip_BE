@@ -1,0 +1,47 @@
+name: Deploy NightTrip Backend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Prepare Clean Deploy Folder
+        run: |
+          mkdir -p deploy
+          rsync -av --exclude='.git' --exclude='node_modules' --exclude='deploy' . ./deploy/
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Copy Project to Server
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "deploy/."
+          target: "/home/${{ secrets.PROD_USER }}/nighttrip"
+          overwrite: true
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd ~/nighttrip
+            docker compose down -v
+            docker compose pull || true
+            docker compose up --build -d
+            docker image prune -f
+

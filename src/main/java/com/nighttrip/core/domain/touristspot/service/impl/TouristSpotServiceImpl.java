@@ -29,11 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class TouristSpotServiceImpl implements TouristSpotService {
 
     private final TouristSpotRepository touristSpotRepository;
@@ -119,6 +119,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
     }
 
     @Override
+    @Transactional
     public void addLike(Long touristSpotId) {
         TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
@@ -127,7 +128,13 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        TourLike tourLike = new TourLike(user, touristSpot);
-        touristSpotLIkeRepository.save(tourLike);
+        Optional<TourLike> existingLike = touristSpotLIkeRepository.findByUserAndTouristSpot(user, touristSpot);
+
+        if (existingLike.isPresent()) {
+            touristSpotLIkeRepository.delete(existingLike.get());
+        } else {
+            TourLike newLike = new TourLike(user, touristSpot);
+            touristSpotLIkeRepository.save(newLike);
+        }
     }
 }
