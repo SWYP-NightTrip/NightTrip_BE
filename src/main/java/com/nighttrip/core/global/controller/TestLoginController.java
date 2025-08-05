@@ -2,6 +2,7 @@ package com.nighttrip.core.global.controller;// TestLoginController.java
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession; // HttpSession 임포트 추가
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,4 +45,5 @@ public class TestLoginController {
         LoginStatusResponse response = new LoginStatusResponse(true, userInfo);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
 }

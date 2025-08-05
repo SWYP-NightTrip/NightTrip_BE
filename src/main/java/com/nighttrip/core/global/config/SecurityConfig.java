@@ -45,9 +45,10 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/main/**").permitAll()
-                        .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular", "/api/v1/test/login").permitAll()
+                        .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular",
+                                "/api/v1/test/login","/api/v1/search/autocomplete").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/favicon.ico", "/static/**").permitAll()
+                        .requestMatchers("/favicon.ico", "/static/**","/index.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/touristspot/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         .anyRequest().authenticated()

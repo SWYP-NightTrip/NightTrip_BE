@@ -75,7 +75,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const suggestionsList = document.getElementById('suggestionsList');
-        const API_URL = 'http://localhost:8080/api/autocomplete'; // 실제 API URL로 변경해야 합니다.
+        const API_URL = 'http://localhost:8080/api/v1/search/autocomplete'; // 실제 API URL로 변경해야 합니다.
 
         function debounce(func, delay) {
             let timeout;
