@@ -106,9 +106,9 @@ public class DataSyncService {
                             if (words.length >= 2) { suggestions.add(words[0] + words[1]); suggestions.add(words[1] + words[0]); }
                             if (fullCityName.startsWith("서울특별시")) { suggestions.add("서울특"); }
 
-                            String image = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.DETAIL)
-                                    .map(ImageUrl::getUrl)
-                                    .orElse(null);
+                            String image = imageRepository.findFirstByImageTypeAndRelatedIdAndImageSizeType(
+                                    ImageType.CITY, city.getId(), ImageSizeType.DETAIL
+                            ).map(ImageUrl::getUrl).orElse(null);
 
                             return SearchDocument.builder()
                                     .id("city_" + city.getId())
@@ -131,9 +131,9 @@ public class DataSyncService {
             if (!touristSpots.isEmpty()) {
                 List<SearchDocument> touristSpotDocuments = touristSpots.stream()
                         .map(touristSpot -> {
-                            String  mainImageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId(), ImageSizeType.DETAIL)
-                                    .map(ImageUrl::getUrl)
-                                    .orElse(null);
+                            String mainImageUrl = imageRepository.findFirstByImageTypeAndRelatedIdAndImageSizeType(
+                                    ImageType.TOURIST_SPOT, touristSpot.getId(), ImageSizeType.DETAIL
+                            ).map(ImageUrl::getUrl).orElse(null);
 
                             Set<String> suggestions = new HashSet<>();
                             suggestions.add(touristSpot.getSpotName());

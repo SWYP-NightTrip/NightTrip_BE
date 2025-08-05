@@ -14,7 +14,8 @@ public interface ImageRepository extends JpaRepository<ImageUrl, Long> {
     List<ImageUrl> findByImageTypeAndRelatedId(ImageType imageType, Long relatedId);
 
     @Query("SELECT i FROM ImageUrl i WHERE i.imageType = :imageType AND i.relatedId = :relatedId AND i.imageSizeType = :imageSizeType")
-    Optional<ImageUrl> findImageSizeByTypeAndRelatedId(@Param("imageType") ImageType imageType, @Param("relatedId") Long relatedId, @Param("imageSizeType") ImageSizeType imageSizeType);
 
+    Optional<ImageUrl> findImageSizeByTypeAndRelatedId(@Param("imageType") ImageType imageType, @Param("relatedId") Long relatedId, @Param("imageSizeType") ImageSizeType imageSizeType);
+    Optional<ImageUrl> findFirstByImageTypeAndRelatedIdAndImageSizeType(ImageType imageType, Long relatedId, ImageSizeType imageSizeType);
 }
 
