@@ -17,6 +17,7 @@ import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class MainPageService {
     private final TouristSpotRepository touristSpotRepository;
     private final TripPlanRepository tripPlanRepository;
     private final BookMarkRepository bookMarkRepository;
-    private final ImageRepository imageRepository; // dev 브랜치에서 추가된 의존성 유지
+    private final ImageRepository imageRepository;
 
     private static final int SPOT_COUNT = 10;
     private static final double DISTANCE_WEIGHT = 0.50;
@@ -51,8 +52,6 @@ public class MainPageService {
     private static final double CATEGORY_SUB_WEIGHT = 0.5;
     private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
 
-
-    // --- "TOP 10" 추천 로직 ---
 
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
@@ -160,7 +159,7 @@ public class MainPageService {
 
     // dev 브랜치의 이미지 조회 로직을 반영하기 위한 private 헬퍼 메소드
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpot spot) {
-        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId())
+        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(spot, imageUrl);
@@ -168,7 +167,7 @@ public class MainPageService {
 
     // TouristSpotWithDistance를 위한 오버로딩
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpotWithDistance projection) {
-        String imageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, projection.getId())
+        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, projection.getId(), ImageSizeType.THUMBNAIL)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(projection, imageUrl);
@@ -200,4 +199,5 @@ public class MainPageService {
                 new PartnerServiceDto(4L, "렌터카", null)
         );
     }
+
 }

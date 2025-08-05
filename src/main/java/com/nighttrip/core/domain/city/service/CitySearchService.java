@@ -6,6 +6,7 @@ import com.nighttrip.core.domain.city.dto.CityResponseDto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return cities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -50,7 +51,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return cities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -67,7 +68,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return popularCitiesDto.stream()
                 .map(dto -> {
                     String imageUrl = imageRepository
-                            .findMainImageByTypeAndRelatedId(ImageType.CITY, dto.id())
+                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, dto.id(), ImageSizeType.SEARCH)
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -84,7 +85,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return defaultCities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 

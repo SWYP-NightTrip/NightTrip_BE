@@ -8,6 +8,7 @@ import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.repository.SearchDocumentRepository;
@@ -105,7 +106,7 @@ public class DataSyncService {
                             if (words.length >= 2) { suggestions.add(words[0] + words[1]); suggestions.add(words[1] + words[0]); }
                             if (fullCityName.startsWith("서울특별시")) { suggestions.add("서울특"); }
 
-                            String image = imageRepository.findMainImageByTypeAndRelatedId(ImageType.CITY, city.getId())
+                            String image = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.DETAIL)
                                     .map(ImageUrl::getUrl)
                                     .orElse(null);
 
@@ -130,7 +131,7 @@ public class DataSyncService {
             if (!touristSpots.isEmpty()) {
                 List<SearchDocument> touristSpotDocuments = touristSpots.stream()
                         .map(touristSpot -> {
-                            String  mainImageUrl = imageRepository.findMainImageByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId())
+                            String  mainImageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpot.getId(), ImageSizeType.DETAIL)
                                     .map(ImageUrl::getUrl)
                                     .orElse(null);
 
