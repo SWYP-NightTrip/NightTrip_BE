@@ -49,9 +49,6 @@ public class MyPageService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Avatar avatar = user.getAvatar();
-        String avatarUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.AVATAR, avatar.getId(), ImageSizeType.THUMBNAIL)
-                .map(ImageUrl::getUrl)
         int userLevel = (user.getAvartarLevel() != null) ? user.getAvartarLevel() : 1;
 
         String avatarUrl = avatarRepository.findByLevel(userLevel)
