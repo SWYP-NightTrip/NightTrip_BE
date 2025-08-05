@@ -60,15 +60,10 @@ public class MainPageService {
     }
 
     public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
-        // 추천할 카테고리를 결정
         SpotCategory recommendedCategory = determineMainCategory(user);
-
-        // 결정된 카테고리를 기반으로 TOP 10 여행지 목록을 가져옴
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
         Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, recommendedCategory, topTen);
         List<RecommendedSpotDto> spotDtos = spotsPage.getContent();
-
-        // 새로운 DTO에 카테고리 정보와 여행지 목록을 담아 반환
         return new CategoryRecommendationDto(recommendedCategory, spotDtos);
     }
 
@@ -147,19 +142,24 @@ public class MainPageService {
     private SpotCategory determineMainCategory(User user) {
         if (user == null) {
             List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
+            if (allCategories.isEmpty()) {
+                return SpotCategory.getRandomCategory();
+            }
             return allCategories.get(new Random().nextInt(allCategories.size()));
         } else {
             return Optional.ofNullable(determineFavoriteCategory(user))
                     .orElseGet(() -> {
                         List<SpotCategory> allCategories = touristSpotRepository.findAllDistinctCategories();
+                        if (allCategories.isEmpty()) {
+                            return SpotCategory.getRandomCategory();
+                        }
                         return allCategories.get(new Random().nextInt(allCategories.size()));
                     });
         }
     }
-
     // dev 브랜치의 이미지 조회 로직을 반영하기 위한 private 헬퍼 메소드
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpot spot) {
-        String imageUrl = imageRepository.findTHUMBNAILImage(ImageType.TOURIST_SPOT, spot.getId())
+        String imageUrl = imageRepository.findTHUMBNAILImage(String.valueOf(ImageType.TOURIST_SPOT), spot.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(spot, imageUrl);
@@ -167,7 +167,7 @@ public class MainPageService {
 
     // TouristSpotWithDistance를 위한 오버로딩
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpotWithDistance projection) {
-        String imageUrl = imageRepository.findTHUMBNAILImage(ImageType.TOURIST_SPOT, projection.getId())
+        String imageUrl = imageRepository.findTHUMBNAILImage(String.valueOf(ImageType.TOURIST_SPOT), projection.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(projection, imageUrl);

@@ -45,7 +45,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
 
     private TouristSpotResponseDto mapToTouristSpotResponseDto(TouristSpot spot) {
-        String imageUrl = imageRepository.findSEARCHImage(ImageType.TOURIST_SPOT, spot.getId())
+        String imageUrl = imageRepository.findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), spot.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
 
@@ -98,7 +98,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
-        String mainImage = imageRepository.findSEARCHImage(ImageType.TOURIST_SPOT, touristSpotId)
+        String mainImage = imageRepository.findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), touristSpotId)
                 .map(ImageUrl::getUrl)
                 .orElse(null);
 

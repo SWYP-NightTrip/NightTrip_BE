@@ -88,7 +88,7 @@ public class MyPageService {
         return likedSpotsPage.map(tourLike -> {
             TouristSpot touristSpot = tourLike.getTouristSpot();
 
-            String image = imageRepository.findSEARCHImage(ImageType.TOURIST_SPOT, touristSpot.getId())
+            String image = imageRepository.findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), touristSpot.getId())
                     .map(ImageUrl::getUrl)
                     .orElse(null);
 
@@ -116,7 +116,7 @@ public class MyPageService {
                 .map(TripOrder::getTouristSpot)
                 .filter(Objects::nonNull)
                 .findFirst().flatMap(spot -> imageRepository
-                        .findSEARCHImage(ImageType.TOURIST_SPOT, spot.getId())
+                        .findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), spot.getId())
                         .map(ImageUrl::getUrl))
                 .orElse(null);
     }

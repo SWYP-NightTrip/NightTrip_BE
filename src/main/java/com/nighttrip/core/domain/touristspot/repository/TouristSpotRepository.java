@@ -48,7 +48,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     List<TouristSpot> findRecommendedTouristSpotsByCityId(@Param("cityId") Long cityId, Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {"city", "touristSpotImageUris"})
+    @EntityGraph(attributePaths = {"city"})
         // ★★★ 이 부분을 추가 또는 확인! ★★★
     List<TouristSpot> findAll();
 

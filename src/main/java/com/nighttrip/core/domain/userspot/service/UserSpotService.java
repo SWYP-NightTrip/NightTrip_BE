@@ -72,7 +72,7 @@ public class UserSpotService {
 
         return favoriteSpots.stream()
                 .map(userSpot -> {
-                            String imageUrl = imageRepository.findSEARCHImage(ImageType.USER_SPOT, userSpot.getId())
+                            String imageUrl = imageRepository.findSEARCHImage(String.valueOf(ImageType.USER_SPOT), userSpot.getId())
                                     .map(ImageUrl::getUrl)
                                     .orElse(null);
 
