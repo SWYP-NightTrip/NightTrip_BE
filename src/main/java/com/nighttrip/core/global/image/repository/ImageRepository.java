@@ -13,8 +13,12 @@ import java.util.Optional;
 public interface ImageRepository extends JpaRepository<ImageUrl, Long> {
     List<ImageUrl> findByImageTypeAndRelatedId(ImageType imageType, Long relatedId);
 
-    @Query("SELECT i FROM ImageUrl i WHERE i.imageType = :imageType AND i.relatedId = :relatedId AND i.imageSizeType = :imageSizeType")
-    Optional<ImageUrl> findImageSizeByTypeAndRelatedId(@Param("imageType") ImageType imageType, @Param("relatedId") Long relatedId, @Param("imageSizeType") ImageSizeType imageSizeType);
+    @Query(value = "SELECT * FROM image_url WHERE image_type = :imageType AND related_id = :relatedId AND image_size_type = 'SEARCH' LIMIT 1", nativeQuery = true)
+    Optional<ImageUrl> findSEARCHImage(@Param("imageType") ImageType imageType, @Param("relatedId") Long relatedId);
+
+
+    @Query(value = "SELECT * FROM image_url WHERE image_type = :imageType AND related_id = :relatedId AND image_size_type = 'THUMBNAIL' LIMIT 1", nativeQuery = true)
+    Optional<ImageUrl> findTHUMBNAILImage(@Param("imageType") ImageType imageType, @Param("relatedId") Long relatedId);
 
 }
 

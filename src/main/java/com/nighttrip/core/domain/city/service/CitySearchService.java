@@ -36,7 +36,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return cities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
+                            .findSEARCHImage(ImageType.CITY, city.getId())
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -51,7 +51,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return cities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
+                            .findSEARCHImage(ImageType.CITY, city.getId())
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -68,7 +68,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return popularCitiesDto.stream()
                 .map(dto -> {
                     String imageUrl = imageRepository
-                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, dto.id(), ImageSizeType.SEARCH)
+                            .findSEARCHImage(ImageType.CITY, dto.id())
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 
@@ -85,7 +85,7 @@ public class CitySearchService implements CitySearchServiceImpl {
         return defaultCities.stream()
                 .map(city -> {
                     String imageUrl = imageRepository
-                            .findImageSizeByTypeAndRelatedId(ImageType.CITY, city.getId(), ImageSizeType.SEARCH)
+                            .findSEARCHImage(ImageType.CITY, city.getId())
                             .map(ImageUrl::getUrl)
                             .orElse(null);
 

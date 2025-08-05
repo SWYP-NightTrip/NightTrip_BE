@@ -159,7 +159,7 @@ public class MainPageService {
 
     // dev 브랜치의 이미지 조회 로직을 반영하기 위한 private 헬퍼 메소드
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpot spot) {
-        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, spot.getId(), ImageSizeType.THUMBNAIL)
+        String imageUrl = imageRepository.findTHUMBNAILImage(ImageType.TOURIST_SPOT, spot.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(spot, imageUrl);
@@ -167,7 +167,7 @@ public class MainPageService {
 
     // TouristSpotWithDistance를 위한 오버로딩
     private RecommendedSpotDto toRecommendedSpotDto(TouristSpotWithDistance projection) {
-        String imageUrl = imageRepository.findImageSizeByTypeAndRelatedId(ImageType.TOURIST_SPOT, projection.getId(), ImageSizeType.THUMBNAIL)
+        String imageUrl = imageRepository.findTHUMBNAILImage(ImageType.TOURIST_SPOT, projection.getId())
                 .map(ImageUrl::getUrl)
                 .orElse(null);
         return new RecommendedSpotDto(projection, imageUrl);
