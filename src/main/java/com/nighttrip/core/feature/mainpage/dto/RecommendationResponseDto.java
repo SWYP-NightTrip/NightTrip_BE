@@ -1,21 +1,17 @@
 package com.nighttrip.core.feature.mainpage.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nighttrip.core.global.enums.SpotCategory;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-public class CategoryRecommendationDto {
+public class RecommendationResponseDto {
 
-    private final String category; // 추천된 카테고리의 한글 이름
     private final List<RecommendedSpotDto> spots;
-
     private final boolean isMore;
 
-    public CategoryRecommendationDto(SpotCategory category, List<RecommendedSpotDto> spots, boolean isMore) {
-        this.category = category.getKoreanName();
+    public RecommendationResponseDto(List<RecommendedSpotDto> spots, boolean isMore) {
         this.spots = spots;
         this.isMore = isMore;
     }

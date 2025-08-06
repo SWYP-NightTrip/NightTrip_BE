@@ -3,6 +3,7 @@ package com.nighttrip.core.feature.mainpage.controller;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.service.UserService;
 import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendationResponseDto;
 import com.nighttrip.core.global.dto.ApiResponse;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
@@ -29,7 +30,7 @@ public class MainPageController {
     private final UserService userService;
 
     @GetMapping("/recommend/night-popular")
-    public ApiResponse<List<RecommendedSpotDto>> getNightPopularSpots(
+    public ApiResponse<RecommendationResponseDto> getNightPopularSpots(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
 
@@ -39,7 +40,7 @@ public class MainPageController {
                 .flatMap(userService::findUserByEmail)
                 .orElse(null);
 
-        List<RecommendedSpotDto> spots = mainPageService.getNightPopularSpots(user, lat, lon);
+        RecommendationResponseDto spots = mainPageService.getNightPopularSpots(user, lat, lon);
         return ApiResponse.success(spots);
     }
 

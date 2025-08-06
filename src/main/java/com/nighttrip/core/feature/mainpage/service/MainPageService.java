@@ -12,6 +12,7 @@ import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendationResponseDto;
 import com.nighttrip.core.global.enums.*;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
@@ -53,18 +54,18 @@ public class MainPageService {
     private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
 
 
-    public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
-        Pageable topTen = PageRequest.of(0, SPOT_COUNT);
-        // 페이지네이션 메소드를 호출하고, 내용물(content)만 반환하여 코드 중복 최소화
-        //return getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+    public RecommendationResponseDto getNightPopularSpots(User user, Double userLat, Double userLon) {
+        Pageable topSpots = PageRequest.of(0, SPOT_COUNT);
 
-        List<RecommendedSpotDto> readOnlyList = getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+        Page<RecommendedSpotDto> spotsPage = getNightPopularSpotsPaginated(user, userLat, userLon, topSpots);
 
-        List<RecommendedSpotDto> modifiableList = new ArrayList<>(readOnlyList);
+        List<RecommendedSpotDto> spots = new ArrayList<>(spotsPage.getContent());
 
-        Collections.reverse(modifiableList);
+        Collections.reverse(spots);
 
-        return modifiableList;
+        boolean isMore = spotsPage.getTotalElements() > spotsPage.getNumberOfElements();
+
+        return new RecommendationResponseDto(spots, isMore);
     }
 
     public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
@@ -72,7 +73,8 @@ public class MainPageService {
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
         Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, recommendedCategory, topTen);
         List<RecommendedSpotDto> spotDtos = spotsPage.getContent();
-        return new CategoryRecommendationDto(recommendedCategory, spotDtos);
+        boolean isMore = spotsPage.getTotalElements() > spotsPage.getNumberOfElements();
+        return new CategoryRecommendationDto(recommendedCategory, spotDtos, isMore);
     }
 
 
