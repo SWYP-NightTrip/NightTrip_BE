@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.nighttrip.core.global.exception.BusinessException;
 
+import java.util.Random;
+
 public enum SpotCategory {
     FOOD("음식"),
     LEISURE_SPORTS("레저스포츠"),
@@ -38,5 +40,11 @@ public enum SpotCategory {
             }
         }
         throw new BusinessException(ErrorCode.INVALID_PLACE_CATEGORY);
+    }
+    private static final Random RANDOM = new Random();
+    private static final SpotCategory[] VALUES = values();
+
+    public static SpotCategory getRandomCategory() {
+        return VALUES[RANDOM.nextInt(VALUES.length)];
     }
 }
