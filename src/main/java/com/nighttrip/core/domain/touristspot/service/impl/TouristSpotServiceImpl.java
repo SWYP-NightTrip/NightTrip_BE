@@ -98,14 +98,18 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         Double avg = reviewStatistics.getAverage();
         Long countSum = reviewStatistics.getCount();
 
-        String mainImage = imageRepository.findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), touristSpotId)
-                .map(ImageUrl::getUrl)
-                .orElse(null);
-
         List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .stream()
                 .filter(image -> image.getImageSizeType()==ImageSizeType.DETAIL)
-                .map(ImageUrl::getUrl)
+                .map(image -> {
+                    String url = image.getUrl();
+                    int lastDotIndex = url.lastIndexOf('.');
+                    if (lastDotIndex != -1) {
+                        return url.substring(0, lastDotIndex);
+                    }else{
+                        return url;
+                    }
+                })
                 .collect(Collectors.toList());
 
         List<String> spotDetails = touristSpot.getTouristSpotDetails()
@@ -115,7 +119,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
         Boolean isLiked = touristSpotLIkeRepository.existsByTouristSpotId(touristSpotId);
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, mainImage, isLiked, images, spotDetails);
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, spotDetails);
     }
 
     @Override
