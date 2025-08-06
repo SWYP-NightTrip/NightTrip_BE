@@ -123,30 +123,33 @@ public class SearchService {
 
     public List<RecommendedKeyword> getRecommendedKeywordsHardcoded() {
         return Arrays.asList(
-                new RecommendedKeyword("city_201", "제주도 여행"),
-                new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
-                new RecommendedKeyword("city_305", "강릉 카페"),
-                new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
-                new RecommendedKeyword("tourist_spot_56", "서울88카페"),
-                new RecommendedKeyword("tourist_spot_51", "혼자 떠나는 여행"),
-                new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
-                new RecommendedKeyword("tourist_spot_1234", "속초 맛집"),
-                new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
-                new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
+                new RecommendedKeyword("tourist_spot_81616", "월미도"),
+                new RecommendedKeyword("tourist_spot_86762", "타임스퀘어"),
+                new RecommendedKeyword("tourist_spot_92498", "소노캄 거제"),
+                new RecommendedKeyword("tourist_spot_80289", "오창호수공원"),
+                new RecommendedKeyword("tourist_spot_58160", "동문재래시장"),
+                new RecommendedKeyword("tourist_spot_57181", "대천해수욕장"),
+                new RecommendedKeyword("tourist_spot_79709", "영일대해수욕장"),
+                new RecommendedKeyword("tourist_spot_82738", "일산해수욕장"),
+                new RecommendedKeyword("tourist_spot_73599", "삽교호관광지"),
+                new RecommendedKeyword("tourist_spot_83524", "전주월드컵경기장")
         );
     }
+
+
     public List<RecommendedKeyword> getRecommendedKeywordsHardcoded2() {
         return Arrays.asList(
-                new RecommendedKeyword("city_201", "제주도 여행"),
-                new RecommendedKeyword("tourist_spot_1002", "서울 맛집"),
-                new RecommendedKeyword("city_305", "강릉 카페"),
-                new RecommendedKeyword("tourist_spot_567", "부산 해운대"),
-                new RecommendedKeyword("city_31", "서울 특별시 서초구"),
-                new RecommendedKeyword("city_30", "서울 특별시 강남구"),
-                new RecommendedKeyword("tourist_spot_888", "경주 한옥마을"),
-                new RecommendedKeyword("city_33", "강원특별자치도 춘천시"),
-                new RecommendedKeyword("tourist_spot_777", "여수 밤바다"),
-                new RecommendedKeyword("tourist_spot_13", "춘천 닭갈비")
+                new RecommendedKeyword("tourist_spot_65807", "대평시장"),
+                new RecommendedKeyword("tourist_spot_75139", "세종호수공원"),
+                new RecommendedKeyword("tourist_spot_93467", "스타필드 하남"),
+                new RecommendedKeyword("tourist_spot_93823", "신세계백화점 대구신세계점"),
+                new RecommendedKeyword("tourist_spot_46884", "광주기아챔피언스필드"),
+                new RecommendedKeyword("tourist_spot_73455", "삼길포항"),
+                new RecommendedKeyword("tourist_spot_73723", "상남시장"),
+                new RecommendedKeyword("tourist_spot_75509", "속초해변"),
+                new RecommendedKeyword("tourist_spot_75770", "송정해수욕장"),
+                new RecommendedKeyword("tourist_spot_75968", "수성못")
         );
     }
+
 }
