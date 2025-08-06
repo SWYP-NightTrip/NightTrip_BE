@@ -56,7 +56,7 @@ jobs:
             echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
             echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
 
-            docker compose down -v
+            docker compose down 
             docker compose pull
             docker compose up -d
             docker image prune -f
