@@ -49,9 +49,10 @@ public class DataSyncService {
     @Transactional(readOnly = true)
     public void initialElasticsearchSync() {
         try {
-
             ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(INDEX_NAME));
-            if (elasticsearchClient.indices().exists(existsRequest).value()) {
+            boolean exists = elasticsearchClient.indices().exists(existsRequest).value();
+
+            if (exists) {
                 DeleteIndexRequest deleteRequest = DeleteIndexRequest.of(d -> d.index(INDEX_NAME));
                 elasticsearchClient.indices().delete(deleteRequest);
             }
