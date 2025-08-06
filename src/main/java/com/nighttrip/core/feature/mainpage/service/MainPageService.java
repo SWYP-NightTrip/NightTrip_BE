@@ -56,7 +56,15 @@ public class MainPageService {
     public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
         // 페이지네이션 메소드를 호출하고, 내용물(content)만 반환하여 코드 중복 최소화
-        return getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+        //return getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+
+        List<RecommendedSpotDto> readOnlyList = getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+
+        List<RecommendedSpotDto> modifiableList = new ArrayList<>(readOnlyList);
+
+        Collections.reverse(modifiableList);
+
+        return modifiableList;
     }
 
     public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
