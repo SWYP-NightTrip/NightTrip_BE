@@ -6,7 +6,6 @@ import com.nighttrip.core.domain.userspot.dto.UserSpotAddRequest;
 import com.nighttrip.core.domain.userspot.dto.UserSpotListResponse;
 import com.nighttrip.core.domain.userspot.entity.UserSpot;
 import com.nighttrip.core.domain.userspot.repository.UserSpotRepository;
-import com.nighttrip.core.domain.userspot.service.UserSpotService;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserSpotServiceImpl implements UserSpotService {
+public class UserSpotService implements com.nighttrip.core.domain.userspot.service.UserSpotService {
 
     private final UserRepository userRepository;
     private final UserSpotRepository userSpotRepository;
