@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserSpotService implements com.nighttrip.core.domain.userspot.service.UserSpotService {
+public class UserSpotServiceImpl implements com.nighttrip.core.domain.userspot.service.UserSpotService {
 
     private final UserRepository userRepository;
     private final UserSpotRepository userSpotRepository;
@@ -41,7 +41,7 @@ public class UserSpotService implements com.nighttrip.core.domain.userspot.servi
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         if (userSpotRepository.existsByUserIdAndSpotName(user.getId(), request.placeName())) {
-            throw new BusinessException(ErrorCode.FAVORITE_PLACE_IS_ALREADY_CREATED);
+            throw new BusinessException(ErrorCode.USERSPOT_IS_ALREADY_CREATED);
         }
 
         GeocodeResponse geocode = naverMapFunction.geocode(request.placeAddress());

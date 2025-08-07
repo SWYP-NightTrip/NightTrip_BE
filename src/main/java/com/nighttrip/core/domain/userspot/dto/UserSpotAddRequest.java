@@ -1,7 +1,6 @@
 package com.nighttrip.core.domain.userspot.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public record UserSpotAddRequest(
         List<String> imageUrl,
 
         @NotBlank(message = "카테고리는 필수입니다.")
-        String  category,
+        String category,
 
         List<String> details
 ) {

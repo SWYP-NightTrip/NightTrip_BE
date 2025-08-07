@@ -1,6 +1,6 @@
 package com.nighttrip.core.domain.triporder.controller;
 
-import com.nighttrip.core.domain.triporder.service.impl.TripOrderService;
+import com.nighttrip.core.domain.triporder.service.TripOrderService;
 import com.nighttrip.core.global.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,8 @@ public class TripOrderController {
 
     private final TripOrderService orderService;
 
-    public TripOrderController(TripOrderService tripOrderService) {
-        this.orderService = tripOrderService;
+    public TripOrderController(TripOrderService tripOrderServiceImpl) {
+        this.orderService = tripOrderServiceImpl;
     }
 
 
