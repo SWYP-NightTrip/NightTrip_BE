@@ -1,13 +1,16 @@
 package com.nighttrip.core.domain.userspot.entity;
 
 import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.global.converter.SpotCategoryConverter;
+import com.nighttrip.core.global.converter.SpotDetailsConverter;
+import com.nighttrip.core.global.enums.SpotCategory;
+import com.nighttrip.core.global.enums.SpotDetails;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumSet;
 
 @Entity
 @Table(name = "user_spot", uniqueConstraints = {
@@ -33,22 +36,25 @@ public class UserSpot {
 
     private Double latitude;
     private Double longitude;
+    private String address;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "user_spot_category",
-            joinColumns = @JoinColumn(name = "user_spot_id")
-    )
-    @Column(name = "category", nullable = false)
-    private List<String> categories = new ArrayList<>();
+    @Convert(converter = SpotCategoryConverter.class)
+    private SpotCategory category;
 
-    public UserSpot(User user, String spotName, String spotMemo, Double latitude, Double longitude, List<String> categories) {
+    @Convert(converter = SpotDetailsConverter.class)
+    @Column(name = "tourist_spot_details", columnDefinition = "TEXT")
+    private EnumSet<SpotDetails> touristSpotDetails = EnumSet.noneOf(SpotDetails.class);
+
+
+    public UserSpot(User user, String spotName, String spotMemo, String address, Double latitude, Double longitude, SpotCategory category, EnumSet<SpotDetails> details) {
         this.user = user;
         this.spotName = spotName;
         this.spotMemo = spotMemo;
+        this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.categories = categories;
+        this.category = category;
+        this.touristSpotDetails = details;
     }
 }
 

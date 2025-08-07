@@ -3,6 +3,7 @@ package com.nighttrip.core.domain.userspot.controller;
 import com.nighttrip.core.domain.userspot.dto.UserSpotAddRequest;
 import com.nighttrip.core.domain.userspot.service.UserSpotService;
 import com.nighttrip.core.global.dto.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,8 @@ public class UserSpotController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> addFavoritePlace(@RequestBody UserSpotAddRequest request) {
-        userSpotService.addFavoritePlace(request);
+    public ResponseEntity<ApiResponse<?>> addFavoritePlace(@Valid @RequestBody UserSpotAddRequest request) {
+        userSpotService.addUserPlace(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -29,7 +30,7 @@ public class UserSpotController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<?>> getFavoritePlaceList() {
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(userSpotService.getFavoritePlaceList()));
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(userSpotService.getUserPlaceList()));
     }
 }

@@ -3,6 +3,7 @@ package com.nighttrip.core.domain.tripday.controller;
 import com.nighttrip.core.domain.tripday.dto.TripPlanChangeOrderRequest;
 import com.nighttrip.core.domain.tripday.service.TripDayService;
 import com.nighttrip.core.global.dto.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class TripDayController {
     }
 
     @PutMapping("change-order")
-    public ResponseEntity<ApiResponse<?>> changeTripPlanOrder(@RequestBody TripPlanChangeOrderRequest request,
+    public ResponseEntity<ApiResponse<?>> changeTripPlanOrder(@Valid @RequestBody TripPlanChangeOrderRequest request,
                                                               @PathVariable("tripPlanId") Long tripPlanId,
                                                               @PathVariable("tripDayId") Integer tripDayId) {
         tripDayService.changePlanOrder(request, tripPlanId, tripDayId);
