@@ -5,10 +5,10 @@ import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.tripday.repository.TripDayRepository;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.domain.triporder.repository.TripOrderRepository;
+import com.nighttrip.core.domain.triporder.service.TripOrderService;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ItemType;
 import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.global.maps.NaverMapFunction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +16,10 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class TripOrderService implements com.nighttrip.core.domain.triporder.service.TripOrderService {
+public class TripOrderServiceImpl implements TripOrderService {
 
     private final TripDayRepository tripDayRepository;
     private final TouristSpotRepository touristSpotRepository;
-    private final NaverMapFunction naverMapFunction;
     private final TripOrderRepository tripOrderRepository;
 
     @Override

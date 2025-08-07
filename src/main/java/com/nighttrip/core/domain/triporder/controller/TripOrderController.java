@@ -15,8 +15,8 @@ public class TripOrderController {
 
     private final TripOrderService orderService;
 
-    public TripOrderController(TripOrderService tripOrderServiceImpl) {
-        this.orderService = tripOrderServiceImpl;
+    public TripOrderController(TripOrderService orderService) {
+        this.orderService = orderService;
     }
 
 
