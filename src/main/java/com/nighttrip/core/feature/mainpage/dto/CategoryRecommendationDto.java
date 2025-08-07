@@ -9,15 +9,17 @@ import java.util.List;
 @Getter
 public class CategoryRecommendationDto {
 
-    private final String category; // 추천된 카테고리의 한글 이름
+    private final String category;
     private final List<RecommendedSpotDto> spots;
 
     private final boolean isMore;
+    private final String nickname;
 
-    public CategoryRecommendationDto(SpotCategory category, List<RecommendedSpotDto> spots, boolean isMore) {
+    public CategoryRecommendationDto(SpotCategory category, List<RecommendedSpotDto> spots, boolean isMore, String nickname) {
         this.category = category.getKoreanName();
         this.spots = spots;
         this.isMore = isMore;
+        this.nickname = nickname;
     }
 
     @JsonProperty("isMore")

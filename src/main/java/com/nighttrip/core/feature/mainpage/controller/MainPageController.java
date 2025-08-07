@@ -51,9 +51,22 @@ public class MainPageController {
 
         Optional<String> userEmailOpt = SecurityUtils.findCurrentUserEmail();
 
+        // 1. SecurityContextHolder가 인식한 이메일이 있는지 확인합니다.
+        if (userEmailOpt.isPresent()) {
+            System.out.println("[디버그] SecurityUtils가 찾은 이메일: " + userEmailOpt.get());
+        } else {
+            System.out.println("[디버그] SecurityUtils가 이메일을 찾지 못함 (비로그인 상태로 추정)");
+        }
+
         User user = userEmailOpt
                 .flatMap(userService::findUserByEmail)
                 .orElse(null);
+
+        if (user != null) {
+            System.out.println("[디버그] 최종 currentUser 객체: NOT NULL, Nickname: " + user.getNickname());
+        } else {
+            System.out.println("[디버그] 최종 currentUser 객체: NULL");
+        }
 
         CategoryRecommendationDto result = mainPageService.getCategoryRecommendedSpots(user, lat, lon);
         return ApiResponse.success(result);

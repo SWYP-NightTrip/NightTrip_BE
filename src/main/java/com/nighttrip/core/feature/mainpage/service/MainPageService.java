@@ -69,12 +69,14 @@ public class MainPageService {
     }
 
     public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
+
         SpotCategory recommendedCategory = determineMainCategory(user);
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
         Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, recommendedCategory, topTen);
         List<RecommendedSpotDto> spotDtos = spotsPage.getContent();
         boolean isMore = spotsPage.getTotalElements() > spotsPage.getNumberOfElements();
-        return new CategoryRecommendationDto(recommendedCategory, spotDtos, isMore);
+        String nickname = (user != null) ? user.getNickname() : null;
+        return new CategoryRecommendationDto(recommendedCategory, spotDtos, isMore, nickname);
     }
 
 
