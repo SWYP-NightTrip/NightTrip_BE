@@ -3,6 +3,7 @@ package com.nighttrip.core.domain.tripplan.controller;
 import com.nighttrip.core.domain.tripplan.dto.TripPlanStatusChangeRequest;
 import com.nighttrip.core.domain.tripplan.service.TripPlanService;
 import com.nighttrip.core.global.dto.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class TripPlanController {
     }
 
     @PatchMapping("/{planId}/status")
-    public ResponseEntity<ApiResponse<?>> changePlanStatus(@RequestBody TripPlanStatusChangeRequest request,
+    public ResponseEntity<ApiResponse<?>> changePlanStatus(@Valid @RequestBody TripPlanStatusChangeRequest request,
                                                            @PathVariable("planId") Long planId) {
         tripPlanService.changePlanStatus(request, planId);
 

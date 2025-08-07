@@ -3,6 +3,8 @@ package com.nighttrip.core.domain.tripday.entity;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
+import com.nighttrip.core.global.enums.ErrorCode;
+import com.nighttrip.core.global.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,9 +41,11 @@ public class TripDay {
     private List<TripOrder> tripOrders = new ArrayList<>();
 
     public void changeTripOrder(int fromIndex, int toIndex) {
-        if (fromIndex == toIndex || fromIndex < 0 || toIndex < 0 ||
+        if (fromIndex == toIndex) return;
+
+        if (fromIndex < 0 || toIndex < 0 ||
             fromIndex >= tripOrders.size() || toIndex >= tripOrders.size()) {
-            return;
+            throw new BusinessException(ErrorCode.INVALID_TRIP_ORDER_INDEX);
         }
 
         TripOrder moving = tripOrders.remove(fromIndex);
