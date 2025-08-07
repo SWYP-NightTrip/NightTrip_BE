@@ -138,7 +138,7 @@ public class MainPageService {
         if (activePlanOpt.isPresent()) {
             City targetCity = findTargetCityFromPlan(activePlanOpt.get());
             if (targetCity != null) {
-                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, category, pageable).map(this::toRecommendedSpotDto);
+                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDescIdAsc(targetCity, category, pageable).map(this::toRecommendedSpotDto);
             }
         }
 
@@ -147,7 +147,7 @@ public class MainPageService {
             List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsByCategoryAndLocationPaginated(category.name(), userLat, userLon, CATEGORY_SUB_WEIGHT, DISTANCE_WEIGHT_FOR_CAT, pageable.getPageSize(), pageable.getOffset());
             return new PageImpl<>(projections.stream().map(this::toRecommendedSpotDto).collect(Collectors.toList()), pageable, total);
         } else {
-            return touristSpotRepository.findByCategoryOrderBySubWeightDesc(category, pageable).map(this::toRecommendedSpotDto);
+            return touristSpotRepository.findByCategoryOrderBySubWeightDescIdAsc(category, pageable).map(this::toRecommendedSpotDto);
         }
     }
 
