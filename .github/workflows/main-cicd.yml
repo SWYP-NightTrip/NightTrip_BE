@@ -5,43 +5,58 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Prepare Clean Deploy Folder
-        run: |
-          mkdir -p deploy
-          rsync -av --exclude='.git' --exclude='node_modules' --exclude='deploy' . ./deploy/
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Set up SSH Agent
-        uses: webfactory/ssh-agent@v0.7.0
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Copy Project to Server
-        uses: appleboy/scp-action@v0.1.3
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          source: "deploy/."
-          target: "/home/${{ secrets.PROD_USER }}/nighttrip"
-          overwrite: true
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
 
-      - name: Deploy with Docker Compose
+      - name: SSH Deploy on NCP Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            cd ~/nighttrip
-            docker compose down -v
-            docker compose pull || true
-            docker compose up --build -d
-            docker image prune -f
+            cd ~/nighttrip/deploy
+  
+            git pull origin main
+            
+            echo "DB_DOMAIN=${{ secrets.DB_DOMAIN }}" > .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+            echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+            echo "OAUTH_DOMAIN=${{ secrets.OAUTH_DOMAIN }}" >> .env
+            echo "CLOVA_API_KEY=${{ secrets.CLOVA_API_KEY }}" >> .env
+            echo "CLOVA_GATEWAY_KEY=${{ secrets.CLOVA_GATEWAY_KEY }}" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+            echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
+            echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
+            echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
+            echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
 
+            docker compose down 
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
