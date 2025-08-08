@@ -136,31 +136,42 @@ public class DataSyncService {
                                     .orElse(null);
 
                             Set<String> suggestions = new HashSet<>();
-                            suggestions.add(touristSpot.getSpotName());
-                            if (touristSpot.getCity() != null) {
-                                String fullCityName = touristSpot.getCity().getCityName();
-                                suggestions.add(fullCityName);
-                                String[] words = fullCityName.split(" ");
-                                for (String word : words) {
-                                    if (!word.isEmpty()) { suggestions.add(word); }
+                            String spotName = touristSpot.getSpotName();
+                            suggestions.add(spotName);
+
+                            String[] nameWords = spotName.split(" ");
+                            for (String word : nameWords) {
+                                if (!word.isEmpty()) suggestions.add(word);
+                            }
+                            for (int i = 0; i < nameWords.length; i++) {
+                                StringBuilder sb = new StringBuilder();
+                                for (int j = i; j < nameWords.length; j++) {
+                                    if (j > i) sb.append(" ");
+                                    sb.append(nameWords[j]);
+                                    suggestions.add(sb.toString());
                                 }
-                                for (int i = 0; i < words.length; i++) {
-                                    StringBuilder sb = new StringBuilder();
-                                    for (int j = i; j < words.length; j++) {
-                                        if (j > i) { sb.append(" "); }
-                                        sb.append(words[j]);
-                                        suggestions.add(sb.toString());
+                            }
+
+                            if (nameWords.length >= 2) {
+                                for (int i = 0; i < nameWords.length; i++) {
+                                    for (int j = 0; j < nameWords.length; j++) {
+                                        if (i != j) {
+                                            suggestions.add(nameWords[i] + " " + nameWords[j]);
+                                            suggestions.add(nameWords[i] + nameWords[j]);
+                                        }
                                     }
                                 }
-                                if (fullCityName.contains("특별시")) { suggestions.add(fullCityName.substring(0, fullCityName.indexOf("특별시"))); }
-                                if (fullCityName.contains("광역시")) { suggestions.add(fullCityName.substring(0, fullCityName.indexOf("광역시"))); }
-                                if (fullCityName.contains("도")) { suggestions.add(fullCityName.substring(0, fullCityName.indexOf("도"))); }
-                                if (fullCityName.endsWith("구")) { suggestions.add(fullCityName.replace("구", "")); }
-                                if (fullCityName.endsWith("군")) { suggestions.add(fullCityName.replace("군", "")); }
-                                if (fullCityName.endsWith("시")) { suggestions.add(fullCityName.replace("시", "")); }
-                                suggestions.add(fullCityName.replace(" ", ""));
-                                if (words.length >= 2) { suggestions.add(words[0] + words[1]); suggestions.add(words[1] + words[0]); }
-                                if (fullCityName.startsWith("서울특별시")) { suggestions.add("서울특"); }
+                            }
+
+
+                            String compactName = spotName.replace(" ", "");
+                            suggestions.add(compactName);
+
+                            int len = compactName.length();
+                            for (int i = 0; i < len; i++) {
+                                for (int j = i + 2; j <= len; j++) {
+                                    suggestions.add(compactName.substring(i, j));
+                                }
                             }
                             return SearchDocument.builder()
                                     .id("tourist_spot_" + touristSpot.getId())
