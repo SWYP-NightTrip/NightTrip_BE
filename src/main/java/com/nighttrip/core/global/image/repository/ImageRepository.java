@@ -1,7 +1,6 @@
 package com.nighttrip.core.global.image.repository;
 
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

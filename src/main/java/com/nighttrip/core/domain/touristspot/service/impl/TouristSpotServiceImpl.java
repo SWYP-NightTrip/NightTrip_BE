@@ -14,10 +14,10 @@ import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.enums.ItemType;
 import com.nighttrip.core.global.enums.SpotDetails;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
@@ -104,7 +104,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
         List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .stream()
-                .filter(image -> image.getImageSizeType()==ImageSizeType.DETAIL)
+                .filter(image -> image.getImageSizeType() == ItemType.ImageSizeType.DETAIL)
                 .map(ImageUrl::getUrl)
                 .collect(Collectors.toList());
 

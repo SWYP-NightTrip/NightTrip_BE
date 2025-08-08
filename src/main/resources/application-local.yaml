@@ -106,3 +106,12 @@ data:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+ncp:
+  object-storage:
+    access-key: ${NAVER_CLIENT_CLOUD}
+    secret-key: ${NAVER_CLIENT_CLOUD_SECRET}
+    end-point: https://kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: nighttrip-images-bucket

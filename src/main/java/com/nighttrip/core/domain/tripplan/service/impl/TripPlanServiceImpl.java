@@ -7,6 +7,7 @@ import com.nighttrip.core.domain.tripplan.service.TripPlanService;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     private final TripPlanRepository tripPlanRepository;
 
     @Override
+    @Transactional
     public void changePlanStatus(TripPlanStatusChangeRequest request, Long planId) {
         TripPlan tripPlan = tripPlanRepository.findById(planId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));

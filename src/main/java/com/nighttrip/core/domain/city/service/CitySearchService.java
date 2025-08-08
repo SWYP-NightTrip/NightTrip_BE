@@ -6,7 +6,6 @@ import com.nighttrip.core.domain.city.dto.CityResponseDto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
