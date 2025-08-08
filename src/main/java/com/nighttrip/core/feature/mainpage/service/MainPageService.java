@@ -125,9 +125,27 @@ public class MainPageService {
         }
     }
 
-    public Page<RecommendedSpotDto> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+    public Map<String, Object> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+        String nickname = (user != null) ? user.getNickname() : null;
         SpotCategory targetCategory = SpotCategory.fromValue(categoryName);
-        return getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+        Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("content", spotsPage.getContent());
+        responseMap.put("pageable", spotsPage.getPageable());
+        responseMap.put("totalPages", spotsPage.getTotalPages());
+        responseMap.put("totalElements", spotsPage.getTotalElements());
+        responseMap.put("last", spotsPage.isLast());
+        responseMap.put("numberOfElements", spotsPage.getNumberOfElements());
+        responseMap.put("first", spotsPage.isFirst());
+        responseMap.put("size", spotsPage.getSize());
+        responseMap.put("number", spotsPage.getNumber());
+        responseMap.put("sort", spotsPage.getSort());
+        responseMap.put("empty", spotsPage.isEmpty());
+
+        responseMap.put("nickname", nickname);
+
+        return responseMap;
     }
 
 
