@@ -10,7 +10,7 @@ import com.nighttrip.core.global.enums.*;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
-import com.nighttrip.core.global.image.service.ImageService;
+import com.nighttrip.core.global.image.service.impl.ImageServiceImpl;
 import com.nighttrip.core.global.maps.GeocodeResponse;
 import com.nighttrip.core.global.maps.NaverMapFunction;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
@@ -34,7 +34,7 @@ public class UserSpotServiceImpl implements com.nighttrip.core.domain.userspot.s
     private final UserSpotRepository userSpotRepository;
     private final ImageRepository imageRepository;
     private final NaverMapFunction naverMapFunction;
-    private final ImageService imageService;
+    private final ImageServiceImpl imageServiceImpl;
 
     @Override
     @Transactional
@@ -56,7 +56,7 @@ public class UserSpotServiceImpl implements com.nighttrip.core.domain.userspot.s
         filename = filename.replace("+", "%20");
 
         String thumbnailUrl=  "user-spot/" + user.getId() + "/" + filename;
-        imageService.saveImageData(ImageType.USER_SPOT, spot.getId(), thumbnailUrl, ImageSizeType.THUMBNAIL);
+        imageServiceImpl.saveImageData(ImageType.USER_SPOT, spot.getId(), thumbnailUrl, ImageSizeType.THUMBNAIL);
 
         saveImages(request, spot);
     }
