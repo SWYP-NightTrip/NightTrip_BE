@@ -103,3 +103,7 @@ clova:
   gateway:
     key: ${NAVER_CLIENT_CLOUD}
 
+logging:
+  level:
+    org.elasticsearch: DEBUG
+    co.elastic.clients: DEBUG
