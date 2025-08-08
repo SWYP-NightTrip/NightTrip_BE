@@ -1,6 +1,8 @@
 package com.nighttrip.core.global.service;
 
-import co.elastic.clients.elasticsearch.indices.*;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.RefreshRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
@@ -8,7 +10,6 @@ import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.repository.SearchDocumentRepository;
@@ -25,9 +26,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-
-
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 @Service
 @RequiredArgsConstructor
@@ -49,17 +47,16 @@ public class DataSyncService {
     @Transactional(readOnly = true)
     public void initialElasticsearchSync() {
         try {
-            ExistsRequest existsRequest = ExistsRequest.of(e -> e.index(INDEX_NAME));
-            boolean exists = elasticsearchClient.indices().exists(existsRequest).value();
-
-            if (exists) {
-                DeleteIndexRequest deleteRequest = DeleteIndexRequest.of(d -> d.index(INDEX_NAME));
-                elasticsearchClient.indices().delete(deleteRequest);
-            }
+            System.out.println("기존 인덱스 '" + INDEX_NAME + "' 삭제 시도...");
+            DeleteIndexRequest deleteRequest = DeleteIndexRequest.of(d -> d
+                    .index(INDEX_NAME)
+                    .ignoreUnavailable(true)
+            );
+            elasticsearchClient.indices().delete(deleteRequest);
+            System.out.println("기존 인덱스 삭제 완료 (또는 존재하지 않음).");
 
             Map<String, Object> settingsMap = readResourceFileAsMap(SETTINGS_PATH);
             Map<String, Object> mappingsMap = readResourceFileAsMap(MAPPINGS_PATH);
-
 
             Map<String, Object> settingsOnly = (Map<String, Object>) settingsMap.get("index");
 
@@ -67,10 +64,8 @@ public class DataSyncService {
             fullIndexRequest.put("settings", settingsOnly);
             fullIndexRequest.put("mappings", mappingsMap);
 
-
             String fullJson = objectMapper.writeValueAsString(fullIndexRequest);
             InputStream fullInputStream = new ByteArrayInputStream(fullJson.getBytes(StandardCharsets.UTF_8));
-
 
             elasticsearchClient.indices().create(c -> c
                     .index(INDEX_NAME)
