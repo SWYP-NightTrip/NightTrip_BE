@@ -223,10 +223,10 @@ public class MainPageService {
 
     public List<PartnerServiceDto> getPartnerServices() {
         return Arrays.asList(
-                new PartnerServiceDto(1L, "교통권", null),
-                new PartnerServiceDto(2L, "숙박예약", null),
-                new PartnerServiceDto(3L, "투어티켓", null),
-                new PartnerServiceDto(4L, "렌터카", null)
+                new PartnerServiceDto(1L, "교통권", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/airplane_icon.png"),
+                new PartnerServiceDto(2L, "숙박예약", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/hotel_icon.png"),
+                new PartnerServiceDto(3L, "투어티켓", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/ticket_icon.png"),
+                new PartnerServiceDto(4L, "렌터카", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/car_icon.png")
         );
     }
 
