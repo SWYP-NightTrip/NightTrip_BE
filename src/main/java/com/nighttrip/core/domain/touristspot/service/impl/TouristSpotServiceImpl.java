@@ -1,6 +1,7 @@
 package com.nighttrip.core.domain.touristspot.service.impl;
 
 import com.nighttrip.core.domain.city.repository.CityRepository;
+import com.nighttrip.core.domain.touristspot.dto.SpotDetailsDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
 import com.nighttrip.core.domain.touristspot.entity.TourLike;
@@ -14,7 +15,6 @@ import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.enums.SpotDetails;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.exception.CityNotFoundException;
 import com.nighttrip.core.global.image.entity.ImageSizeType;
@@ -100,21 +100,12 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
         List<String> images = imageRepository.findByImageTypeAndRelatedId(ImageType.TOURIST_SPOT, touristSpotId)
                 .stream()
-                .filter(image -> image.getImageSizeType()==ImageSizeType.DETAIL)
-                .map(image -> {
-                    String url = image.getUrl();
-                    int lastDotIndex = url.lastIndexOf('.');
-                    if (lastDotIndex != -1) {
-                        return url.substring(0, lastDotIndex);
-                    }else{
-                        return url;
-                    }
-                })
+                .filter(image -> image.getImageSizeType() == ImageSizeType.DETAIL)
+                .map(ImageUrl::getUrl)
                 .collect(Collectors.toList());
 
-        List<String> spotDetails = touristSpot.getTouristSpotDetails()
-                .stream()
-                .map(SpotDetails::getKoreanName)
+        List<SpotDetailsDto> spotDetails = touristSpot.getTouristSpotDetails()
+                .stream().map(d -> new SpotDetailsDto(d.getTypeKey(), d.getKoreanName()))
                 .toList();
 
         Boolean isLiked = touristSpotLIkeRepository.existsByTouristSpotId(touristSpotId);

@@ -20,9 +20,9 @@ public record TouristSpotDetailResponse(
         Long starCountSum,
         Boolean isLiked,
         List<String> spotImages,
-        List<String> spotDetails
+        List<SpotDetailsDto> spotDetails
 ) {
-    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, Boolean isLiked, List<String> imageUrls, List<String> spotDetails) {
+    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, Boolean isLiked, List<String> imageUrls, List<SpotDetailsDto> spotDetails) {
         return new TouristSpotDetailResponse(
                 touristSpot.getSpotName(),
                 touristSpot.getAddress(),
