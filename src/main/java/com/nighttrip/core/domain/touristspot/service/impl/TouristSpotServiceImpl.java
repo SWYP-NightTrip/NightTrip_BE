@@ -108,9 +108,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .stream().map(d -> new SpotDetailsDto(d.getTypeKey(), d.getKoreanName()))
                 .toList();
 
+        List<String> hashTags = touristSpot.getHashTagsAsList();
+
         Boolean isLiked = touristSpotLIkeRepository.existsByTouristSpotId(touristSpotId);
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, spotDetails);
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, hashTags, spotDetails);
     }
 
     @Override
