@@ -108,7 +108,18 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .stream().map(d -> new SpotDetailsDto(d.getTypeKey(), d.getKoreanName()))
                 .toList();
 
-        Boolean isLiked = touristSpotLIkeRepository.existsByTouristSpotId(touristSpotId);
+        boolean isLiked = false;
+
+        Optional<String> userEmailOpt = SecurityUtils.findCurrentUserEmail();
+
+        if (userEmailOpt.isPresent()) {
+            Optional<User> currentUserOpt = userRepository.findByEmail(userEmailOpt.get());
+
+            if (currentUserOpt.isPresent()) {
+                User currentUser = currentUserOpt.get();
+                isLiked = touristSpotLIkeRepository.existsByUserAndTouristSpot(currentUser, touristSpot);
+            }
+        }
 
         return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, spotDetails);
     }
