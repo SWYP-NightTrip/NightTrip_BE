@@ -61,6 +61,7 @@ public class SearchService {
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
         List<SearchDocument> searchResults = searchHits.getSearchHits().stream()
                 .map(hit -> hit.getContent())
+                .map(SearchDocument::withFormattedCityName)
                 .distinct()
                 .limit(10)
                 .collect(Collectors.toList());
@@ -92,6 +93,7 @@ public class SearchService {
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
         List<SearchDocument> searchResults = searchHits.getSearchHits().stream()
                 .map(hit -> hit.getContent())
+                .map(SearchDocument::withFormattedCityName)
                 .collect(Collectors.toList());
 
 
