@@ -22,10 +22,9 @@ public class OAuthController {
     private final OAuthService oAuthService;
 
     @GetMapping("/status")
-    public ResponseEntity<ApiResponse<LoginStatusResponse>> checkLoginStatus(HttpServletRequest request) { // HttpServletRequest를 인자로 받습니다.
+    public ResponseEntity<ApiResponse<LoginStatusResponse>> checkLoginStatus(HttpServletRequest request) {
         log.info(">>>> [checkLoginStatus] 로그인 상태 확인 요청이 들어왔습니다.");
 
-        // [1] 쿠키 헤더 로그를 추가합니다.
         String cookieHeader = request.getHeader("Cookie");
         if (cookieHeader != null) {
             log.info(">>>> [checkLoginStatus] Request to /status includes Cookie header: {}", cookieHeader);

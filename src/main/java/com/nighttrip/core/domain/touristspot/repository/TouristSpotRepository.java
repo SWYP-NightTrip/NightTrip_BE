@@ -185,7 +185,6 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             nativeQuery = true)
     List<TouristSpotWithDistance> findNearbyPopularSpotsPaginated(@Param("userLat") double userLat, @Param("userLon") double userLon, @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, @Param("limit") int limit, @Param("offset") long offset);
 
-    // [페이지네이션] 1-a. 여행 계획 O, 위치 O
     @Query(value = """
         SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
         FROM tourist_spot ts
