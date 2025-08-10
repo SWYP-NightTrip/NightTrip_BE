@@ -11,4 +11,6 @@ public interface TouristSpotLikeRepository extends JpaRepository<TourLike, Long>
     Boolean existsByTouristSpotId(Long touristSpotId);
 
     Optional<TourLike> findByUserAndTouristSpot(User user, TouristSpot touristSpot);
+
+    boolean existsByUserAndTouristSpot(User user, TouristSpot touristSpot);
 }
