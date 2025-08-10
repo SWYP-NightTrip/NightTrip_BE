@@ -120,8 +120,9 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 isLiked = touristSpotLIkeRepository.existsByUserAndTouristSpot(currentUser, touristSpot);
             }
         }
+        List<String> hashTags = touristSpot.getHashTagsAsList();
 
-        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, spotDetails);
+        return TouristSpotDetailResponse.fromEntity(touristSpot, avg, countSum, isLiked, images, hashTags, spotDetails);
     }
 
     @Override

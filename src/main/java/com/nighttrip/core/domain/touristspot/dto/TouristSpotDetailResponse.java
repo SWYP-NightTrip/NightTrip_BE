@@ -21,9 +21,10 @@ public record TouristSpotDetailResponse(
         Long starCountSum,
         Boolean isLiked,
         List<String> spotImages,
+        List<String> hashTags,
         List<SpotDetailsDto> spotDetails
 ) {
-    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, Boolean isLiked, List<String> imageUrls, List<SpotDetailsDto> spotDetails) {
+    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, Boolean isLiked, List<String> imageUrls, List<String> hashTags,List<SpotDetailsDto> spotDetails) {
         return new TouristSpotDetailResponse(
                 touristSpot.getSpotName(),
                 touristSpot.getAddress().split(" ")[0].endsWith("도") ? touristSpot.getAddress().split(" ")[0] +" "+ touristSpot.getAddress().split(" ")[1] : touristSpot.getAddress().split(" ")[0],
@@ -41,6 +42,7 @@ public record TouristSpotDetailResponse(
                 starCountSum,
                 isLiked,
                 imageUrls,
+                hashTags,
                 spotDetails
         );
     }
