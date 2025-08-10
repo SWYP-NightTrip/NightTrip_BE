@@ -38,10 +38,6 @@ public class LocationFormatter {
             return fullLocation;
         }
 
-        if ("세종특별자치시 세종특별자치시".equals(fullLocation)) {
-            return "세종특별자치시";
-        }
-
         String[] parts = fullLocation.split(" ");
 
         if (parts.length >= 3) {
