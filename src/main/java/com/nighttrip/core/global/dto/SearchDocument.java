@@ -1,5 +1,7 @@
 package com.nighttrip.core.global.dto;
 
+import com.nighttrip.core.global.util.LocationFormatter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Builder
+@AllArgsConstructor
 @Document(indexName = "search_documents")
 public class SearchDocument {
 
@@ -37,4 +40,18 @@ public class SearchDocument {
 
     @Field(type = FieldType.Text)
     private List<String> suggestName;
+
+    public SearchDocument withFormattedCityName() {
+        String formattedCityName = LocationFormatter.formatForSearch(this.cityName);
+        return new SearchDocument(
+                this.id,
+                this.type,
+                this.name,
+                this.description,
+                formattedCityName, // <-- 이 부분만 변경됩니다.
+                this.category,
+                this.imageUrl,
+                this.suggestName
+        );
+    }
 }

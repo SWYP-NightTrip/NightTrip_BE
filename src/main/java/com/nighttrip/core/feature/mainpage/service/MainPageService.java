@@ -125,9 +125,27 @@ public class MainPageService {
         }
     }
 
-    public Page<RecommendedSpotDto> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+    public Map<String, Object> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+        String nickname = (user != null) ? user.getNickname() : null;
         SpotCategory targetCategory = SpotCategory.fromValue(categoryName);
-        return getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+        Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("content", spotsPage.getContent());
+        responseMap.put("pageable", spotsPage.getPageable());
+        responseMap.put("totalPages", spotsPage.getTotalPages());
+        responseMap.put("totalElements", spotsPage.getTotalElements());
+        responseMap.put("last", spotsPage.isLast());
+        responseMap.put("numberOfElements", spotsPage.getNumberOfElements());
+        responseMap.put("first", spotsPage.isFirst());
+        responseMap.put("size", spotsPage.getSize());
+        responseMap.put("number", spotsPage.getNumber());
+        responseMap.put("sort", spotsPage.getSort());
+        responseMap.put("empty", spotsPage.isEmpty());
+
+        responseMap.put("nickname", nickname);
+
+        return responseMap;
     }
 
 
@@ -205,10 +223,10 @@ public class MainPageService {
 
     public List<PartnerServiceDto> getPartnerServices() {
         return Arrays.asList(
-                new PartnerServiceDto(1L, "교통권", null),
-                new PartnerServiceDto(2L, "숙박예약", null),
-                new PartnerServiceDto(3L, "투어티켓", null),
-                new PartnerServiceDto(4L, "렌터카", null)
+                new PartnerServiceDto(1L, "교통권", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/airplane_icon.png"),
+                new PartnerServiceDto(2L, "숙박예약", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/hotel_icon.png"),
+                new PartnerServiceDto(3L, "투어티켓", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/ticket_icon.png"),
+                new PartnerServiceDto(4L, "렌터카", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/car_icon.png")
         );
     }
 
