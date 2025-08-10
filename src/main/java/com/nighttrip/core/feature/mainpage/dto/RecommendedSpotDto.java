@@ -4,6 +4,7 @@ import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpotReview;
+import com.nighttrip.core.global.util.LocationFormatter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +27,7 @@ public class RecommendedSpotDto {
 
         City city = projection.getCity();
         if (city != null) {
-            this.location = city.getCityName();
+            this.location = LocationFormatter.format(city.getCityName());
             this.imgUrl = imgUrl;
         }
 
@@ -55,7 +56,7 @@ public class RecommendedSpotDto {
         this.name = spot.getSpotName();
 
         if (spot.getCity() != null) {
-            this.location = spot.getCity().getCityName();
+            this.location = LocationFormatter.format(spot.getCity().getCityName());
         }
 
         this.imgUrl = imgUrl;
