@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -61,6 +63,10 @@ public class TouristSpot {
     @OneToMany(mappedBy = "touristSpot")
     private List<TourLike> tourLikes = new ArrayList<>();
 
+    @Column(name = "hashtags", nullable = false)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private String[] hashTags = new String[0];
+
     @Convert(converter = SpotDetailsConverter.class)
     @Column(name = "tourist_spot_details", columnDefinition = "TEXT")
     private EnumSet<SpotDetails> touristSpotDetails = EnumSet.noneOf(SpotDetails.class);
@@ -83,5 +89,19 @@ public class TouristSpot {
         this.subWeight = subWeight;
         this.city = city;
         this.touristSpotDetails = touristSpotDetails != null ? touristSpotDetails : EnumSet.noneOf(SpotDetails.class);
+    }
+
+
+    public void changeHashTagsFrom(java.util.Collection<String> tags) {
+        if (tags == null) { this.hashTags = new String[0]; return; }
+        this.hashTags = tags.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(s -> s.trim().toLowerCase())
+                .distinct()
+                .toArray(String[]::new);
+    }
+
+    public java.util.List<String> getHashTagsAsList() {
+        return java.util.List.of(hashTags);
     }
 }

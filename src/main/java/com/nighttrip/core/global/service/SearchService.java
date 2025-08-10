@@ -133,7 +133,7 @@ public class SearchService {
                 new RecommendedKeyword("tourist_spot_57181", "대천해수욕장"),
                 new RecommendedKeyword("tourist_spot_79709", "영일대해수욕장"),
                 new RecommendedKeyword("tourist_spot_82738", "일산해수욕장"),
-                new RecommendedKeyword("tourist_spot_73599", "삽교호관광지"),
+                new RecommendedKeyword("tourist_spot_73699", "삽교호관광지"),
                 new RecommendedKeyword("tourist_spot_83524", "전주월드컵경기장")
         );
     }
