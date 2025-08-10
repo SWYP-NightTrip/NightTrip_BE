@@ -23,11 +23,17 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       session:
         store-type: redis
 
+  elasticsearch:
+    uris: http://elasticsearch:9200
+    connection-timeout: 5s
+    socket-timeout: 10s
+    rest:
+      max-retries: 10
 
   security:
     oauth2:
@@ -36,7 +42,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "https://dev.nighttrip.co.kr/login/oauth2/code/google"
+            redirect-uri: "https://api.nighttrip.co.kr/login/oauth2/code/google"
             scope:
               - profile
               - email
@@ -46,7 +52,7 @@ spring:
 
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            redirect-uri: "https://dev.nighttrip.co.kr/login/oauth2/code/kakao"
+            redirect-uri: "https://api.nighttrip.co.kr/login/oauth2/code/kakao"
             client-name: Kakao
             authorization-grant-type: authorization_code
             scope:
@@ -57,7 +63,7 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            redirect-uri: "https://dev.nighttrip.co.kr/login/oauth2/code/naver"
+            redirect-uri: "https://api.nighttrip.co.kr/login/oauth2/code/naver"
             client-name: Naver
             authorization-grant-type: authorization_code
             provider: naver
@@ -97,9 +103,7 @@ clova:
   gateway:
     key: ${NAVER_CLIENT_CLOUD}
 
-data:
-  elasticsearch:
-    client:
-      reactive:
-        endpoints: localhost:9200
-
+logging:
+  level:
+    org.elasticsearch: DEBUG
+    co.elastic.clients: DEBUG
