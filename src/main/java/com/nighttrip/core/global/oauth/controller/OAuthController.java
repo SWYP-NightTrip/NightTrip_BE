@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -63,5 +64,14 @@ public class OAuthController {
 
         log.info(">>>> [checkLoginStatus] 로그인 상태 확인 프로세스 종료.");
         return ResponseEntity.ok(ApiResponse.success(loginStatus));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+        log.info(">>>> [logout] 로그아웃 요청이 들어왔습니다.");
+        oAuthService.logout(request);
+        log.info(">>>> [logout] 로그아웃 처리가 완료되었습니다.");
+
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
