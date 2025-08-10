@@ -6,6 +6,7 @@ import java.util.List;
 
 public record TouristSpotDetailResponse(
         String spotName,
+        String region,
         String address,
         Integer checkCount,
         Integer mainWeight,
@@ -18,14 +19,14 @@ public record TouristSpotDetailResponse(
         Double longitude,
         Double starAverage,
         Long starCountSum,
-        String mainImage,
         Boolean isLiked,
         List<String> spotImages,
-        List<String> spotDetails
+        List<SpotDetailsDto> spotDetails
 ) {
-    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, String mainImage, Boolean isLiked, List<String> imageUrls, List<String> spotDetails) {
+    public static TouristSpotDetailResponse fromEntity(TouristSpot touristSpot, Double avg, Long starCountSum, Boolean isLiked, List<String> imageUrls, List<SpotDetailsDto> spotDetails) {
         return new TouristSpotDetailResponse(
                 touristSpot.getSpotName(),
+                touristSpot.getAddress().split(" ")[0].endsWith("도") ? touristSpot.getAddress().split(" ")[0] +" "+ touristSpot.getAddress().split(" ")[1] : touristSpot.getAddress().split(" ")[0],
                 touristSpot.getAddress(),
                 touristSpot.getCheckCount(),
                 touristSpot.getMainWeight(),
@@ -38,7 +39,6 @@ public record TouristSpotDetailResponse(
                 touristSpot.getLongitude(),
                 avg,
                 starCountSum,
-                mainImage,
                 isLiked,
                 imageUrls,
                 spotDetails
