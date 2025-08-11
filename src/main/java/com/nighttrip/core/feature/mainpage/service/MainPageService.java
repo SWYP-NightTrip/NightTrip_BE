@@ -12,6 +12,7 @@ import com.nighttrip.core.domain.user.entity.BookMark;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.BookMarkRepository;
 import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendationResponseDto;
 import com.nighttrip.core.global.enums.*;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
@@ -51,26 +52,29 @@ public class MainPageService {
     private static final double DISTANCE_WEIGHT_FOR_CAT = 0.5;
 
 
-    public List<RecommendedSpotDto> getNightPopularSpots(User user, Double userLat, Double userLon) {
-        Pageable topTen = PageRequest.of(0, SPOT_COUNT);
-        // 페이지네이션 메소드를 호출하고, 내용물(content)만 반환하여 코드 중복 최소화
-        //return getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+    public RecommendationResponseDto getNightPopularSpots(User user, Double userLat, Double userLon) {
+        Pageable topSpots = PageRequest.of(0, SPOT_COUNT);
 
-        List<RecommendedSpotDto> readOnlyList = getNightPopularSpotsPaginated(user, userLat, userLon, topTen).getContent();
+        Page<RecommendedSpotDto> spotsPage = getNightPopularSpotsPaginated(user, userLat, userLon, topSpots);
 
-        List<RecommendedSpotDto> modifiableList = new ArrayList<>(readOnlyList);
+        List<RecommendedSpotDto> spots = new ArrayList<>(spotsPage.getContent());
 
-        Collections.reverse(modifiableList);
+        Collections.reverse(spots);
 
-        return modifiableList;
+        boolean isMore = spotsPage.getTotalElements() > spotsPage.getNumberOfElements();
+
+        return new RecommendationResponseDto(spots, isMore);
     }
 
     public CategoryRecommendationDto getCategoryRecommendedSpots(User user, Double userLat, Double userLon) {
+
         SpotCategory recommendedCategory = determineMainCategory(user);
         Pageable topTen = PageRequest.of(0, SPOT_COUNT);
         Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, recommendedCategory, topTen);
         List<RecommendedSpotDto> spotDtos = spotsPage.getContent();
-        return new CategoryRecommendationDto(recommendedCategory, spotDtos);
+        boolean isMore = spotsPage.getTotalElements() > spotsPage.getNumberOfElements();
+        String nickname = (user != null) ? user.getNickname() : null;
+        return new CategoryRecommendationDto(recommendedCategory, spotDtos, isMore, nickname);
     }
 
 
@@ -119,9 +123,27 @@ public class MainPageService {
         }
     }
 
-    public Page<RecommendedSpotDto> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+    public Map<String, Object> getCategoryRecommendedSpotsPaginated(User user, Double userLat, Double userLon, String categoryName, Pageable pageable) {
+        String nickname = (user != null) ? user.getNickname() : null;
         SpotCategory targetCategory = SpotCategory.fromValue(categoryName);
-        return getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+        Page<RecommendedSpotDto> spotsPage = getSpotsByCategoryPaginated(user, userLat, userLon, targetCategory, pageable);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("content", spotsPage.getContent());
+        responseMap.put("pageable", spotsPage.getPageable());
+        responseMap.put("totalPages", spotsPage.getTotalPages());
+        responseMap.put("totalElements", spotsPage.getTotalElements());
+        responseMap.put("last", spotsPage.isLast());
+        responseMap.put("numberOfElements", spotsPage.getNumberOfElements());
+        responseMap.put("first", spotsPage.isFirst());
+        responseMap.put("size", spotsPage.getSize());
+        responseMap.put("number", spotsPage.getNumber());
+        responseMap.put("sort", spotsPage.getSort());
+        responseMap.put("empty", spotsPage.isEmpty());
+
+        responseMap.put("nickname", nickname);
+
+        return responseMap;
     }
 
 
@@ -132,7 +154,7 @@ public class MainPageService {
         if (activePlanOpt.isPresent()) {
             City targetCity = findTargetCityFromPlan(activePlanOpt.get());
             if (targetCity != null) {
-                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDesc(targetCity, category, pageable).map(this::toRecommendedSpotDto);
+                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDescIdAsc(targetCity, category, pageable).map(this::toRecommendedSpotDto);
             }
         }
 
@@ -141,7 +163,7 @@ public class MainPageService {
             List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsByCategoryAndLocationPaginated(category.name(), userLat, userLon, CATEGORY_SUB_WEIGHT, DISTANCE_WEIGHT_FOR_CAT, pageable.getPageSize(), pageable.getOffset());
             return new PageImpl<>(projections.stream().map(this::toRecommendedSpotDto).collect(Collectors.toList()), pageable, total);
         } else {
-            return touristSpotRepository.findByCategoryOrderBySubWeightDesc(category, pageable).map(this::toRecommendedSpotDto);
+            return touristSpotRepository.findByCategoryOrderBySubWeightDescIdAsc(category, pageable).map(this::toRecommendedSpotDto);
         }
     }
 
@@ -199,10 +221,10 @@ public class MainPageService {
 
     public List<PartnerServiceDto> getPartnerServices() {
         return Arrays.asList(
-                new PartnerServiceDto(1L, "교통권", null),
-                new PartnerServiceDto(2L, "숙박예약", null),
-                new PartnerServiceDto(3L, "투어티켓", null),
-                new PartnerServiceDto(4L, "렌터카", null)
+                new PartnerServiceDto(1L, "교통권", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/airplane_icon.png"),
+                new PartnerServiceDto(2L, "숙박예약", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/hotel_icon.png"),
+                new PartnerServiceDto(3L, "투어티켓", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/ticket_icon.png"),
+                new PartnerServiceDto(4L, "렌터카", "https://kr.object.ncloudstorage.com/nighttrip-images-bucket/icon/car_icon.png")
         );
     }
 

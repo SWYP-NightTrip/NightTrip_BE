@@ -3,6 +3,7 @@ package com.nighttrip.core.feature.mainpage.controller;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.service.UserService;
 import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
+import com.nighttrip.core.feature.mainpage.dto.RecommendationResponseDto;
 import com.nighttrip.core.global.dto.ApiResponse;
 import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,7 +31,7 @@ public class MainPageController {
     private final UserService userService;
 
     @GetMapping("/recommend/night-popular")
-    public ApiResponse<List<RecommendedSpotDto>> getNightPopularSpots(
+    public ApiResponse<RecommendationResponseDto> getNightPopularSpots(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
 
@@ -39,7 +41,7 @@ public class MainPageController {
                 .flatMap(userService::findUserByEmail)
                 .orElse(null);
 
-        List<RecommendedSpotDto> spots = mainPageService.getNightPopularSpots(user, lat, lon);
+        RecommendationResponseDto spots = mainPageService.getNightPopularSpots(user, lat, lon);
         return ApiResponse.success(spots);
     }
 
@@ -83,7 +85,7 @@ public class MainPageController {
     }
 
     @GetMapping("/recommend/category/all")
-    public ApiResponse<Page<RecommendedSpotDto>> getCategoryRecommendedSpotsAll(
+    public ApiResponse<Map<String, Object>> getCategoryRecommendedSpotsAll(
             @RequestParam("type") String category,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
@@ -93,18 +95,22 @@ public class MainPageController {
                 .flatMap(userService::findUserByEmail)
                 .orElse(null);
 
-        Page<RecommendedSpotDto> spotsPage = mainPageService.getCategoryRecommendedSpotsPaginated(user, lat, lon, category, pageable);
+        Map<String, Object> spotsPage = mainPageService.getCategoryRecommendedSpotsPaginated(user, lat, lon, category, pageable);
         return ApiResponse.success(spotsPage);
     }
 
     @GetMapping("/recommend/random-category/all")
-    public ApiResponse<Page<RecommendedSpotDto>> getRandomCategorySpotsAll(
+    public ApiResponse<Map<String, Object>> getRandomCategorySpotsAll(
             @RequestParam("type") String category,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             @PageableDefault(size = 6) Pageable pageable) {
 
-        Page<RecommendedSpotDto> spotsPage = mainPageService.getCategoryRecommendedSpotsPaginated(null, lat, lon, category, pageable);
+        User user = SecurityUtils.findCurrentUserEmail()
+                .flatMap(userService::findUserByEmail)
+                .orElse(null);
+
+        Map<String, Object> spotsPage = mainPageService.getCategoryRecommendedSpotsPaginated(user, lat, lon, category, pageable);
         return ApiResponse.success(spotsPage);
     }
 

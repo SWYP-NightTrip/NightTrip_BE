@@ -58,24 +58,14 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 2-a. 여행계획이 없고, 위치 정보가 있는 경우
      */
-    @Query(value =
-            "SELECT ts.*, " +
-                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance " +
-                    "FROM tourist_spot ts " +
-                    "LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id " +
-                    "WHERE (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70 " +
-                    "ORDER BY " +
-                    " (CASE " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 " +
-                    "     ELSE 0 " +
-                    " END * :distanceWeight) + " +
-                    " (COALESCE(ts.main_weight, 0) * :mainWeight) + " +
-                    " ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) " +
-                    "DESC " +
-                    "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance
+        FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        WHERE (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70
+        ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit
+        """, nativeQuery = true)
     List<TouristSpotWithDistance> findNearbyPopularSpots(
             @Param("userLat") double userLat, @Param("userLon") double userLon,
             @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight,
@@ -84,25 +74,14 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 1-a. 여행 계획이 있고, 위치 정보도 있는 경우
      */
-    @Query(value =
-            "SELECT ts.*, " +
-                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance " +
-                    "FROM tourist_spot ts " +
-                    "LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id " +
-                    "WHERE ts.city_id = :cityId AND " +
-                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70 " +
-                    "ORDER BY " +
-                    " (CASE " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 " +
-                    "     WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 " +
-                    "     ELSE 0 " +
-                    " END * :distanceWeight) + " +
-                    " (COALESCE(ts.main_weight, 0) * :mainWeight) + " +
-                    " ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) " +
-                    "DESC " +
-                    "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance
+        FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        WHERE ts.city_id = :cityId AND (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70
+        ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit
+        """, nativeQuery = true)
     List<TouristSpotWithDistance> findSpotsInCityWithScores(
             @Param("cityId") Long cityId,
             @Param("userLat") double userLat, @Param("userLon") double userLon,
@@ -114,14 +93,12 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 2-b. 예행 계획이 없고, 위치 정보도 없는 경우
      */
-    @Query(value =
-            "SELECT ts.* FROM tourist_spot ts " +
-                    "LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id " +
-                    "ORDER BY " +
-                    " (COALESCE(ts.main_weight, 0) * :mainWeight) + " +
-                    " ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) " + // 리뷰 점수 (0~100 스케일)
-                    "DESC " +
-                    "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+        SELECT ts.* FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        ORDER BY (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit
+        """, nativeQuery = true)
     List<TouristSpot> findSpotsByScoresWithoutLocation(
             @Param("mainWeight") double mainWeight,
             @Param("reviewWeight") double reviewWeight,
@@ -130,15 +107,13 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 1-b. 여행 계획은 있지만, 위치 정보는 없는 경우
      */
-    @Query(value =
-            "SELECT ts.* FROM tourist_spot ts " +
-                    "LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id " +
-                    "WHERE ts.city_id = :cityId " + // 도시 필터링 조건 추가
-                    "ORDER BY " +
-                    " (COALESCE(ts.main_weight, 0) * :mainWeight) + " +
-                    " ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) " +
-                    "DESC " +
-                    "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+        SELECT ts.* FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        WHERE ts.city_id = :cityId
+        ORDER BY (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit
+        """, nativeQuery = true)
     List<TouristSpot> findSpotsInCityByScoresWithoutLocation(
             @Param("cityId") Long cityId,
             @Param("mainWeight") double mainWeight,
@@ -149,24 +124,13 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 카테고리 추천용: 위치 기반 + 사용자 선호 카테고리 기반 추천
      */
-    @Query(value =
-            "SELECT ts.*, " +
-                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance " +
-                    "FROM tourist_spot ts " +
-                    "WHERE ts.category = :category AND " +
-                    " (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70 " +
-                    "ORDER BY " +
-                    // [변경점] ORDER BY 절을 가중합으로 변경
-                    "  (COALESCE(ts.sub_weight, 0) * :subWeightParam) + " +
-                    "  (CASE " +
-                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 " +
-                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 " +
-                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 " +
-                    "    WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 " +
-                    "    ELSE 0 " +
-                    "  END * :distanceWeight) " +
-                    "DESC " +
-                    "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) AS distance
+        FROM tourist_spot ts
+        WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 70
+        ORDER BY (COALESCE(ts.sub_weight, 0) * :subWeightParam) + (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit
+        """, nativeQuery = true)
     List<TouristSpotWithDistance> findSpotsByCategoryAndLocation(
             @Param("category") SpotCategory category,
             @Param("userLat") double userLat, @Param("userLon") double userLon,
@@ -177,64 +141,70 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     /**
      * 카테고리 추천용 (여행 계획 중): 해당 도시 & 카테고리 내에서 sub_weight로 정렬
      */
-    Page<TouristSpot> findByCityAndCategoryOrderBySubWeightDesc(City city, SpotCategory category, Pageable pageable);
+    Page<TouristSpot> findByCityAndCategoryOrderBySubWeightDescIdAsc(City city, SpotCategory category, Pageable pageable);
 
     /**
      * 카테고리 추천용 (위치 정보 없을 때 폴백): 전국 단위로 해당 카테고리 내에서 sub_weight로 정렬
      */
-    Page<TouristSpot> findByCategoryOrderBySubWeightDesc(SpotCategory category, Pageable pageable);
+    Page<TouristSpot> findByCategoryOrderBySubWeightDescIdAsc(SpotCategory category, Pageable pageable);
 
 
     // --- "더보기(페이지네이션)"을 위한 새로운 메소드들 ---
 
 
     // [페이지네이션] 1-b. 여행 계획 O, 위치 X
-    @Query("""
+    @Query(value = """
         SELECT ts FROM TouristSpot ts
-        LEFT JOIN (SELECT tsr.touristSpot.id as spotId, AVG(tsr.scope) as avg_scope FROM TouristSpotReview tsr GROUP BY tsr.touristSpot.id) rs ON ts.id = rs.spotId
+        LEFT JOIN ts.touristSpotReviews tsr
         WHERE ts.city.id = :cityId
-        ORDER BY (CAST(COALESCE(ts.mainWeight, 0) AS double) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC
-        """)
+        GROUP BY ts.id
+        ORDER BY (CAST(COALESCE(ts.mainWeight, 0) AS double) * :mainWeight) + ((COALESCE(AVG(tsr.scope), 0.0) * 20) * :reviewWeight) DESC, ts.id ASC
+        """,
+            countQuery = "SELECT COUNT(ts) FROM TouristSpot ts WHERE ts.city.id = :cityId")
     Page<TouristSpot> findSpotsInCityByScoresWithoutLocationPaginated(@Param("cityId") Long cityId, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, Pageable pageable);
 
     // [페이지네이션] 2-b. 여행 계획 X, 위치 X
-    @Query("""
+    @Query(value = """
         SELECT ts FROM TouristSpot ts
-        LEFT JOIN (SELECT tsr.touristSpot.id as spotId, AVG(tsr.scope) as avg_scope FROM TouristSpotReview tsr GROUP BY tsr.touristSpot.id) rs ON ts.id = rs.spotId
-        ORDER BY (CAST(COALESCE(ts.mainWeight, 0) AS double) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC
-        """)
+        LEFT JOIN ts.touristSpotReviews tsr
+        GROUP BY ts.id
+        ORDER BY (CAST(COALESCE(ts.mainWeight, 0) AS double) * :mainWeight) + ((COALESCE(AVG(tsr.scope), 0.0) * 20) * :reviewWeight) DESC, ts.id ASC
+        """,
+            countQuery = "SELECT COUNT(ts) FROM TouristSpot ts")
     Page<TouristSpot> findSpotsByScoresWithoutLocationPaginated(@Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, Pageable pageable);
 
     // [페이지네이션] 2-a. 여행 계획 X, 위치 O
     @Query(value = """
-            SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
-            FROM tourist_spot ts
-            LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
-            WHERE (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
-            ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
+        FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        WHERE (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
+        ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit OFFSET :offset
+        """,
+            nativeQuery = true)
     List<TouristSpotWithDistance> findNearbyPopularSpotsPaginated(@Param("userLat") double userLat, @Param("userLon") double userLon, @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, @Param("limit") int limit, @Param("offset") long offset);
 
-    // [페이지네이션] 1-a. 여행 계획 O, 위치 O
     @Query(value = """
-            SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
-            FROM tourist_spot ts
-            LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
-            WHERE ts.city_id = :cityId AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
-            ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
+        FROM tourist_spot ts
+        LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
+        WHERE ts.city_id = :cityId AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
+        ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit OFFSET :offset
+        """,
+            nativeQuery = true)
     List<TouristSpotWithDistance> findSpotsInCityWithScoresPaginated(@Param("cityId") Long cityId, @Param("userLat") double userLat, @Param("userLon") double userLon, @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, @Param("limit") int limit, @Param("offset") long offset);
 
     // [페이지네이션] 카테고리 추천 (위치 기반)
     @Query(value = """
-            SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
-            FROM tourist_spot ts
-            WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
-            ORDER BY (COALESCE(ts.sub_weight, 0) * :subWeightParam) + (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) DESC
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
+        SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
+        FROM tourist_spot ts
+        WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
+        ORDER BY (COALESCE(ts.sub_weight, 0) * :subWeightParam) + (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) DESC, ts.tourist_spot_id ASC
+        LIMIT :limit OFFSET :offset
+        """,
+            nativeQuery = true)
     List<TouristSpotWithDistance> findSpotsByCategoryAndLocationPaginated(@Param("category") String category, @Param("userLat") double userLat, @Param("userLon") double userLon, @Param("subWeightParam") double subWeightParam, @Param("distanceWeight") double distanceWeight, @Param("limit") int limit, @Param("offset") long offset);
 
     // --- "더보기(페이지네이션)" 네이티브 쿼리를 위한 COUNT 쿼리들 ---
