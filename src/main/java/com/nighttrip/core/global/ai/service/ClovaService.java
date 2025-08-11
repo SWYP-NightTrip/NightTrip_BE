@@ -16,9 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClovaService {
 
-    @Value("${clova.api.key}")
+    @Value("${naver.client-id}")
     private String apiKey;
-    @Value("${clova.gateway.key}")
+    @Value("${naver.client-secret}")
     private String gatewayKey;
 
     private final WebClient webClient = WebClient.builder()
