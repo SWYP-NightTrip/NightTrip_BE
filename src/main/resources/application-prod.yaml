@@ -97,11 +97,14 @@ naver:
   client-id: ${NAVER_CLIENT_CLOUD}
   client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
 
-clova:
-  api:
-    key: ${NAVER_CLIENT_CLOUD}
-  gateway:
-    key: ${NAVER_CLIENT_CLOUD}
+ncp:
+  object-storage:
+    access-key: ${NAVER_CLOUD_ID}
+    secret-key: ${NAVER_CLOUD_SECRET}
+    end-point: https://kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: nighttrip-images-bucket
+
 
 logging:
   level:
