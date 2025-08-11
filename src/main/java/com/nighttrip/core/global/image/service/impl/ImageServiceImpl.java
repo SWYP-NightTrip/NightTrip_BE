@@ -8,6 +8,7 @@ import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.image.service.ImageService;
 import com.nighttrip.core.global.image.utils.UrlUtil;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -26,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.net.URLEncoder.*;
+import static java.nio.charset.StandardCharsets.*;
+
 @Service
 public class ImageServiceImpl implements ImageService {
 
@@ -35,10 +39,10 @@ public class ImageServiceImpl implements ImageService {
     private final ImageRepository imageRepository;
 
     public ImageServiceImpl(
-            @Value("${amazon.aws.accessKey}") String accessKey,
-            @Value("${amazon.aws.secretKey}") String secretKey,
-            @Value("${amazon.aws.region}") String region,
-            @Value("${amazon.aws.bucket}") String bucket,
+            @Value("${ncp.object-storage.access-key}") String accessKey,
+            @Value("${ncp.object-storage.secret-key}") String secretKey,
+            @Value("${ncp.object-storage.region}") String region,
+            @Value("${ncp.object-storage.bucket}") String bucket,
             @Value("${ncp.object-storage.end-point}") String endpoint,
             ImageRepository imageRepository
     ) {
@@ -106,9 +110,10 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public void saveImageData(ImageType imageType, Long relatedId, String filePath, ImageSizeType imageSizeType) {
-        String fullUrl = "https://" + bucket + ".kr.object.ncloudstorage.com/" + filePath;
-        ImageUrl imageUrl = new ImageUrl(imageType, relatedId, fullUrl, imageSizeType);
-        imageRepository.save(imageUrl);
+        String key = filePath.replaceAll("^/+", "").replaceAll("/+$", ""); // 양끝 슬래시 정리
+        String encodedKey = encodePathSegments(key); // 세그먼트 단위 인코딩
+        String fullUrl = "https://kr.object.ncloudstorage.com/" + bucket + "/" + encodedKey; // path-style
+        imageRepository.save(new ImageUrl(imageType, relatedId, fullUrl, imageSizeType));
     }
 
     @Transactional
@@ -118,16 +123,26 @@ public class ImageServiceImpl implements ImageService {
                                   List<String> filePaths,
                                   ImageSizeType imageSizeType) {
 
-        // URL 생성 및 엔티티 리스트 변환
         List<ImageUrl> imageUrls = filePaths.stream()
-                .map(filePath -> {
-                    String fullUrl = "https://" + bucket + ".kr.object.ncloudstorage.com/" + filePath;
+                .map(fp -> {
+                    String key = fp.replaceAll("^/+", "").replaceAll("/+$", "");
+                    String encodedKey = encodePathSegments(key);
+                    String fullUrl = "https://kr.object.ncloudstorage.com/" + bucket + "/" + encodedKey; // path-style
                     return new ImageUrl(imageType, relatedId, fullUrl, imageSizeType);
                 })
                 .toList();
 
-        // 대량 저장
         imageRepository.saveAll(imageUrls);
+    }
+
+    private static String encodePathSegments(String path) {
+        String[] parts = path.split("/");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) sb.append('/');
+            sb.append(encode(parts[i], UTF_8).replace("+", "%20"));
+        }
+        return sb.toString();
     }
 
     /** ✅ count만 받아 placeName+index 규칙으로 URL 재구성 후 저장 */
@@ -150,21 +165,22 @@ public class ImageServiceImpl implements ImageService {
         imageRepository.saveAll(imageUrls);
     }
 
-
     /**
      * ✅ 단일 객체 삭제
      */
     @Override
     public void deleteObject(String fileName, String fileLocation) {
-        String key = fileLocation + "/" + fileName;
+        final String baseKey = UrlUtil.toKeyFromUrlOrKey(bucket, fileLocation);
+
+        final String key = UrlUtil.joinKey(baseKey, fileName);
 
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucket)
-                    .key(key)
+                    .key(key) // ← 최종 확정된 key
                     .build());
         } catch (SdkException e) {
-            throw new RuntimeException("객체 삭제 실패: " + e.getMessage());
+            throw new RuntimeException("객체 삭제 실패(key=" + key + "): " + e.getMessage(), e);
         }
     }
 
@@ -173,29 +189,42 @@ public class ImageServiceImpl implements ImageService {
      */
     @Override
     public void deleteFolder(String fileLocation) {
+        String locKey = UrlUtil.toKeyFromUrlOrKey(bucket, fileLocation);
+        String base = UrlUtil.firstNSegments(locKey, 2);
+        String prefix = base.endsWith("/") ? base : base + "/";
+
+        String continuation = null;
         try {
-            ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
-                    .bucket(bucket)
-                    .prefix(fileLocation + "/")
-                    .build();
-
-            ListObjectsV2Response listResponse = s3Client.listObjectsV2(listRequest);
-
-            List<ObjectIdentifier> toDelete = listResponse.contents().stream()
-                    .map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
-                    .collect(Collectors.toList());
-
-            if (!toDelete.isEmpty()) {
-                DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+            do {
+                var reqBuilder = ListObjectsV2Request.builder()
                         .bucket(bucket)
-                        .delete(Delete.builder().objects(toDelete).build())
-                        .build();
+                        .prefix(prefix)
+                        .delimiter("/");
 
-                s3Client.deleteObjects(deleteRequest);
-            }
+                if (continuation != null) {
+                    reqBuilder.continuationToken(continuation);
+                }
+
+                var res = s3Client.listObjectsV2(reqBuilder.build());
+
+                var toDelete = res.contents().stream()
+                        .filter(o -> !o.key().endsWith("/"))
+                        .map(o -> ObjectIdentifier.builder().key(o.key()).build())
+                        .collect(Collectors.toList());
+
+                if (!toDelete.isEmpty()) {
+                    var delReq = DeleteObjectsRequest.builder()
+                            .bucket(bucket)
+                            .delete(Delete.builder().objects(toDelete).build())
+                            .build();
+                    s3Client.deleteObjects(delReq);
+                }
+
+                continuation = res.isTruncated() ? res.nextContinuationToken() : null;
+            } while (continuation != null);
 
         } catch (SdkException e) {
-            throw new RuntimeException("폴더 삭제 실패: " + e.getMessage());
+            throw new RuntimeException("폴더(1 depth) 삭제 실패: " + e.getMessage(), e);
         }
     }
 }
