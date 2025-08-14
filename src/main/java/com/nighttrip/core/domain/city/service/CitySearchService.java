@@ -23,6 +23,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class CitySearchService implements CitySearchServiceImpl {
     public List<CityResponseDto> searchCity(String keyword) {
         
         if (keyword == null || keyword.trim().isEmpty()) {
-            throw new BusinessException(ErrorCode.EMPTY_SEARCH_KEYWORD);
+            return Collections.emptyList();
         }
 
         Query typeFilter = QueryBuilders.term(t -> t.field("type").value("city"));
