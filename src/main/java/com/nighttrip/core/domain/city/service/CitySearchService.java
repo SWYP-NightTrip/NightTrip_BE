@@ -1,17 +1,26 @@
 package com.nighttrip.core.domain.city.service;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.nighttrip.core.domain.city.Implementation.CitySearchServiceImpl;
 import com.nighttrip.core.domain.city.dto.CityPopularityDto;
 import com.nighttrip.core.domain.city.dto.CityResponseDto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
+import com.nighttrip.core.global.dto.SearchDocument;
+import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,27 +30,39 @@ import java.util.stream.Collectors;
 @Service
 public class CitySearchService implements CitySearchServiceImpl {
 
+    private final ElasticsearchOperations elasticsearchOperations;
+    private final RedisTemplate<String, String> redisTemplate;
     private final CityRepository cityRepository;
     private final ImageRepository imageRepository;
 
+    private static final String POPULAR_CITIES_KEY = "popular:cities:keywords";
+
     @Override
     public List<CityResponseDto> searchCity(String keyword) {
+        
         if (keyword == null || keyword.trim().isEmpty()) {
-            throw new IllegalArgumentException("검색어는 비어 있을 수 없습니다.");
+            throw new BusinessException(ErrorCode.EMPTY_SEARCH_KEYWORD);
         }
 
-        Pageable limit = PageRequest.of(0, 10);
-        List<City> cities = cityRepository.searchByKeyword(keyword, limit);
+        Query typeFilter = QueryBuilders.term(t -> t.field("type").value("city"));
+        Query multiMatchQuery = QueryBuilders.multiMatch(m -> m
+                .fields("name", "suggestName")
+                .query(keyword)
+                .fuzziness("AUTO")
+        );
 
-        return cities.stream()
-                .map(city -> {
-                    String imageUrl = imageRepository
-                            .findSEARCHImage(String.valueOf(ImageType.CITY), city.getId())
-                            .map(ImageUrl::getUrl)
-                            .orElse(null);
+        Query finalQuery = QueryBuilders.bool(b -> b.must(multiMatchQuery).filter(typeFilter));
+        NativeQuery nativeQuery = NativeQuery.builder()
+                .withQuery(finalQuery)
+                .withMaxResults(10)
+                .build();
 
-                    return CityResponseDto.from(city, imageUrl);
-                })
+        SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
+
+        redisTemplate.opsForZSet().incrementScore(POPULAR_CITIES_KEY, keyword.trim(), 1);
+
+        return searchHits.getSearchHits().stream()
+                .map(hit -> CityResponseDto.from(hit.getContent()))
                 .collect(Collectors.toList());
     }
 

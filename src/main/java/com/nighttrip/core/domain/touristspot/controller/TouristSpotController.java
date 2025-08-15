@@ -19,6 +19,11 @@ public class TouristSpotController {
 
     private final TouristSpotService touristSpotService;
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<TouristSpotResponseDto>>> searchTouristSpots(@RequestParam String keyword) {
+        List<TouristSpotResponseDto> results = touristSpotService.searchTouristSpots(keyword);
+        return ResponseEntity.ok(ApiResponse.success(results));
+    }
 
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<List<TouristSpotResponseDto>>> getPopularTouristSpotsInCity(

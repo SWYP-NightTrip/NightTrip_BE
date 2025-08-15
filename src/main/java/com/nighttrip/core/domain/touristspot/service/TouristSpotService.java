@@ -13,5 +13,6 @@ public interface TouristSpotService
     TouristSpotDetailResponse getTouristSpotDetail(Long touristSpotId);
 
     void addLike(Long touristSpotId);
+    List<TouristSpotResponseDto> searchTouristSpots(String keyword);
 
 }
