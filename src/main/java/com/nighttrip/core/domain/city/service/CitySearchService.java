@@ -15,6 +15,8 @@ import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -86,6 +88,18 @@ public class CitySearchService implements CitySearchServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    public Page<CityResponseDto> getPopularCitiesAll(Pageable pageable) {
+        Page<City> cityPage = cityRepository.findCitiesOrderByRecommendedScore(pageable);
+
+        return cityPage.map(city -> {
+            String imageUrl = imageRepository
+                    .findSEARCHImage(String.valueOf(ImageType.CITY), city.getId())
+                    .map(ImageUrl::getUrl)
+                    .orElse(null);
+            return CityResponseDto.from(city, imageUrl);
+        });
+    }
+
     public List<CityResponseDto> getPopularCities() {
         Pageable topSeven = PageRequest.of(0, 7);
 
@@ -124,41 +138,33 @@ public class CitySearchService implements CitySearchServiceImpl {
 
         final int TOTAL_SIZE = 5;
 
-        // 1. Redis에서 인기 도시 이름 목록을 가져옵니다. (순서 보장됨)
         String monthlyKey = String.format("%s%d-%02d", POPULAR_CITIES_KEY_PREFIX, year, month);
         Set<String> trendingCityNames = redisTemplate.opsForZSet().reverseRange(monthlyKey, 0, TOTAL_SIZE * 2); // 중복될 수 있으니 넉넉하게 조회
 
-        // 2. 순서 유지 및 중복 방지를 위해 LinkedHashSet을 사용합니다.
         Set<City> finalCitiesSet = new LinkedHashSet<>();
 
-        // 3. 인기 검색어 순서대로 LIKE 검색을 수행하고 결과를 Set에 추가합니다.
         if (trendingCityNames != null && !trendingCityNames.isEmpty()) {
             trendingCityNames.forEach(name -> {
-                // 아직 5개를 다 못채웠을 때만 DB에 쿼리를 날립니다.
                 if (finalCitiesSet.size() < TOTAL_SIZE) {
                     String normalizedKeyword = normalizeKeyword(name);
                     List<City> foundCities = cityRepository.findByCityNameWithLike(normalizedKeyword);
-                    // LinkedHashSet에 추가하면 중복된 도시는 자동으로 걸러집니다.
                     finalCitiesSet.addAll(foundCities);
                 }
             });
         }
 
-        // 4. 인기 도시만으로 5개가 안 채워졌으면, 기본 도시로 나머지를 채웁니다.
         if (finalCitiesSet.size() < TOTAL_SIZE) {
-            Pageable pageable = PageRequest.of(0, 10); // 넉넉하게 10개 조회
+            Pageable pageable = PageRequest.of(0, 10);
             List<City> defaultCities = cityRepository.findAllByOrderByIdAsc(pageable);
 
             for (City defaultCity : defaultCities) {
                 if (finalCitiesSet.size() >= TOTAL_SIZE) {
                     break;
                 }
-                // Set.add는 이미 원소가 있으면 false를 반환하고 추가하지 않습니다.
                 finalCitiesSet.add(defaultCity);
             }
         }
 
-        // 5. 최종 Set을 DTO 리스트로 변환하여 반환합니다. 정확히 5개만 반환하도록 limit()을 사용합니다.
         return finalCitiesSet.stream()
                 .limit(TOTAL_SIZE)
                 .map(city -> {
@@ -169,6 +175,42 @@ public class CitySearchService implements CitySearchServiceImpl {
                     return CityResponseDto.from(city, imageUrl);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Page<CityResponseDto> getMonthlyTrendingCitiesAll(int year, int month, Pageable pageable) {
+        String monthlyKey = String.format("%s%d-%02d", POPULAR_CITIES_KEY_PREFIX, year, month);
+
+        Set<String> allTrendingCityNames = redisTemplate.opsForZSet().reverseRange(monthlyKey, 0, -1);
+
+        if (allTrendingCityNames == null || allTrendingCityNames.isEmpty()) {
+            return getPopularCitiesAll(pageable);
+        }
+
+        Set<City> fullRecommendedCitySet = new LinkedHashSet<>();
+        allTrendingCityNames.forEach(name -> {
+            String normalizedKeyword = normalizeKeyword(name);
+            List<City> foundCities = cityRepository.findByCityNameWithLike(normalizedKeyword);
+            fullRecommendedCitySet.addAll(foundCities);
+        });
+
+        List<City> fullRecommendedList = new ArrayList<>(fullRecommendedCitySet);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), fullRecommendedList.size());
+
+        List<City> pagedList = (start > end) ? Collections.emptyList() : fullRecommendedList.subList(start, end);
+
+        List<CityResponseDto> dtoList = pagedList.stream()
+                .map(city -> {
+                    String imageUrl = imageRepository
+                            .findSEARCHImage(String.valueOf(ImageType.CITY), city.getId())
+                            .map(ImageUrl::getUrl)
+                            .orElse(null);
+                    return CityResponseDto.from(city, imageUrl);
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, fullRecommendedList.size());
     }
 
     private String normalizeKeyword(String keyword) {
