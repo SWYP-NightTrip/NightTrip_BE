@@ -15,7 +15,7 @@ public interface CityRepository extends JpaRepository<City, Long> {
             "LOWER(c.cityName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<City> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT c FROM City c ORDER BY (c.cityPepoleVisitied + c.cityConsum) DESC")
+    @Query("SELECT c FROM City c ORDER BY (COALESCE(c.cityPepoleVisitied, 0.0) + COALESCE(c.cityConsum, 0.0)) DESC, c.id ASC")
     List<City> findCitiesOrderByRecommendedScore();
 
 
@@ -46,4 +46,8 @@ public interface CityRepository extends JpaRepository<City, Long> {
 
     List<City> findAllByOrderByIdAsc(Pageable pageable);
 
+    List<City> findAllByCityNameIn(List<String> cityNames);
+
+    @Query("SELECT c FROM City c WHERE c.cityName LIKE %:keyword%")
+    List<City> findByCityNameWithLike(@Param("keyword") String keyword);
 }

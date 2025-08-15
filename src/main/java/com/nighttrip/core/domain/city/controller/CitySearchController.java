@@ -20,7 +20,6 @@ public class CitySearchController {
 
     private final CitySearchService citySearchService;
     @GetMapping("/search")
-
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> searchCity(@RequestParam String keyword) {
         List<CityResponseDto> cities = citySearchService.searchCity(keyword);
         return ResponseEntity.ok(ApiResponse.success(cities));
@@ -38,9 +37,16 @@ public class CitySearchController {
     }
 
 
-    @GetMapping("/recommended")
+    @GetMapping("/recommend/popular")
     public ResponseEntity<ApiResponse<List<CityResponseDto>>> getRecommendedCities() {
         List<CityResponseDto> cities = citySearchService.getRecommendedCities();
+        return ResponseEntity.ok(ApiResponse.success(cities));
+    }
+
+    @GetMapping("/recommend/monthly")
+    public ResponseEntity<ApiResponse<List<CityResponseDto>>> getMonthlyTrendingCities(
+            @RequestParam int year, @RequestParam int month) {
+        List<CityResponseDto> cities = citySearchService.getMonthlyTrendingCities(year, month);
         return ResponseEntity.ok(ApiResponse.success(cities));
     }
 }
