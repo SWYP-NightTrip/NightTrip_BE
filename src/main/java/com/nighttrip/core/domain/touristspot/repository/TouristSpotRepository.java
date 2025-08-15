@@ -241,4 +241,13 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
             """, nativeQuery = true)
     long countSpotsByCategoryAndLocation(@Param("category") String category, @Param("userLat") double userLat, @Param("userLon") double userLon);
+
+
+    /**
+     * 특정 도시 및 여러 카테고리에 해당하는 여행지 목록을 페이지네이션으로 조회합니다. (IN 쿼리)
+     * (예: "관광" 카테고리(자연, 문화, 역사 등) 조회 시 사용)
+     * 정렬: subWeight 내림차순, id 오름차순
+     */
+    Page<TouristSpot> findByCityAndCategoryInOrderBySubWeightDescIdAsc(City city, List<SpotCategory> categories, Pageable pageable);
+
 }

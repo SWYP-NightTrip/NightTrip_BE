@@ -2,6 +2,7 @@ package com.nighttrip.core.domain.city.repository;
 
 import com.nighttrip.core.domain.city.dto.CityPopularityDto;
 import com.nighttrip.core.domain.city.entity.City;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +16,11 @@ public interface CityRepository extends JpaRepository<City, Long> {
             "LOWER(c.cityName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<City> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT c FROM City c ORDER BY (c.cityPepoleVisitied + c.cityConsum) DESC")
+    @Query("SELECT c FROM City c ORDER BY (COALESCE(c.cityPepoleVisitied, 0.0) + COALESCE(c.cityConsum, 0.0)) DESC, c.id ASC")
     List<City> findCitiesOrderByRecommendedScore();
+
+    @Query("SELECT c FROM City c ORDER BY (COALESCE(c.cityPepoleVisitied, 0.0) + COALESCE(c.cityConsum, 0.0)) DESC, c.id ASC")
+    Page<City> findCitiesOrderByRecommendedScore(Pageable pageable);
 
 
     @Query("SELECT new com.nighttrip.core.domain.city.dto.CityPopularityDto(" +
@@ -46,4 +50,8 @@ public interface CityRepository extends JpaRepository<City, Long> {
 
     List<City> findAllByOrderByIdAsc(Pageable pageable);
 
+    List<City> findAllByCityNameIn(List<String> cityNames);
+
+    @Query("SELECT c FROM City c WHERE c.cityName LIKE %:keyword%")
+    List<City> findByCityNameWithLike(@Param("keyword") String keyword);
 }

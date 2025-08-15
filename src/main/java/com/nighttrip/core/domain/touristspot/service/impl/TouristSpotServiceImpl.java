@@ -162,13 +162,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
     public List<TouristSpotResponseDto> searchTouristSpots(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return Collections.emptyList(); // 빈 검색어는 빈 리스트 반환
+            return Collections.emptyList();
         }
 
-        // 1. type이 'tourist_spot'인 문서만 필터링
         Query typeFilter = Query.of(q -> q.term(t -> t.field("type").value("tourist_spot")));
 
-        // 2. 여러 필드에서 키워드 검색
         Query multiMatchQuery = Query.of(q -> q
                 .multiMatch(m -> m
                         .fields("name", "suggestName", "description", "cityName", "category")
@@ -178,7 +176,6 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 )
         );
 
-        // 3. 필터와 검색 쿼리 결합
         Query finalQuery = Query.of(q -> q.bool(b -> b.must(multiMatchQuery).filter(typeFilter)));
 
         NativeQuery nativeQuery = NativeQuery.builder()
@@ -186,7 +183,6 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .withMaxResults(10)
                 .build();
 
-        // 4. Elasticsearch에서 ID 목록 검색
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
         List<Long> spotIds = searchHits.getSearchHits().stream()
                 .map(hit -> Long.parseLong(hit.getContent().getId().replace("tourist_spot_", "")))
@@ -196,13 +192,11 @@ public class TouristSpotServiceImpl implements TouristSpotService {
             return Collections.emptyList();
         }
 
-        // 5. Redis에 검색 키워드 인기도 증가
         redisTemplate.opsForZSet().incrementScore(POPULAR_TOURIST_SPOTS_KEY, keyword.trim(), 1);
 
-        // 6. DB에서 ID를 기반으로 전체 정보 조회 후, 기존 DTO 매핑 메소드 재활용
         List<TouristSpot> spots = touristSpotRepository.findAllById(spotIds);
         return spots.stream()
-                .map(this::mapToTouristSpotResponseDto) // 기존 DTO 변환 메소드 재사용
+                .map(this::mapToTouristSpotResponseDto)
                 .collect(Collectors.toList());
     }
 }
