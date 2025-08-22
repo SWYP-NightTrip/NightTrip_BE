@@ -196,4 +196,19 @@ public class TripPlanServiceImpl implements TripPlanService {
                 cityResponses
         );
     }
+    public TripPlanDetailResponse getTripPlanDetails(Long tripPlanId) {
+        TripPlan tripPlan = tripPlanRepository.findById(tripPlanId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
+        List<TripPlanDetailResponse.CityDto> cities = tripPlanRepository.findCitiesByTripPlanId(tripPlanId)
+                .stream()
+                .map(TripPlanDetailResponse.CityDto::from)
+                .toList();
+
+        List<TripPlanDetailResponse.TripDayDto> tripDays = tripPlan.getTripDays()
+                .stream()
+                .map(TripPlanDetailResponse.TripDayDto::from)
+                .toList();
+
+        return new TripPlanDetailResponse(tripPlanId, cities, tripDays);
+    }
 }

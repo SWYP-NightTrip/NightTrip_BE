@@ -1,5 +1,7 @@
 package com.nighttrip.core.domain.tripplan.repository;
 
+import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.global.enums.TripStatus;
@@ -43,4 +45,21 @@ public interface TripPlanRepository extends JpaRepository<TripPlan, Long> {
     List<TripPlan> findByUserAndStatusAndEndDateBefore(User user, TripStatus tripStatus, LocalDate today);
     Optional<TripPlan> findFirstByUserAndStatusInOrderByNumIndexDesc(User user, List<TripStatus> statuses);
     Optional<TripPlan> findFirstByUserAndStatusOrderByNumIndexDesc(User user, TripStatus tripStatus);
+    @Query("""
+        select c
+        from CityOnTripDay cotd
+        join cotd.city c
+        where cotd.tripPlan.id = :tripPlanId
+    """)
+    List<City> findCitiesByTripPlanId(@Param("tripPlanId") Long tripPlanId);
+
+    @Query("""
+        select ts
+        from TripOrder o
+        join o.tripDay d
+        join d.tripPlan p
+        join o.touristSpot ts
+        where p.id = :tripPlanId
+    """)
+    List<TouristSpot> findTouristSpotsByTripPlanId(@Param("tripPlanId") Long tripPlanId);
 }

@@ -110,4 +110,13 @@ public class TripPlanController {
     public ApiResponse<TripPlanCreateResponse> createTripPlan(@RequestBody TripPlanCreateRequest request) {
         return ApiResponse.success(tripPlanService.createTripPlan(request));
     }
+
+    @GetMapping("/{tripPlanId}/details")
+    public ApiResponse<TripPlanDetailResponse> getTripPlanDetails(
+            @PathVariable Long tripPlanId
+    ) {
+        TripPlanDetailResponse response = tripPlanService.getTripPlanDetails(tripPlanId);
+        return ApiResponse.success(response);
+    }
+
 }

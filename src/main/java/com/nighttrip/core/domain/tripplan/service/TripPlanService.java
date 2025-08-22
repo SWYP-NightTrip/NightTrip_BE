@@ -14,4 +14,5 @@ public interface TripPlanService {
     void reorderTripPlan(TripPlanReorderRequest request);
     void updateTripPlanStatusesForUser();
     TripPlanCreateResponse createTripPlan(TripPlanCreateRequest request);
+    TripPlanDetailResponse getTripPlanDetails(Long tripPlanId);
 }
