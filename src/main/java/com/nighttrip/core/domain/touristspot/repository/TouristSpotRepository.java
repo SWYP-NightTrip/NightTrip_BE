@@ -24,7 +24,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
                 where t.tripDay.tripPlan.id=:tripPlanId
                 and t.tripDay.dayOrder=:tripDayOrder
             """)
-    Optional<BigDecimal> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
+    Optional<Long> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
 
     @Query("SELECT ts FROM TouristSpot ts " +
             "LEFT JOIN ts.tourLikes tl " +

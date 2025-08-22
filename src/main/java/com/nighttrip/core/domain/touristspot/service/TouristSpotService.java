@@ -14,5 +14,5 @@ public interface TouristSpotService
 
     void addLike(Long touristSpotId);
     List<TouristSpotResponseDto> searchTouristSpots(String keyword);
-
+    double calculateDistanceBetweenSpots(Long spotOneId, Long spotTwoId);
 }

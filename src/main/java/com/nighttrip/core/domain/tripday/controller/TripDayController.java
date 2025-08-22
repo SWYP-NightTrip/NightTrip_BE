@@ -2,6 +2,9 @@ package com.nighttrip.core.domain.tripday.controller;
 
 import com.nighttrip.core.domain.tripday.dto.TripPlanChangeOrderRequest;
 import com.nighttrip.core.domain.tripday.service.TripDayService;
+import com.nighttrip.core.domain.triporder.entity.TripOrder;
+import com.nighttrip.core.domain.triporder.service.TripOrderService;
+import com.nighttrip.core.domain.tripplan.dto.AddPlaceRequest;
 import com.nighttrip.core.global.dto.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13,20 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class TripDayController {
 
     private final TripDayService tripDayService;
-
-    public TripDayController(TripDayService tripDayService) {
+    private final TripOrderService tripOrderService;
+    public TripDayController(TripDayService tripDayService, TripOrderService tripOrderService) {
         this.tripDayService = tripDayService;
+        this.tripOrderService = tripOrderService;
     }
-
-    @PutMapping("change-order")
-    public ResponseEntity<ApiResponse<?>> changeTripPlanOrder(@Valid @RequestBody TripPlanChangeOrderRequest request,
-                                                              @PathVariable("tripPlanId") Long tripPlanId,
-                                                              @PathVariable("tripDayId") Integer tripDayId) {
-        tripDayService.changePlanOrder(request, tripPlanId, tripDayId);
-
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(null));
+    @PostMapping("/add-place")
+    public ResponseEntity<ApiResponse<Void>> addPlace(@RequestBody AddPlaceRequest request) {
+        tripOrderService.addPlace(request.tripPlanId(), request.tripDayId(),request.touristSpotId());
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
 }
