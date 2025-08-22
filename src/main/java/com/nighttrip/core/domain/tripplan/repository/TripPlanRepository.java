@@ -41,6 +41,6 @@ public interface TripPlanRepository extends JpaRepository<TripPlan, Long> {
     List<TripPlan> findByUserAndStatusAndStartDateBefore(User user, TripStatus tripStatus, LocalDate today);
 
     List<TripPlan> findByUserAndStatusAndEndDateBefore(User user, TripStatus tripStatus, LocalDate today);
-
+    Optional<TripPlan> findFirstByUserAndStatusInOrderByNumIndexDesc(User user, List<TripStatus> statuses);
     Optional<TripPlan> findFirstByUserAndStatusOrderByNumIndexDesc(User user, TripStatus tripStatus);
 }

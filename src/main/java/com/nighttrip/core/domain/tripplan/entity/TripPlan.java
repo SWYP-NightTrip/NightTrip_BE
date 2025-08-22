@@ -1,5 +1,6 @@
 package com.nighttrip.core.domain.tripplan.entity;
 
+import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.user.entity.User;
@@ -75,4 +76,17 @@ public class TripPlan {
     public void changeNumIndex(Long newIndex) {
         this.numIndex = newIndex;
     }
+    public TripPlan(User user, String title, LocalDate startDate, LocalDate endDate, Long numIndex) {
+        this.user = user;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.numIndex = numIndex;
+
+    }
+    public void addCity(City city) {
+        CityOnTripDay cotd = new CityOnTripDay(this, city);
+        this.cityOnTripDays.add(cotd);
+    }
+
 }

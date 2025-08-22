@@ -1,7 +1,10 @@
 package com.nighttrip.core.domain.tripplan.service.impl;
 
+import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.triporder.entity.TripOrder;
 
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 public class TripPlanServiceImpl implements TripPlanService {
     private final TripPlanRepository tripPlanRepository;
     private final UserRepository userRepository;
+    private final CityRepository cityRepository;
     @Override
     public void changePlanStatus(TripPlanStatusChangeRequest request, Long planId) {
         TripPlan tripPlan = tripPlanRepository.findById(planId)
@@ -70,72 +74,6 @@ public class TripPlanServiceImpl implements TripPlanService {
         return tripPlanRepository.findByUser_IdAndStatus(user.getId(), TripStatus.COMPLETED, pageable)
                 .map(TripPlanResponse::from);
     }
-
-/*
-    public TripPlanDetailResponse getTripPlanDetails(Long tripPlanId) {
-        TripPlan tripPlan = tripPlanRepository.findByIdWithAllDetails(tripPlanId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
-
-        List<TripDayDetailResponse> tripDays = tripPlan.getTripDays().stream()
-                .map(this::mapToTripDayDetailResponse)
-                .collect(Collectors.toList());
-
-        return new TripPlanDetailsResponse(
-                tripPlan.getTitle(),
-                tripPlan.getStartDate(),
-                tripPlan.getEndDate(),
-                tripDays
-        );
-    }
-
-    private TripDayDetailResponse mapToTripDayDetailResponse(TripDay tripDay) {
-        List<CityResponse> cities = tripDay.getCityOnTripDays().stream()
-                .map(cityOnTripDay -> new CityResponse(
-                        cityOnTripDay.getCity().getId(),
-                        cityOnTripDay.getCity().getCityName()))
-                .collect(Collectors.toList());
-
-        List<TripOrderResponse> tripOrders = tripDay.getTripOrders().stream()
-                .map(this::mapToTripOrderResponse)
-                .collect(Collectors.toList());
-
-        return new TripDayDetailResponse(
-                tripDay.getId(),
-                tripDay.getDayOrder(),
-                cities,
-                tripOrders
-        );
-    }
-
-    private TripOrderResponse mapToTripOrderResponse(TripOrder tripOrder) {
-        TouristSpot touristSpotEntity = tripOrder.getTouristSpot();
-        TouristSpotDetailResponse touristSpot = null;
-        if (touristSpotEntity != null) {
-            touristSpot = new TouristSpotDetailResponse(
-                    touristSpotEntity.getId(),
-                    touristSpotEntity.getSpotName(),
-                    touristSpotEntity.getLongitude(),
-                    touristSpotEntity.getLatitude(),
-                    touristSpotEntity.getCheckCount(),
-                    touristSpotEntity.getAddress(),
-                    touristSpotEntity.getLink(),
-                    touristSpotEntity.getCategory(),
-                    touristSpotEntity.getSpotDescription(),
-                    touristSpotEntity.getTelephone(),
-                    touristSpotEntity.getMainWeight(),
-                    touristSpotEntity.getSubWeight(),
-                    touristSpotEntity.getHashTagsAsList(),
-                    touristSpotEntity.getTouristSpotDetails()
-            );
-        }
-
-        return new TripOrderResponse(
-                tripOrder.getId(),
-                tripOrder.getOrderIndex(),
-                tripOrder.getArrivalTime(),
-                touristSpot
-        );
-    }*/
 
     public void deleteTripPlan(Long tripPlanId) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -216,5 +154,46 @@ public class TripPlanServiceImpl implements TripPlanService {
             }
             tripPlanRepository.saveAll(ongoingToCompleted);
         }
+    }
+
+    @Transactional
+    public TripPlanCreateResponse createTripPlan(TripPlanCreateRequest request) {
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Long lastIndex = tripPlanRepository
+                .findFirstByUserAndStatusInOrderByNumIndexDesc(
+                        user,
+                        List.of(TripStatus.UPCOMING, TripStatus.ONGOING)
+                )
+                .map(TripPlan::getNumIndex)
+                .orElse(0L);
+
+        TripPlan tripPlan = new TripPlan(
+                user,
+                request.title(),
+                request.startDate(),
+                request.endDate(),
+                lastIndex + 1
+        );
+
+        List<TripPlanCreateResponse.CityResponse> cityResponses = request.cities().stream()
+                .map(cityName -> {
+                    City city = cityRepository.findByCityName(cityName)
+                            .orElseThrow(() -> new BusinessException(ErrorCode.CITY_NOT_FOUND));
+                    tripPlan.addCity(city);
+                    return new TripPlanCreateResponse.CityResponse(city.getId(), city.getCityName());
+                })
+                .toList();
+
+        tripPlanRepository.save(tripPlan);
+
+        return new TripPlanCreateResponse(
+                tripPlan.getId(),
+                tripPlan.getStartDate(),
+                tripPlan.getEndDate(),
+                cityResponses
+        );
     }
 }

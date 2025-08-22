@@ -1,9 +1,6 @@
 package com.nighttrip.core.domain.tripplan.controller;
 
-import com.nighttrip.core.domain.tripplan.dto.TripPlanDetailResponse;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanReorderRequest;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanResponse;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanStatusChangeRequest;
+import com.nighttrip.core.domain.tripplan.dto.*;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.tripplan.service.TripPlanService;
@@ -62,15 +59,7 @@ public class TripPlanController {
         Page<TripPlanResponse> pastPlans = tripPlanService.getPastTripPlans(pageable);
         return ResponseEntity.ok(ApiResponse.success(pastPlans));
     }
-    /*
-    @GetMapping("/{planId}/details")
-    public ResponseEntity<ApiResponse<TripPlanDetailResponse>> getTripPlanDetails(
-            @PathVariable("planId") Long planId) {
-
-        TripPlanDetailResponse response = tripPlanService.getTripPlanDetails(planId);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-*/ @GetMapping("/status")
+    @GetMapping("/status")
     public List<TripPlanResponse> getTripPlansByUser() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -116,5 +105,9 @@ public class TripPlanController {
     public ResponseEntity<ApiResponse<Void>> updateTripPlanStatuses() {
         tripPlanService.updateTripPlanStatusesForUser();
         return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    @PostMapping
+    public ApiResponse<TripPlanCreateResponse> createTripPlan(@RequestBody TripPlanCreateRequest request) {
+        return ApiResponse.success(tripPlanService.createTripPlan(request));
     }
 }

@@ -78,8 +78,8 @@ public class TripOrderServiceImpl implements TripOrderService {
 
             originalTripDay.removeTripOrder(movingTripOrder);
             tripOrderRepository.decrementOrderIndex(originalTripDayId, fromIndex + 1, originalTripDay.getTripOrders().size());
-            movingTripOrder.setTripDay(destinationTripDay); // TripOrder.java에 setTripDay 메서드 추가 필요
-            destinationTripDay.addTripOrderAt(movingTripOrder, toIndex); // TripDay.java에 addTripOrderAt 메서드 추가 필요
+            movingTripOrder.setTripDay(destinationTripDay);
+            destinationTripDay.addTripOrderAt(movingTripOrder, toIndex);
             tripOrderRepository.incrementOrderIndex(destinationTripDayId, toIndex, destinationTripDay.getTripOrders().size() - 1);
 
 

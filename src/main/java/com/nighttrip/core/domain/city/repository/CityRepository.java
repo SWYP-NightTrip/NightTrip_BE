@@ -2,6 +2,9 @@ package com.nighttrip.core.domain.city.repository;
 
 import com.nighttrip.core.domain.city.dto.CityPopularityDto;
 import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.tripplan.entity.TripPlan;
+import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.global.enums.TripStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CityRepository extends JpaRepository<City, Long> {
 
@@ -47,11 +51,12 @@ public interface CityRepository extends JpaRepository<City, Long> {
     List<CityPopularityDto> findPopularCitiesWithAggregatedScores(Pageable pageable);
 
 
-
+    Optional<TripPlan> findFirstByUserAndStatusInOrderByNumIndexDesc(User user, List<TripStatus> statuses);
     List<City> findAllByOrderByIdAsc(Pageable pageable);
 
     List<City> findAllByCityNameIn(List<String> cityNames);
 
     @Query("SELECT c FROM City c WHERE c.cityName LIKE %:keyword%")
     List<City> findByCityNameWithLike(@Param("keyword") String keyword);
+    Optional<City> findByCityName(String cityName);
 }

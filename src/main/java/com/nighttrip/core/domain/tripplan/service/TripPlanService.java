@@ -1,9 +1,6 @@
 package com.nighttrip.core.domain.tripplan.service;
 
-import com.nighttrip.core.domain.tripplan.dto.TripPlanDetailResponse;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanReorderRequest;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanResponse;
-import com.nighttrip.core.domain.tripplan.dto.TripPlanStatusChangeRequest;
+import com.nighttrip.core.domain.tripplan.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,5 +13,5 @@ public interface TripPlanService {
     void deleteTripPlan(Long tripPlanId);
     void reorderTripPlan(TripPlanReorderRequest request);
     void updateTripPlanStatusesForUser();
-
+    TripPlanCreateResponse createTripPlan(TripPlanCreateRequest request);
 }
