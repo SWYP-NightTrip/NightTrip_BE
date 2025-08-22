@@ -16,10 +16,16 @@ import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Pageable;import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.nighttrip.core.domain.tripplan.dto.*;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +50,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     public Page<TripPlanResponse> getOngoingTripPlans(Pageable pageable) {
         String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         List<TripStatus> statuses = List.of(TripStatus.UPCOMING, TripStatus.ONGOING);
 
@@ -59,7 +65,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     public Page<TripPlanResponse> getPastTripPlans(Pageable pageable) {
         String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return tripPlanRepository.findByUser_IdAndStatus(user.getId(), TripStatus.COMPLETED, pageable)
                 .map(TripPlanResponse::from);
@@ -130,4 +136,85 @@ public class TripPlanServiceImpl implements TripPlanService {
                 touristSpot
         );
     }*/
+
+    public void deleteTripPlan(Long tripPlanId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        TripPlan tripPlan = tripPlanRepository.findByIdAndUserId(tripPlanId, user.getId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
+
+        tripPlanRepository.delete(tripPlan);
+    }
+
+    public void reorderTripPlan(TripPlanReorderRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        TripPlan movingPlan = tripPlanRepository.findById(request.tripPlanId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
+        if (!movingPlan.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        List<TripStatus> statusGroup;
+        if (movingPlan.getStatus() == TripStatus.COMPLETED) {
+            statusGroup = Arrays.asList(TripStatus.COMPLETED);
+        } else {
+            statusGroup = Arrays.asList(TripStatus.UPCOMING, TripStatus.ONGOING);
+        }
+
+        List<TripPlan> tripPlans = tripPlanRepository.findByUserAndStatusInOrderByNumIndexAsc(user, statusGroup);
+
+        List<TripPlan> plansToUpdate;
+
+        if (request.fromIndex() < request.toIndex()) {
+            plansToUpdate = tripPlans.stream()
+                    .filter(p -> p.getNumIndex() > request.fromIndex() && p.getNumIndex() <= request.toIndex())
+                    .peek(p -> p.changeNumIndex(p.getNumIndex() - 1))
+                    .collect(Collectors.toList());
+        } else if (request.fromIndex() > request.toIndex()) {
+            plansToUpdate = tripPlans.stream()
+                    .filter(p -> p.getNumIndex() >= request.toIndex() && p.getNumIndex() < request.fromIndex())
+                    .peek(p -> p.changeNumIndex(p.getNumIndex() + 1))
+                    .collect(Collectors.toList());
+        } else {
+            return;
+        }
+
+        movingPlan.changeNumIndex(request.toIndex());
+        plansToUpdate.add(movingPlan);
+        tripPlanRepository.saveAll(plansToUpdate);
+    }
+
+    /**
+     * 현재 유저의 여행 계획 상태를 업데이트합니다.
+     */
+    public void updateTripPlanStatusesForUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        LocalDate today = LocalDate.now();
+
+        List<TripPlan> upcomingToOngoing = tripPlanRepository.findByUserAndStatusAndStartDateBefore(user, TripStatus.UPCOMING, today);
+        for (TripPlan plan : upcomingToOngoing) {
+            plan.changeStatus(TripStatus.ONGOING);
+        }
+        tripPlanRepository.saveAll(upcomingToOngoing);
+
+        List<TripPlan> ongoingToCompleted = tripPlanRepository.findByUserAndStatusAndEndDateBefore(user, TripStatus.ONGOING, today);
+        if (!ongoingToCompleted.isEmpty()) {
+            Optional<TripPlan> lastCompletedPlan = tripPlanRepository.findFirstByUserAndStatusOrderByNumIndexDesc(user, TripStatus.COMPLETED);
+            Long maxIndex = lastCompletedPlan.map(TripPlan::getNumIndex).orElse(0L);
+
+            for (TripPlan plan : ongoingToCompleted) {
+                maxIndex++;
+                plan.changeStatus(TripStatus.COMPLETED);
+                plan.changeNumIndex(maxIndex);
+            }
+            tripPlanRepository.saveAll(ongoingToCompleted);
+        }
+    }
 }

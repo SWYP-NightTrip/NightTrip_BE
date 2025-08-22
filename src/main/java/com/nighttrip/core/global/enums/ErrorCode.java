@@ -34,7 +34,8 @@ public enum ErrorCode {
 	INVALID_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인 되어있지 않습니다."),
 	TRIP_ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"여행계획을 찾을 수 없습니다."),
 	INVALID_TIME_FORMAT(HttpStatus.BAD_REQUEST,"시간 입력형식이 맞지 않습니다." ),
-	INVALID_COORDINATE(HttpStatus.BAD_REQUEST,"잘못된 위도 경도 입니다");
+	INVALID_COORDINATE(HttpStatus.BAD_REQUEST,"잘못된 위도 경도 입니다"),
+	FORBIDDEN_ACCESS(HttpStatus.BAD_REQUEST,"해당 유저의 여행계획이 아닙니다.");
 	private final HttpStatus errorCode;
     private final String message;
 

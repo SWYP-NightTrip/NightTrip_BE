@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,4 +32,15 @@ public interface TripPlanRepository extends JpaRepository<TripPlan, Long> {
             "ORDER BY td.dayOrder ASC, to.orderIndex ASC")
     Optional<TripPlan> findByIdWithDetails(@Param("tripPlanId") Long tripPlanId);
     List<TripPlan> findByUserId(Long userId);
+
+    Optional<TripPlan> findByIdAndUserId(Long tripPlanId, Long id);
+
+    List<TripPlan> findByUserAndStatusInOrderByNumIndexAsc(User user, List<TripStatus> statusGroup);
+    
+
+    List<TripPlan> findByUserAndStatusAndStartDateBefore(User user, TripStatus tripStatus, LocalDate today);
+
+    List<TripPlan> findByUserAndStatusAndEndDateBefore(User user, TripStatus tripStatus, LocalDate today);
+
+    Optional<TripPlan> findFirstByUserAndStatusOrderByNumIndexDesc(User user, TripStatus tripStatus);
 }

@@ -1,6 +1,7 @@
 package com.nighttrip.core.domain.tripday.entity;
 
 import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,15 +19,15 @@ public class CityOnTripDay {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trip_day_id")
-    private TripDay tripDay;
+    @JoinColumn(name = "trip_plan_id", nullable = false)
+    private TripPlan tripPlan;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
 
-    public CityOnTripDay(TripDay tripDay, City city) {
-        this.tripDay = tripDay;
+    public CityOnTripDay(TripPlan tripPlan, City city) {
+        this.tripPlan = tripPlan;
         this.city = city;
     }
 }

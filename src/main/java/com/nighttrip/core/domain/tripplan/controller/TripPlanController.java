@@ -1,6 +1,7 @@
 package com.nighttrip.core.domain.tripplan.controller;
 
 import com.nighttrip.core.domain.tripplan.dto.TripPlanDetailResponse;
+import com.nighttrip.core.domain.tripplan.dto.TripPlanReorderRequest;
 import com.nighttrip.core.domain.tripplan.dto.TripPlanResponse;
 import com.nighttrip.core.domain.tripplan.dto.TripPlanStatusChangeRequest;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
@@ -44,7 +45,7 @@ public class TripPlanController {
      */
     @GetMapping("/ongoing")
     public ResponseEntity<ApiResponse<Page<TripPlanResponse>>> getOngoingTripPlans(
-            @PageableDefault(page = 0, size = 10, sort = "createdAt") Pageable pageable) {
+            @PageableDefault(page = 0, size = 10, sort = "numIndex") Pageable pageable) {
 
         Page<TripPlanResponse> ongoingPlans = tripPlanService.getOngoingTripPlans(pageable);
         return ResponseEntity.ok(ApiResponse.success(ongoingPlans));
@@ -56,7 +57,7 @@ public class TripPlanController {
      */
     @GetMapping("/past")
     public ResponseEntity<ApiResponse<Page<TripPlanResponse>>> getPastTripPlans(
-            @PageableDefault(page = 0, size = 10, sort = "endDate") Pageable pageable) {
+            @PageableDefault(page = 0, size = 10, sort = "numIndex") Pageable pageable) {
 
         Page<TripPlanResponse> pastPlans = tripPlanService.getPastTripPlans(pageable);
         return ResponseEntity.ok(ApiResponse.success(pastPlans));
@@ -86,5 +87,34 @@ public class TripPlanController {
                         plan.getEndDate(),
                         plan.getStatus()))
                 .collect(Collectors.toList());
+    }
+    /**
+     * 특정 여행 계획을 삭제합니다.
+     * @param planId 삭제할 여행 계획의 ID
+     */
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<ApiResponse<Void>> deleteTripPlan(@PathVariable("planId") Long planId) {
+        tripPlanService.deleteTripPlan(planId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    /**
+     * 특정 여행 계획의 순서를 변경합니다.
+     * UPCOMING과 ONGOING 상태는 하나의 그룹으로, COMPLETED 상태는 별도로 순서를 관리합니다.
+     * @param request 순서를 변경할 여행 계획의 ID와 변경 위치 정보
+     * @return 성공 응답
+     */
+    @PutMapping("/reorder")
+    public ResponseEntity<ApiResponse<Void>> reorderTripPlan(@RequestBody TripPlanReorderRequest request) {
+        tripPlanService.reorderTripPlan(request);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    /**
+     * 현재 유저의 여행 계획 상태를 업데이트합니다.
+     * UPCOMING -> ONGOING, ONGOING -> COMPLETED
+     */
+    @PutMapping("/update-status")
+    public ResponseEntity<ApiResponse<Void>> updateTripPlanStatuses() {
+        tripPlanService.updateTripPlanStatusesForUser();
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

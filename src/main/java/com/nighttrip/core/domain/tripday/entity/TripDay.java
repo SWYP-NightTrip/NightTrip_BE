@@ -34,9 +34,6 @@ public class TripDay {
     private TripPlan tripPlan;
 
     @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
-
-    @OneToMany(mappedBy = "tripDay", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private List<TripOrder> tripOrders = new ArrayList<>();
 
@@ -45,7 +42,6 @@ public class TripDay {
         this.tripOrders.remove(tripOrder);
     }
 
-    // ⭐ 추가된 메서드
     public void addTripOrderAt(TripOrder tripOrder, int toIndex) {
         if (toIndex < 0 || toIndex > tripOrders.size()) {
             throw new BusinessException(ErrorCode.INVALID_TRIP_ORDER_INDEX);
