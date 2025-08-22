@@ -38,16 +38,6 @@ public class TripPlanController {
         this.tripPlanRepository = tripPlanRepository;
     }
 
-    @PatchMapping("/{planId}/status")
-    public ResponseEntity<ApiResponse<?>> changePlanStatus(@Valid @RequestBody TripPlanStatusChangeRequest request,
-                                                           @PathVariable("planId") Long planId) {
-        tripPlanService.changePlanStatus(request, planId);
-
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(null));
-    }
-
     /**
      * 현재 수정 중인 여행 계획 목록을 무한스크롤로 조회합니다.
      * @param pageable 클라이언트가 요청하는 페이지 정보 (page, size, sort)
@@ -79,7 +69,7 @@ public class TripPlanController {
         TripPlanDetailResponse response = tripPlanService.getTripPlanDetails(planId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-*/
+*/ @GetMapping("/status")
     public List<TripPlanResponse> getTripPlansByUser() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
