@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -88,24 +89,28 @@ public class TripOrderServiceImpl implements TripOrderService {
         }
     }
     @Override
-    public void addPlace(Long tripPlanId, Integer tripDayId, Long touristSpotId) {
+    public void addPlace(Long tripPlanId, Integer tripDayId, List<Long> touristSpotIds) {
         TripDay tripDay = tripDayRepository.findByTripPlanIdAndTripDayId(tripPlanId, tripDayId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_DAY_NOT_FOUND));
 
-        TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+        long lastOrder = tripOrderRepository.findLastOrder(tripPlanId, tripDayId)
+                .orElse(0L);
 
-        Long order = tripOrderRepository.findLastOrder(tripPlanId, tripDayId)
-                .orElse(0L) + 1L;
+        for (int i = 0; i < touristSpotIds.size(); i++) {
+            Long touristSpotId = touristSpotIds.get(i);
+            TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+            Long order = lastOrder + i + 1;
 
-        TripOrder tripOrder = TripOrder.builder()
-                .orderIndex(order)
-                .itemType(ItemType.PLACE)
-                .tripDay(tripDay)
-                .touristSpot(touristSpot)
-                .build();
+            TripOrder tripOrder = TripOrder.builder()
+                    .orderIndex(order)
+                    .itemType(ItemType.PLACE)
+                    .tripDay(tripDay)
+                    .touristSpot(touristSpot)
+                    .build();
 
-        tripOrderRepository.save(tripOrder);
+            tripOrderRepository.save(tripOrder);
+        }
     }
 
 }

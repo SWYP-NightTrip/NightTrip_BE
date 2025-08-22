@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/v1/trip-plan/{tripPlanId}/{tripDayId}")
+@RequestMapping("api/v1/trip-plan/add-place")
 @RestController
 public class TripDayController {
 
@@ -23,7 +23,7 @@ public class TripDayController {
     }
     @PostMapping("/add-place")
     public ResponseEntity<ApiResponse<Void>> addPlace(@RequestBody AddPlaceRequest request) {
-        tripOrderService.addPlace(request.tripPlanId(), request.tripDayId(),request.touristSpotId());
+        tripOrderService.addPlace(request.tripPlanId(), request.tripDayId(), request.touristSpotIds());
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
