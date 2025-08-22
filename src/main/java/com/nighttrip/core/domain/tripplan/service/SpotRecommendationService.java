@@ -4,14 +4,20 @@ import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
+import com.nighttrip.core.domain.tripplan.dto.TripPlanResponse;
+import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
+import com.nighttrip.core.domain.user.entity.User;
+import com.nighttrip.core.domain.user.repository.UserRepository;
 import com.nighttrip.core.feature.mainpage.dto.CategoryRecommendationDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
+import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
+import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +35,7 @@ public class SpotRecommendationService {
     private final TouristSpotRepository touristSpotRepository;
     private final CityRepository cityRepository;
     private final ImageRepository imageRepository;
-
+    private final TripPlanRepository tripPlanRepository;
     private static final List<SpotCategory> TOURISM_CATEGORIES = List.of(
             SpotCategory.NATURE,
             SpotCategory.CULTURE,
@@ -66,4 +72,5 @@ public class SpotRecommendationService {
                 .orElse(null);
         return new RecommendedSpotDto(spot, imageUrl);
     }
+
 }

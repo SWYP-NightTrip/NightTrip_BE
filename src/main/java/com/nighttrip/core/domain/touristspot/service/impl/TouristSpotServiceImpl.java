@@ -199,4 +199,35 @@ public class TouristSpotServiceImpl implements TouristSpotService {
                 .map(this::mapToTouristSpotResponseDto)
                 .collect(Collectors.toList());
     }
+
+    private static final int EARTH_RADIUS_KM = 6371;
+
+    public double calculateDistanceBetweenSpots(Long spotOneId, Long spotTwoId) {
+        TouristSpot spotOne = touristSpotRepository.findById(spotOneId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+
+        TouristSpot spotTwo = touristSpotRepository.findById(spotTwoId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+
+        if (spotOne.getLatitude() == null || spotOne.getLongitude() == null ||
+                spotTwo.getLatitude() == null || spotTwo.getLongitude() == null) {
+            throw new BusinessException(ErrorCode.INVALID_COORDINATE);
+        }
+
+        Double lat1Rad = Math.toRadians(spotOne.getLatitude());
+        Double lon1Rad = Math.toRadians(spotOne.getLongitude());
+        Double lat2Rad = Math.toRadians(spotTwo.getLatitude());
+        Double lon2Rad = Math.toRadians(spotTwo.getLongitude());
+
+        Double deltaLat = lat2Rad - lat1Rad;
+        Double deltaLon = lon2Rad - lon1Rad;
+
+        Double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2)
+                + Math.cos(lat1Rad) * Math.cos(lat2Rad)
+                * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+        Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return EARTH_RADIUS_KM * c;
+    }
 }

@@ -40,28 +40,16 @@ public class TripDay {
     @OrderBy("orderIndex ASC")
     private List<TripOrder> tripOrders = new ArrayList<>();
 
-    public void changeTripOrder(int fromIndex, int toIndex) {
-        if (fromIndex == toIndex) return;
 
-        if (fromIndex < 0 || toIndex < 0 ||
-            fromIndex >= tripOrders.size() || toIndex >= tripOrders.size()) {
+    public void removeTripOrder(TripOrder tripOrder) {
+        this.tripOrders.remove(tripOrder);
+    }
+
+    // ⭐ 추가된 메서드
+    public void addTripOrderAt(TripOrder tripOrder, int toIndex) {
+        if (toIndex < 0 || toIndex > tripOrders.size()) {
             throw new BusinessException(ErrorCode.INVALID_TRIP_ORDER_INDEX);
         }
-
-        TripOrder moving = tripOrders.remove(fromIndex);
-        tripOrders.add(toIndex, moving);
-
-        BigDecimal prev = (toIndex == 0)
-                ? BigDecimal.ZERO
-                : tripOrders.get(toIndex - 1).getOrderIndex();
-
-        BigDecimal next = (toIndex == tripOrders.size() - 1)
-                ? prev.add(BigDecimal.valueOf(10000))
-                : tripOrders.get(toIndex + 1).getOrderIndex();
-
-        BigDecimal newOrder = prev.add(next)
-                .divide(BigDecimal.valueOf(2), 6, RoundingMode.HALF_UP);
-
-        moving.changeOrderIndex(newOrder);
+        this.tripOrders.add(toIndex, tripOrder);
     }
 }
