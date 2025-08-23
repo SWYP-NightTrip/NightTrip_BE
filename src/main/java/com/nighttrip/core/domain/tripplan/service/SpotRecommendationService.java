@@ -4,7 +4,9 @@ import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripplan.dto.TripPlanResponse;
+import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
@@ -24,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,24 +48,44 @@ public class SpotRecommendationService {
             SpotCategory.EXPERIENCE
     );
 
-    public CategoryRecommendationDto getSpotsByCategoryPaginated(Long cityId, String categoryName, Pageable pageable) {
-        City city = cityRepository.findById(cityId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CITY_NOT_FOUND));
+    public CategoryRecommendationDto getSpotsByCategoryPaginated(Long tripPlanId, String categoryName, Pageable pageable) {
+        TripPlan tripPlan = tripPlanRepository.findById(tripPlanId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
+
+        List<City> targetCities = tripPlan.getCityOnTripDays().stream()
+                .map(CityOnTripDay::getCity)
+                .distinct()
+                .collect(Collectors.toList());
 
         Page<TouristSpot> spotsPage;
+        SpotCategory categoryEnum;
+
         if ("관광".equals(categoryName)) {
-            spotsPage = touristSpotRepository.findByCityAndCategoryInOrderBySubWeightDescIdAsc(city, TOURISM_CATEGORIES, pageable);
+            categoryEnum = SpotCategory.CULTURE;
+            if (targetCities.isEmpty()) {
+                spotsPage = Page.empty();
+            } else {
+                spotsPage = touristSpotRepository.findByCityInAndCategoryInOrderBySubWeightDescIdAsc(targetCities, TOURISM_CATEGORIES, pageable);
+            }
         } else {
-            SpotCategory category = SpotCategory.fromValue(categoryName);
-            spotsPage = touristSpotRepository.findByCityAndCategoryOrderBySubWeightDescIdAsc(city, category, pageable);
+            categoryEnum = Arrays.stream(SpotCategory.values())
+                    .filter(c -> c.getKoreanName().equals(categoryName)) // Enum의 한글 이름과 categoryName을 비교
+                    .findFirst() // 일치하는 첫 번째 Enum을 찾음
+                    .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_PLACE_CATEGORY)); // 없으면 예외 발생
+
+            if (targetCities.isEmpty()) {
+                spotsPage = Page.empty();
+            } else {
+                spotsPage = touristSpotRepository.findByCityInAndCategoryOrderBySubWeightDescIdAsc(targetCities, categoryEnum, pageable);
+            }
         }
+
 
         List<RecommendedSpotDto> spotDtos = spotsPage.getContent().stream()
                 .map(this::toRecommendedSpotDto)
                 .collect(Collectors.toList());
 
         boolean isMore = spotsPage.hasNext();
-        SpotCategory categoryEnum = "관광".equals(categoryName) ? SpotCategory.CULTURE : SpotCategory.fromValue(categoryName);
 
         return new CategoryRecommendationDto(categoryEnum, spotDtos, isMore, null);
     }

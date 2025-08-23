@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/city/{cityId}/spot-recommendations")
+@RequestMapping("/api/v1/trip-plan/{tripPlanId}/spot-recommendations")
 public class SpotRecommendationController {
 
     private final SpotRecommendationService spotRecommendationService;
 
     @GetMapping
     public ApiResponse<CategoryRecommendationDto> getSpotsByCategory(
-            @PathVariable Long cityId,
+            @PathVariable Long tripPlanId,
             @RequestParam("type") String category,
             @PageableDefault(size = 3) Pageable pageable) {
 
-        CategoryRecommendationDto result = spotRecommendationService.getSpotsByCategoryPaginated(cityId, category, pageable);
+        CategoryRecommendationDto result = spotRecommendationService.getSpotsByCategoryPaginated(tripPlanId, category, pageable);
         return ApiResponse.success(result);
     }
 }
