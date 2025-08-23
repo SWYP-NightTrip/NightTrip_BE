@@ -30,19 +30,23 @@ public interface CityRepository extends JpaRepository<City, Long> {
     @Query("SELECT new com.nighttrip.core.domain.city.dto.CityPopularityDto(" +
             "c.id, c.cityName, " +
             "CAST(" +
-            "(COALESCE(COUNT(DISTINCT tl.id), 0L) + " +
-            "COALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
-            "COALESCE(COUNT(DISTINCT bm.id), 0L)) AS long)" +
+            "(COLEALESCE(COUNT(DISTINCT tl.id), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT bm.id), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT tp.id), 0L)) AS long)" +
             ") " +
             "FROM City c " +
             "LEFT JOIN c.touristSpots ts " +
             "LEFT JOIN ts.tourLikes tl " +
             "LEFT JOIN ts.touristSpotReviews tsr " +
             "LEFT JOIN ts.bookMarks bm " +
+            "LEFT JOIN c.cityOnTripDays cotd " +
+            "LEFT JOIN cotd.tripPlan tp " +
             "GROUP BY c.id, c.cityName " +
-            "ORDER BY (COALESCE(COUNT(DISTINCT tl.id), 0L) + " +
-            "COALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
-            "COALESCE(COUNT(DISTINCT bm.id), 0L)) DESC")
+            "ORDER BY (COLEALESCE(COUNT(DISTINCT tl.id), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT tsr.reviewId), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT bm.id), 0L) + " +
+            "COLEALESCE(COUNT(DISTINCT tp.id), 0L)) DESC")
     List<CityPopularityDto> findPopularCitiesWithAggregatedScores(Pageable pageable);
     List<City> findAllByOrderByIdAsc(Pageable pageable);
 
