@@ -24,7 +24,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>,
                 where t.tripDay.tripPlan.id=:tripPlanId
                 and t.tripDay.dayOrder=:tripDayOrder
             """)
-    Optional<BigDecimal> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
+    Optional<Long> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
 
     @Query("SELECT ts FROM TouristSpot ts " +
             "LEFT JOIN ts.tourLikes tl " +
@@ -274,4 +274,13 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>,
             countQuery = "select count(t) from TouristSpot t where t.city.id = :cityId"
     )
     Page<TouristSpot> findByCityId(@Param("cityId") Long cityId, Pageable pageable);
+
+
+    /**
+     * 특정 도시 및 여러 카테고리에 해당하는 여행지 목록을 페이지네이션으로 조회합니다. (IN 쿼리)
+     * (예: "관광" 카테고리(자연, 문화, 역사 등) 조회 시 사용)
+     * 정렬: subWeight 내림차순, id 오름차순
+     */
+    Page<TouristSpot> findByCityAndCategoryInOrderBySubWeightDescIdAsc(City city, List<SpotCategory> categories, Pageable pageable);
+
 }

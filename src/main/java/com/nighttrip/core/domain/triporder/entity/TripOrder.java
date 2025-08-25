@@ -26,12 +26,15 @@ public class TripOrder {
     @Column(name = "trip_order_id")
     private Long id;
 
-    @Column(name = "trip_order_index", precision = 12, scale = 6)
-    private BigDecimal orderIndex;
+    @Column(name = "trip_order_index")
+    private Long orderIndex;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemType itemType;
+
+    @Column(nullable = true)
+    private String arrivalTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_day_id")
@@ -47,13 +50,21 @@ public class TripOrder {
 
 
     @Builder
-    public TripOrder(BigDecimal orderIndex, ItemType itemType, TripDay tripDay) {
+    public TripOrder(Long orderIndex, ItemType itemType, TripDay tripDay, TouristSpot touristSpot) {
         this.orderIndex = orderIndex;
         this.itemType = itemType;
         this.tripDay = tripDay;
+        this.touristSpot = touristSpot;
     }
 
-    public void changeOrderIndex(BigDecimal orderIndex) {
+
+    public void changeOrderIndex(long orderIndex) {
         this.orderIndex = orderIndex;
+    }
+    public void changeArrivalTime(String arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+    public void setTripDay(TripDay tripDay) {
+        this.tripDay = tripDay;
     }
 }

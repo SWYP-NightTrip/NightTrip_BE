@@ -200,13 +200,22 @@ public class MainPageService {
                 .orElse(null);
         return new RecommendedSpotDto(projection, imageUrl);
     }
-
+    /*
+       TODO: 현재 erd 수정으로 기존의 코드에서 임의로 수정했음
+        이도현 확인 후 기존의 로직과 동일한지 확인, 및 수정 필요
+    */
     private City findTargetCityFromPlan(TripPlan activePlan) {
         LocalDate today = LocalDate.now();
-        Optional<TripDay> todayTripDayOpt = activePlan.getTripDays().stream().filter(day -> activePlan.getStartDate().plusDays(day.getDayOrder() - 1).equals(today)).findFirst();
-        Optional<City> todayCityOpt = todayTripDayOpt.flatMap(day -> day.getCityOnTripDays().stream().findFirst().map(CityOnTripDay::getCity));
-        return todayCityOpt.or(() -> activePlan.getTripDays().stream().filter(day -> !activePlan.getStartDate().plusDays(day.getDayOrder() - 1).isBefore(today)).sorted(Comparator.comparing(TripDay::getDayOrder)).flatMap(day -> day.getCityOnTripDays().stream()).map(CityOnTripDay::getCity).filter(Objects::nonNull).findFirst()).orElse(null);
+        int todayOrder = (int) (today.toEpochDay() - activePlan.getStartDate().toEpochDay()) + 1;
+
+        return activePlan.getCityOnTripDays().stream()
+                .filter(cotd -> cotd.getTripPlan().getStartDate().plusDays(cotd.getCity().getId() - 1).compareTo(today) >= 0)
+                .map(CityOnTripDay::getCity)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
+
 
     private SpotCategory determineFavoriteCategory(User user) {
         return bookMarkRepository.findByBookMarkFolder_User(user).stream()

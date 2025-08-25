@@ -1,5 +1,7 @@
 package com.nighttrip.core.domain.touristspot.service.impl;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.domain.touristspot.dto.SpotDetailsDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
@@ -13,6 +15,7 @@ import com.nighttrip.core.domain.touristspot.repository.TouristSpotReviewReposit
 import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.domain.user.repository.UserRepository;
+import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageSizeType;
 import com.nighttrip.core.global.enums.ImageType;
@@ -21,12 +24,18 @@ import com.nighttrip.core.global.exception.CityNotFoundException;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
+import com.nighttrip.core.global.util.LocationFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +52,10 @@ public class TouristSpotServiceImpl implements TouristSpotService {
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
 
+    private final ElasticsearchOperations elasticsearchOperations;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String POPULAR_TOURIST_SPOTS_KEY = "popular:tourist_spots:keywords";
 
     private TouristSpotResponseDto mapToTouristSpotResponseDto(TouristSpot spot) {
         String imageUrl = imageRepository.findSEARCHImage(String.valueOf(ImageType.TOURIST_SPOT), spot.getId())
@@ -52,7 +65,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
         return new TouristSpotResponseDto(
                 spot.getId(),
                 spot.getSpotName(),
-                spot.getAddress(),
+                LocationFormatter.formatForSearch(spot.getAddress()),
                 spot.getCategory().getKoreanName(),
                 spot.getSpotDescription(),
                 imageUrl
@@ -143,5 +156,78 @@ public class TouristSpotServiceImpl implements TouristSpotService {
             TourLike newLike = new TourLike(user, touristSpot);
             touristSpotLIkeRepository.save(newLike);
         }
+    }
+
+    @Override
+    public List<TouristSpotResponseDto> searchTouristSpots(String keyword) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Query typeFilter = Query.of(q -> q.term(t -> t.field("type").value("tourist_spot")));
+
+        Query multiMatchQuery = Query.of(q -> q
+                .multiMatch(m -> m
+                        .fields("name", "suggestName", "description", "cityName", "category")
+                        .query(keyword)
+                        .fuzziness("AUTO")
+                        .operator(Operator.And)
+                )
+        );
+
+        Query finalQuery = Query.of(q -> q.bool(b -> b.must(multiMatchQuery).filter(typeFilter)));
+
+        NativeQuery nativeQuery = NativeQuery.builder()
+                .withQuery(finalQuery)
+                .withMaxResults(10)
+                .build();
+
+        SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
+        List<Long> spotIds = searchHits.getSearchHits().stream()
+                .map(hit -> Long.parseLong(hit.getContent().getId().replace("tourist_spot_", "")))
+                .collect(Collectors.toList());
+
+        if (spotIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        redisTemplate.opsForZSet().incrementScore(POPULAR_TOURIST_SPOTS_KEY, keyword.trim(), 1);
+
+        List<TouristSpot> spots = touristSpotRepository.findAllById(spotIds);
+        return spots.stream()
+                .map(this::mapToTouristSpotResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    private static final int EARTH_RADIUS_KM = 6371;
+
+    public double calculateDistanceBetweenSpots(Long spotOneId, Long spotTwoId) {
+        TouristSpot spotOne = touristSpotRepository.findById(spotOneId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+
+        TouristSpot spotTwo = touristSpotRepository.findById(spotTwoId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
+
+        if (spotOne.getLatitude() == null || spotOne.getLongitude() == null ||
+                spotTwo.getLatitude() == null || spotTwo.getLongitude() == null) {
+            throw new BusinessException(ErrorCode.INVALID_COORDINATE);
+        }
+
+        Double lat1Rad = Math.toRadians(spotOne.getLatitude());
+        Double lon1Rad = Math.toRadians(spotOne.getLongitude());
+        Double lat2Rad = Math.toRadians(spotTwo.getLatitude());
+        Double lon2Rad = Math.toRadians(spotTwo.getLongitude());
+
+        Double deltaLat = lat2Rad - lat1Rad;
+        Double deltaLon = lon2Rad - lon1Rad;
+
+        Double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2)
+                + Math.cos(lat1Rad) * Math.cos(lat2Rad)
+                * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+        Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return EARTH_RADIUS_KM * c;
     }
 }

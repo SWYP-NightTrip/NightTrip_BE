@@ -1,5 +1,7 @@
 package com.nighttrip.core.domain.touristspot.controller;
 
+import com.nighttrip.core.domain.touristspot.dto.DistanceCalculationRequest;
+import com.nighttrip.core.domain.touristspot.dto.DistanceCalculationResponse;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
 import com.nighttrip.core.domain.touristspot.service.TouristSpotService;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotResponseDto;
@@ -19,6 +21,11 @@ public class TouristSpotController {
 
     private final TouristSpotService touristSpotService;
 
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<TouristSpotResponseDto>>> searchTouristSpots(@RequestParam String keyword) {
+        List<TouristSpotResponseDto> results = touristSpotService.searchTouristSpots(keyword);
+        return ResponseEntity.ok(ApiResponse.success(results));
+    }
 
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<List<TouristSpotResponseDto>>> getPopularTouristSpotsInCity(
@@ -49,7 +56,14 @@ public class TouristSpotController {
         touristSpotService.addLike(touristSpotId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
-
-
+    @PostMapping("/distance")
+    public ResponseEntity<ApiResponse<DistanceCalculationResponse>> calculateDistance(@RequestBody DistanceCalculationRequest request) {
+        double distance = touristSpotService.calculateDistanceBetweenSpots(
+                request.spotOneId(),
+                request.spotTwoId()
+        );
+        DistanceCalculationResponse response = new DistanceCalculationResponse(distance);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
 }
