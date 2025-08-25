@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nighttrip.core.domain.touristspot.dto.RecommendTouristSpotResponse;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
-import com.nighttrip.core.global.ai.header.ClovaHeaders;
 import com.nighttrip.core.global.ai.dto.RerankCandidate;
 import com.nighttrip.core.global.ai.dto.RerankResult;
 import com.nighttrip.core.global.ai.dto.UserContext;
+import com.nighttrip.core.global.ai.header.ClovaHeaders;
+import com.nighttrip.core.global.enums.ImageSizeType;
+import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.enums.SpotCategory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -159,25 +159,42 @@ public class SpotRerankService {
     public List<RecommendTouristSpotResponse> toRankedDtos(RerankResult r) {
         if (r == null || r.topSpots() == null || r.topSpots().isEmpty()) return List.of();
 
-        var ids = r.topSpots().stream().map(RerankResult.RankedSpot::id).toList();
-        var spots = repo.findByIdIn(ids);
-        var byId = spots.stream().collect(Collectors.toMap(TouristSpot::getId, Function.identity()));
+        var idsInRankOrder = r.topSpots().stream().map(RerankResult.RankedSpot::id).toList();
 
+        // 1쿼리로 스팟 요약 + 썸네일 URL까지
+        var rows = repo.findRowsWithThumbByIds(
+                idsInRankOrder, ImageType.TOURIST_SPOT, ImageSizeType.THUMBNAIL);
+
+        // id -> row 매핑 (중복 생겨도 첫 값 유지)
+        Map<Long, Object[]> rowById = new HashMap<>(rows.size());
+        for (Object[] row : rows) {
+            Long id = (Long) row[0];
+            rowById.putIfAbsent(id, row);
+        }
+
+        // rank 순으로 RecommendTouristSpotResponse 생성
         return r.topSpots().stream()
                 .sorted(Comparator.comparingInt(RerankResult.RankedSpot::rank))
                 .map(rs -> {
-                    var ts = byId.get(rs.id());
-                    if (ts == null) return null;
+                    var row = rowById.get(rs.id());
+                    if (row == null) return null;
+
+                    Long id               = (Long)       row[0];
+                    String spotName       = (String)     row[1];
+                    String address        = (String)     row[2];
+                    SpotCategory category = (SpotCategory) row[3];
+                    String description    = (String)     row[4];
+                    String thumbUrl       = (String)     row[5];
+
                     return new RecommendTouristSpotResponse(
-                            ts.getId(),
+                            id,
                             rs.rank(),
                             rs.reason(),
-                            ts.getSpotName(),
-                            ts.getAddress(),
-                            ts.getCategory() != null ? ts.getCategory().getKoreanName() : null,
-                            ts.getSpotDescription()
-                            // 이미지 컬럼/메서드 이름은 실제 엔티티에 맞게 바꿔주세요.
-//                            ts.getThumbnailUrl() // 또는 ts.getImageUrl()
+                            spotName,
+                            address,
+                            (category != null ? category.getKoreanName() : null),
+                            description,
+                            thumbUrl
                     );
                 })
                 .filter(Objects::nonNull)

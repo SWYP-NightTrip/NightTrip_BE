@@ -3,6 +3,8 @@ package com.nighttrip.core.domain.touristspot.repository;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.global.enums.ImageSizeType;
+import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -281,7 +283,26 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>,
      * 정렬: subWeight 내림차순, id 오름차순
      */
     Page<TouristSpot> findByCityAndCategoryInOrderBySubWeightDescIdAsc(City city, List<SpotCategory> categories, Pageable pageable);
-
-    List<TouristSpot> findByIdIn(Collection<Long> ids);
-
+    @Query("""
+        select
+           ts.id,
+           ts.spotName,
+           ts.address,
+           ts.category,
+           ts.spotDescription,
+           (
+             select iu.url
+             from ImageUrl iu
+             where iu.relatedId = ts.id
+               and iu.imageType = :imageType
+               and iu.imageSizeType = :sizeType
+           )
+        from TouristSpot ts
+        where ts.id in :ids
+    """)
+    List<Object[]> findRowsWithThumbByIds(
+            @Param("ids") Collection<Long> ids,
+            @Param("imageType") ImageType imageType,
+            @Param("sizeType") ImageSizeType sizeType
+    );
 }
