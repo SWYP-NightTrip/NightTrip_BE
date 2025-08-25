@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> {
+public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>, TouristSpotQueryRepository {
 
     @Query("""
                 select max(t.orderIndex)
@@ -241,4 +241,37 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
             """, nativeQuery = true)
     long countSpotsByCategoryAndLocation(@Param("category") String category, @Param("userLat") double userLat, @Param("userLon") double userLon);
+
+
+    @Query(value = """
+      SELECT ts.*, 
+             (6371 * 2 * asin( sqrt(
+                power(sin(radians((ts.latitude - :lat)/2)),2) +
+                cos(radians(:lat))*cos(radians(ts.latitude))*
+                power(sin(radians((ts.longitude - :lng)/2)),2)
+             ))) AS dist_km
+      FROM tourist_spot ts
+      WHERE ts.city_id = :cityId
+      AND (6371 * 2 * asin( sqrt(
+                power(sin(radians((ts.latitude - :lat)/2)),2) +
+                cos(radians(:lat))*cos(radians(ts.latitude))*
+                power(sin(radians((ts.longitude - :lng)/2)),2)
+          ))) <= :radiusKm
+      ORDER BY COALESCE(ts.main_weight,0) DESC,
+               COALESCE(ts.check_count,0) DESC,
+               COALESCE(ts.sub_weight,0) DESC,
+               dist_km ASC
+      LIMIT :limit OFFSET :offset
+      """, nativeQuery = true)
+    List<Object[]> findCandidatesNative(
+            @Param("cityId") Long cityId,
+            @Param("lat") double lat, @Param("lng") double lng,
+            @Param("radiusKm") double radiusKm,
+            @Param("limit") int limit, @Param("offset") int offset);
+
+    @Query(
+            value = "select t from TouristSpot t where t.city.id = :cityId",
+            countQuery = "select count(t) from TouristSpot t where t.city.id = :cityId"
+    )
+    Page<TouristSpot> findByCityId(@Param("cityId") Long cityId, Pageable pageable);
 }

@@ -110,3 +110,18 @@ ncp:
     end-point: https://kr.object.ncloudstorage.com
     region: kr-standard
     bucket: nighttrip-images-bucket
+
+  clova:
+    endpoint: https://clovastudio.apigw.ntruss.com/your/chat-completions
+    apiKey: ${CLOVA_STUDIO_API_KEY:__MISSING__}
+    apigwKey: ${NCP_APIGW_API_KEY:__MISSING__}
+    userId: ${NCP_USER_I:__MISSING__}
+
+
+llm:
+  label:
+    batchSize: 40         # 라벨링 1회 호출 후보 수
+    metaVersion: 1
+  rerank:
+    maxCandidates: 40     # 재랭킹에 투입할 상위 후보 수
+    topK: 6

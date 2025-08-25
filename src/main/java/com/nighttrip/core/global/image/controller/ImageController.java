@@ -5,13 +5,11 @@ import com.nighttrip.core.global.image.dto.PresignedUploadDto;
 import com.nighttrip.core.global.image.dto.PresignedUrlBatchRequest;
 import com.nighttrip.core.global.image.dto.PresignedUrlRequest;
 import com.nighttrip.core.global.image.service.ImageService;
-import com.nighttrip.core.global.image.service.impl.ImageServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/files")
