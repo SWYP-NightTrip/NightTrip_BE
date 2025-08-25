@@ -1,11 +1,15 @@
 package com.nighttrip.core.global.ai.controller;
 
+import com.nighttrip.core.domain.touristspot.dto.RecommendTouristSpotResponse;
 import com.nighttrip.core.global.ai.dto.RerankResult;
 import com.nighttrip.core.global.ai.dto.UserContext;
 import com.nighttrip.core.global.ai.service.SpotRerankService;
+import com.nighttrip.core.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/recommend")
@@ -15,14 +19,14 @@ public class RecommendController {
     private final SpotRerankService rerankService;
 
     @PostMapping("/city/{cityId}")
-    public ResponseEntity<?> recommend(
+    public ResponseEntity<ApiResponse<List<RecommendTouristSpotResponse>>> recommend(
             @PathVariable Long cityId,
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(defaultValue = "12") double radiusKm,
-            @RequestBody UserContext user) throws Exception {
+            @RequestBody UserContext user) {
 
-        RerankResult result = rerankService.recommend(cityId, lat, lng, radiusKm, user);
-        return ResponseEntity.ok(result);
+        RerankResult result = rerankService.recommend(cityId, user);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        rerankService.toRankedDtos(result)
+                ));
     }
 }

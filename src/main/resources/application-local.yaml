@@ -15,7 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       show-sql: true
       properties:
         hibernate:
@@ -112,11 +112,8 @@ ncp:
     bucket: nighttrip-images-bucket
 
   clova:
-    endpoint: https://clovastudio.apigw.ntruss.com/your/chat-completions
-    apiKey: ${CLOVA_STUDIO_API_KEY:__MISSING__}
-    apigwKey: ${NCP_APIGW_API_KEY:__MISSING__}
-    userId: ${NCP_USER_I:__MISSING__}
-
+    endpoint: https://clovastudio.stream.ntruss.com
+    apiKey: ${CLOVA_API_KEY}
 
 llm:
   label:

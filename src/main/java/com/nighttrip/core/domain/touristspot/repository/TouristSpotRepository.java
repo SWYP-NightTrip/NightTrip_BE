@@ -1,7 +1,6 @@
 package com.nighttrip.core.domain.touristspot.repository;
 
 import com.nighttrip.core.domain.city.entity.City;
-import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.global.enums.SpotCategory;
@@ -12,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -282,5 +281,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>,
      * 정렬: subWeight 내림차순, id 오름차순
      */
     Page<TouristSpot> findByCityAndCategoryInOrderBySubWeightDescIdAsc(City city, List<SpotCategory> categories, Pageable pageable);
+
+    List<TouristSpot> findByIdIn(Collection<Long> ids);
 
 }

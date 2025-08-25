@@ -35,12 +35,7 @@ public class TouristSpotQueryRepositoryImpl implements TouristSpotQueryRepositor
     }
 
     @Override
-    public List<CandidateDto> findCandidates(
-            Long cityId, double centerLat, double centerLng,
-            double radiusKm, int limit, int offset
-    ) {
-        NumberExpression<Double> distKm = haversineKm(ts.latitude, ts.longitude, centerLat, centerLng);
-
+    public List<CandidateDto> findCandidates(Long cityId, int limit, int offset) {
         return queryFactory
                 .select(Projections.constructor(
                         CandidateDto.class,
@@ -49,19 +44,15 @@ public class TouristSpotQueryRepositoryImpl implements TouristSpotQueryRepositor
                         ts.category,
                         ts.mainWeight,
                         ts.checkCount,
-                        ts.computedMeta,
-                        distKm
+                        ts.computedMeta
                 ))
                 .from(ts)
-                .where(
-                        ts.city.id.eq(cityId)
-                                .and(distKm.loe(radiusKm))
-                )
+                .where(ts.city.id.eq(cityId))
                 .orderBy(
                         ts.mainWeight.coalesce(0).desc(),
                         ts.checkCount.coalesce(0).desc(),
                         ts.subWeight.coalesce(0).desc(),
-                        distKm.asc()
+                        ts.id.asc()
                 )
                 .limit(limit)
                 .offset(offset)

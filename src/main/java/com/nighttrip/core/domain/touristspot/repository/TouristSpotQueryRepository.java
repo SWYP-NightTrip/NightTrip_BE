@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface TouristSpotQueryRepository {
     List<CandidateDto> findCandidates(
-            Long cityId, double centerLat, double centerLng,
-            double radiusKm, int limit, int offset
+            Long cityId, int limit, int offset
     );
 }
