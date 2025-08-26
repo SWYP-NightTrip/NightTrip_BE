@@ -49,8 +49,8 @@ public class TripPlanServiceImpl implements TripPlanService {
      * (UPCOMING, ONGOING 상태 포함)
      */
     public Page<TripPlanResponse> getOngoingTripPlans(Pageable pageable) {
-//        String userEmail = SecurityUtils.getCurrentUserEmail();
-        String userEmail = "test@example.com";
+        String userEmail = SecurityUtils.getCurrentUserEmail();
+//        String userEmail = "test@example.com";
 
         log.info(userEmail);
         User user = userRepository.findByEmail(userEmail)
