@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Entity
 @Table(name = "tourist_spot",
@@ -51,6 +50,12 @@ public class TouristSpot {
     private Integer mainWeight;
     private Integer subWeight;
 
+    @Column(columnDefinition = "jsonb")
+    private String computedMeta;
+
+    private Integer metaVersion;
+    private Timestamp metaUpdatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
@@ -63,13 +68,22 @@ public class TouristSpot {
     @OneToMany(mappedBy = "touristSpot")
     private List<TourLike> tourLikes = new ArrayList<>();
 
-    @Column(name = "hashtags", nullable = false)
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private String[] hashTags = new String[0];
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "tourist_spot_hashtags",
+            joinColumns = @JoinColumn(name = "tourist_spot_id")
+    )
+    @Column(name = "hashtag", length = 100, nullable = false)
+    private Set<String> hashTags = new LinkedHashSet<>();
 
-    @Convert(converter = SpotDetailsConverter.class)
-    @Column(name = "tourist_spot_details", columnDefinition = "TEXT")
-    private EnumSet<SpotDetails> touristSpotDetails = EnumSet.noneOf(SpotDetails.class);
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "tourist_spot_details",
+            joinColumns = @JoinColumn(name = "tourist_spot_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "detail", nullable = false, length = 64)
+    private Set<SpotDetails> touristSpotDetails = EnumSet.noneOf(SpotDetails.class);
 
     @Builder
     public TouristSpot(String spotName, Double longitude, Double latitude,
@@ -92,16 +106,32 @@ public class TouristSpot {
     }
 
 
-    public void changeHashTagsFrom(java.util.Collection<String> tags) {
-        if (tags == null) { this.hashTags = new String[0]; return; }
-        this.hashTags = tags.stream()
-                .filter(s -> s != null && !s.isBlank())
-                .map(s -> s.trim().toLowerCase())
-                .distinct()
-                .toArray(String[]::new);
+    public void changeHashTagsFrom(Collection<String> tags) {
+        this.hashTags.clear();
+        if (tags == null) return;
+
+        for (String s : tags) {
+            if (s == null) continue;
+            String norm = s.trim().toLowerCase();
+            if (!norm.isEmpty()) {
+                this.hashTags.add(norm);
+            }
+        }
     }
 
-    public java.util.List<String> getHashTagsAsList() {
-        return java.util.List.of(hashTags);
+    public List<String> getHashTagsAsList() {
+        return List.copyOf(this.hashTags);
+    }
+
+    public void changeComputedMeta(String metaJson) {
+        this.computedMeta = metaJson;
+    }
+
+    public void changeMetaVersion(int metaVersion) {
+        this.metaVersion = metaVersion;
+    }
+
+    public void changeMetaUpdatedAt(Timestamp now) {
+        this.metaUpdatedAt = now;
     }
 }

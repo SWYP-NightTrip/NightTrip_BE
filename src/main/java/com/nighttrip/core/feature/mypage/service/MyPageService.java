@@ -19,7 +19,6 @@ import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;

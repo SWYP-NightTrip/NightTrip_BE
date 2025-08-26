@@ -2,12 +2,7 @@ package com.nighttrip.core.domain.tripplan.service.impl;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
-import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
-import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.triporder.entity.TripOrder;
-
+import com.nighttrip.core.domain.tripplan.dto.*;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.tripplan.service.TripPlanService;
@@ -17,13 +12,12 @@ import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.nighttrip.core.domain.tripplan.dto.*;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -38,6 +32,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
     @Override
+    @Transactional
     public void changePlanStatus(TripPlanStatusChangeRequest request, Long planId) {
         TripPlan tripPlan = tripPlanRepository.findById(planId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));

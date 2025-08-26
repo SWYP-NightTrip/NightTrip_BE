@@ -18,7 +18,6 @@ import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
