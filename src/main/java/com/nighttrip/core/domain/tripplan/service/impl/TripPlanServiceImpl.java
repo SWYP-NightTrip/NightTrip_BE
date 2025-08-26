@@ -14,6 +14,7 @@ import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TripPlanServiceImpl implements TripPlanService {
@@ -48,13 +50,32 @@ public class TripPlanServiceImpl implements TripPlanService {
      */
     public Page<TripPlanResponse> getOngoingTripPlans(Pageable pageable) {
         String userEmail = SecurityUtils.getCurrentUserEmail();
+        log.info(userEmail);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
-
+        log.info("User found: {}", user.getEmail());
         List<TripStatus> statuses = List.of(TripStatus.UPCOMING, TripStatus.ONGOING);
+        log.info("Statuses to fetch: {}", statuses);
 
-        return tripPlanRepository.findByUser_IdAndStatusIn(user.getId(), statuses, pageable)
+        Page<TripPlanResponse> map = tripPlanRepository.findByUser_IdAndStatusIn(user.getId(), statuses, pageable)
                 .map(TripPlanResponse::from);
+
+        log.info("TripPlan Page info => page: {}, size: {}, totalElements: {}",
+                map.getNumber(),
+                map.getSize(),
+                map.getTotalElements());
+
+        // 개별 TripPlanResponse 로그
+        map.getContent().forEach(plan ->
+                log.info("TripPlan => id: {}, title: {}, start: {}, end: {}, status: {}",
+                        plan.planId(),
+                        plan.title(),
+                        plan.startDate(),
+                        plan.endDate(),
+                        plan.status())
+        );
+
+        return map;
     }
 
     /**
