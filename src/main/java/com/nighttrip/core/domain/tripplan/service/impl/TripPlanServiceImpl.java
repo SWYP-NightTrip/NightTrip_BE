@@ -50,36 +50,13 @@ public class TripPlanServiceImpl implements TripPlanService {
      */
     public Page<TripPlanResponse> getOngoingTripPlans(Pageable pageable) {
         String userEmail = SecurityUtils.getCurrentUserEmail();
-//        String userEmail = "test@example.com";
 
-        log.info(userEmail);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
-        log.info("User found: {}", user.getEmail());
         List<TripStatus> statuses = List.of(TripStatus.UPCOMING, TripStatus.ONGOING);
-        log.info("Statuses to fetch: {}", statuses);
 
         Page<TripPlanResponse> map = tripPlanRepository.findByUser_IdAndStatusIn(user.getId(), statuses, pageable)
                 .map(TripPlanResponse::from);
-
-        log.info("TripPlan Page => page:{}, size:{}, numberOfElements:{}, totalPages:{}, totalElements:{}",
-                map.getNumber(),           // 요청한 페이지 인덱스
-                map.getSize(),             // 요청한 페이지 크기(요청값, 항상 10)
-                map.getNumberOfElements(), // 이번 페이지에 실제로 담긴 요소 개수
-                map.getTotalPages(),
-                map.getTotalElements()
-        );
-
-        log.info(String.valueOf(map.getSize()));
-        // 개별 TripPlanResponse 로그
-        map.getContent().forEach(plan ->
-                log.info("TripPlan => id: {}, title: {}, start: {}, end: {}, status: {}",
-                        plan.planId(),
-                        plan.title(),
-                        plan.startDate(),
-                        plan.endDate(),
-                        plan.status())
-        );
 
         return map;
     }
