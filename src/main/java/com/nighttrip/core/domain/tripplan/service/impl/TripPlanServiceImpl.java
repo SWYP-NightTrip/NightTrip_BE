@@ -2,12 +2,7 @@ package com.nighttrip.core.domain.tripplan.service.impl;
 
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
-import com.nighttrip.core.domain.touristspot.dto.TouristSpotDetailResponse;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
-import com.nighttrip.core.domain.tripday.entity.TripDay;
-import com.nighttrip.core.domain.triporder.entity.TripOrder;
-
+import com.nighttrip.core.domain.tripplan.dto.*;
 import com.nighttrip.core.domain.tripplan.entity.TripPlan;
 import com.nighttrip.core.domain.tripplan.repository.TripPlanRepository;
 import com.nighttrip.core.domain.tripplan.service.TripPlanService;
@@ -17,13 +12,13 @@ import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.TripStatus;
 import com.nighttrip.core.global.exception.BusinessException;
 import com.nighttrip.core.global.oauth.util.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.nighttrip.core.domain.tripplan.dto.*;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TripPlanServiceImpl implements TripPlanService {
@@ -38,6 +34,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
     @Override
+    @Transactional
     public void changePlanStatus(TripPlanStatusChangeRequest request, Long planId) {
         TripPlan tripPlan = tripPlanRepository.findById(planId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_PLAN_NOT_FOUND));
@@ -53,13 +50,15 @@ public class TripPlanServiceImpl implements TripPlanService {
      */
     public Page<TripPlanResponse> getOngoingTripPlans(Pageable pageable) {
         String userEmail = SecurityUtils.getCurrentUserEmail();
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
-
         List<TripStatus> statuses = List.of(TripStatus.UPCOMING, TripStatus.ONGOING);
 
-        return tripPlanRepository.findByUser_IdAndStatusIn(user.getId(), statuses, pageable)
+        Page<TripPlanResponse> map = tripPlanRepository.findByUser_IdAndStatusIn(user.getId(), statuses, pageable)
                 .map(TripPlanResponse::from);
+
+        return map;
     }
 
     /**

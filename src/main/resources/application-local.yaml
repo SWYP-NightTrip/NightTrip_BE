@@ -15,7 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       show-sql: true
       properties:
         hibernate:
@@ -91,11 +91,6 @@ naver:
   client-id: ${NAVER_CLIENT_CLOUD}
   client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
 
-clova:
-  api:
-    key: ${NAVER_CLIENT_CLOUD}
-  gateway:
-    key: ${NAVER_CLIENT_CLOUD}
 
 data:
   elasticsearch:
@@ -106,3 +101,24 @@ data:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+ncp:
+  object-storage:
+    access-key: ${NAVER_CLOUD_ID}
+    secret-key: ${NAVER_CLOUD_SECRET}
+    end-point: https://kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: nighttrip-images-bucket
+
+  clova:
+    endpoint: https://clovastudio.stream.ntruss.com
+    apiKey: ${CLOVA_API_KEY}
+
+llm:
+  label:
+    batchSize: 40         # 라벨링 1회 호출 후보 수
+    metaVersion: 1
+  rerank:
+    maxCandidates: 40     # 재랭킹에 투입할 상위 후보 수
+    topK: 6

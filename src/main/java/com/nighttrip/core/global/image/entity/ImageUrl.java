@@ -1,6 +1,8 @@
 package com.nighttrip.core.global.image.entity;
 
+import com.nighttrip.core.global.enums.ImageSizeType;
 import com.nighttrip.core.global.enums.ImageType;
+import com.nighttrip.core.global.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

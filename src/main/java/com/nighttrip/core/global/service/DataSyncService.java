@@ -8,7 +8,6 @@ import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import com.nighttrip.core.global.repository.SearchDocumentRepository;
