@@ -33,23 +33,19 @@ public class ClovaHeaders {
     }
 
     public Consumer<HttpHeaders> apply() {
+        // 애플리케이션 구동 후 첫 사용 때 경고/실패
+        if (apiKey == null || apiKey.isBlank() || !apiKey.startsWith("nv-")) {
+            log.error("[CLOVA] Invalid API key. Check property 'ncp.clova.apiKey' or env 'NCP_CLOVA_APIKEY'. current='{}'",
+                    mask(apiKey));
+            throw new IllegalStateException("CLOVA API key missing or invalid");
+        }
+        log.debug("[CLOVA] Using API key {}", mask(apiKey));
+
         return h -> {
-            String k = apiKey == null ? "" : apiKey.trim();
-            // 키 비었으면 즉시 경고(이 상태로 호출하면 401)
-            if (k.isEmpty()) {
-                log.error("[CLOVA] apiKey is EMPTY. Authorization header will be invalid and cause 401.");
-            }
-            h.setBearerAuth(k); // Authorization: Bearer nv-...
-            h.set(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-
-            String reqId = UUID.randomUUID().toString().replace("-", "");
-            h.set("X-NCP-CLOVASTUDIO-REQUEST-ID", reqId);
-
-            // 요청마다 헤더 상태 로그(민감정보 마스킹)
-            log.debug("[CLOVA] Set headers -> Authorization='{}', Content-Type='{}', REQUEST-ID={}",
-                    (k.isEmpty() ? "EMPTY" : ("Bearer " + mask(k))),
-                    "application/json; charset=UTF-8",
-                    reqId);
+            h.setBearerAuth(apiKey); // Authorization: Bearer nv-...
+            h.set(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
+            h.set("X-NCP-CLOVASTUDIO-REQUEST-ID", java.util.UUID.randomUUID().toString().replace("-", ""));
         };
     }
+
 }
