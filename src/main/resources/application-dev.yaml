@@ -99,6 +99,9 @@ ncp:
     region: kr-standard
     bucket: nighttrip-images-bucket
 
+  clova:
+    endpoint: https://clovastudio.stream.ntruss.com
+    apiKey: ${CLOVA_API_KEY}
 
 data:
   elasticsearch:
