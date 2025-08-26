@@ -100,6 +100,7 @@ public class TouristSpotServiceImpl implements TouristSpotService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TouristSpotDetailResponse getTouristSpotDetail(Long touristSpotId) {
         TouristSpot touristSpot = touristSpotRepository.findById(touristSpotId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
