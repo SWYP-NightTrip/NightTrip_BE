@@ -16,7 +16,6 @@ public class ClovaHeaders {
         return h -> {
             h.setBearerAuth(apiKey); // Authorization: Bearer nv-...
             h.set(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
-            // 필요 시 요청마다 트래킹용 ID 부여
             h.set("X-NCP-CLOVASTUDIO-REQUEST-ID", java.util.UUID.randomUUID().toString().replace("-", ""));
         };
     }

@@ -22,7 +22,6 @@ public class RecommendController {
     public ResponseEntity<ApiResponse<List<RecommendTouristSpotResponse>>> recommend(
             @PathVariable Long cityId,
             @RequestBody UserContext user) {
-
         RerankResult result = rerankService.recommend(cityId, user);
         return ResponseEntity.ok(
                 ApiResponse.success(
