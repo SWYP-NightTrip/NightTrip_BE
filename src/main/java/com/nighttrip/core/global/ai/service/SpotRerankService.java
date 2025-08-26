@@ -36,6 +36,7 @@ public class SpotRerankService {
     @Value("${llm.rerank.topK:6}") private int topK;
 
     public RerankResult recommend(Long cityId, UserContext user) {
+        log.info("service");
         var candidates = fetchAndMapCandidates(cityId, maxCandidates);
 
         int targetK = Optional.ofNullable(user.maxSpots())
