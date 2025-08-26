@@ -36,7 +36,6 @@ public class SpotRerankService {
     @Value("${llm.rerank.topK:6}") private int topK;
 
     public RerankResult recommend(Long cityId, UserContext user) {
-        log.info("service");
         var candidates = fetchAndMapCandidates(cityId, maxCandidates);
 
         int targetK = Optional.ofNullable(user.maxSpots())
@@ -93,8 +92,6 @@ public class SpotRerankService {
                 "hints", Map.of("topK", targetK)
         );
 
-
-
         Map<String, Object> body = null;
         try {
             body = Map.of(
@@ -114,15 +111,6 @@ public class SpotRerankService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
-        String bodyPreview;
-        try {
-            bodyPreview = om.writeValueAsString(body);
-            if (bodyPreview.length() > 800) bodyPreview = bodyPreview.substring(0, 800) + "...(truncated)";
-        } catch (Exception ignore) { bodyPreview = "<preview-failed>"; }
-
-        log.info("[RERANK] Calling CLOVA v3 HCX-005 | candidates={} | topK={} | bodyPreview={}",
-                candidates.size(), targetK, bodyPreview);
 
         String resp = clovaWebClient.post()
                 .uri("/v3/chat-completions/HCX-005")
