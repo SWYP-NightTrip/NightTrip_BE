@@ -1,13 +1,16 @@
 package com.nighttrip.core.global.config;
 
-import jakarta.persistence.EntityManagerFactory;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
-import org.springframework.orm.jpa.*;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -40,7 +43,10 @@ public class MainDataSourceConfig {
     ) {
         var emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(ds);
-        emf.setPackagesToScan("com.nighttrip.core.domain"); // 메인 엔티티 패키지
+        emf.setPackagesToScan(
+                "com.nighttrip.core.domain",
+                "com.nighttrip.core.global.image.entity"
+        ); // 메인 엔티티 패키지
         emf.setPersistenceUnitName("main");
 
         var vendor = new HibernateJpaVendorAdapter();
