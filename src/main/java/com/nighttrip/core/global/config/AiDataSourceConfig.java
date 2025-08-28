@@ -21,7 +21,7 @@ import java.util.Map;
 @EnableJpaRepositories(
         basePackages = "com.nighttrip.core.ai",   // AI 전용 리포 위치
         entityManagerFactoryRef = "aiEntityManagerFactory",
-        transactionManagerRef   = "aiTransactionManager"
+        transactionManagerRef = "aiTransactionManager"
 )
 public class AiDataSourceConfig {
 
@@ -48,7 +48,10 @@ public class AiDataSourceConfig {
 
         var emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(ds);
-        emf.setPackagesToScan("com.nighttrip.core.domain");      // 엔티티 패키지
+        emf.setPackagesToScan(
+                "com.nighttrip.core.domain",
+                "com.nighttrip.core.global.image.entity"
+        );      // 엔티티 패키지
         emf.setPersistenceUnitName("ai");                        // (권장) 구분용
 
         var vendor = new HibernateJpaVendorAdapter();
