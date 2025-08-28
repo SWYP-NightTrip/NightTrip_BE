@@ -59,13 +59,7 @@ public class AiDataSourceConfig {
         props.put("hibernate.hbm2ddl.auto", "none");             // 스키마 건드리지 않음
         props.put("hibernate.jdbc.lob.non_contextual_creation", true);
         props.put("hibernate.default_schema", "rec");
-
-        // ★★ 핵심: AI EMF용 Dialect를 명시해 줍니다.
         props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-
-        // (선택) 초기 진단용 로그
-        // props.put("hibernate.show_sql", true);
-        // props.put("hibernate.format_sql", true);
 
         emf.setJpaPropertyMap(props);
         return emf;
