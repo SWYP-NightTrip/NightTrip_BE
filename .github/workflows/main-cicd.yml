@@ -54,6 +54,8 @@ jobs:
             echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
             echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
             echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
+            echo "NAVER_CLOUD_ID=${{ secrets.NAVER_CLOUD_ID }}" >> .env
+            echo "NAVER_CLOUD_SECRET=${{ secrets.NAVER_CLOUD_SECRET }}" >> .env
             echo "AI_DB_HOST=${{ secrets.AI_DB_HOST }}" >> .env
             echo "AI_DB_PORT=${{ secrets.AI_DB_PORT }}" >> .env
             echo "AI_DB_USER=${{ secrets.AI_DB_USER }}" >> .env
