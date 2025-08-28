@@ -14,8 +14,8 @@ spring:
     ai:
       # 로컬에서 앱 실행 시
       url: jdbc:postgresql://${AI_DB_HOST}:${AI_DB_PORT}/ai_rec_db
-      username: ${AI_DB_USER:nightuser}
-      password: "${AI_DB_PASSWORD:dkcladmsqkfrek@!09}"   # '!' 포함 → 반드시 따옴표로 감싸기
+      username: ${AI_DB_USER}
+      password: ${AI_DB_PASSWORD}   # '!' 포함 → 반드시 따옴표로 감싸기
       driver-class-name: org.postgresql.Driver
       hikari:
         maximum-pool-size: 5
