@@ -8,7 +8,7 @@ import com.nighttrip.core.global.enums.TripStatus;
 import java.time.LocalDate;
 
 public record TripPlanResponse(
-        Long planId,
+        Long id,
         String title,
         LocalDate startDate,
         LocalDate endDate,
