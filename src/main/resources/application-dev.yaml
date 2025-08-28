@@ -10,6 +10,20 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
+
+  ai:
+    # 로컬에서 앱 실행 시
+    url: jdbc:postgresql://${AI_DB_HOST}:${AI_DB_PORT}/ai_rec_db
+    username: ${AI_DB_USER}
+    password: ${AI_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      read-only: true
+      connection-timeout: 3000
+      # 세션 기본 스키마를 뷰 우선(rec)로
+      connection-init-sql: "SET search_path TO rec, ai_base, public"
+
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect

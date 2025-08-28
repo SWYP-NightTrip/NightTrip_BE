@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nighttrip.core.domain.touristspot.dto.RecommendTouristSpotResponse;
-import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.ai.dto.RerankCandidate;
 import com.nighttrip.core.global.ai.dto.RerankResult;
 import com.nighttrip.core.global.ai.dto.UserContext;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
@@ -25,9 +25,10 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true, transactionManager = "aiTransactionManager")
 public class SpotRerankService {
 
-    private final TouristSpotRepository repo;
+    private final com.nighttrip.core.global.ai.repository.TouristSpotRepositoryAi aiRepo;
     private final WebClient clovaWebClient;
     private final ClovaHeaders clovaHeaders;
     private final ObjectMapper om;
@@ -139,7 +140,7 @@ public class SpotRerankService {
     }
 
     private List<RerankCandidate> fetchAndMapCandidates(Long cityId, int max) {
-        var rows = repo.findCandidates(cityId, max, 0);
+        var rows = aiRepo.findCandidates(cityId, max, 0);
 
         return rows.stream().map(r -> {
             double popularity = normPopularity(r.mainWeight(), r.checkCount());
@@ -162,7 +163,7 @@ public class SpotRerankService {
         var idsInRankOrder = r.topSpots().stream().map(RerankResult.RankedSpot::id).toList();
 
         // 1쿼리로 스팟 요약 + 썸네일 URL까지
-        var rows = repo.findRowsWithThumbByIds(
+        var rows = aiRepo.findRowsWithThumbByIds(
                 idsInRankOrder, ImageType.TOURIST_SPOT, ImageSizeType.THUMBNAIL);
 
         // id -> row 매핑 (중복 생겨도 첫 값 유지)
