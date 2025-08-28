@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -16,10 +15,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.nighttrip.core.global.ai.repository",   // ⬅️ AI 전용 리포 위치
+        basePackages = "com.nighttrip.core.global.ai.repository",   // AI 전용 리포 위치
         entityManagerFactoryRef = "aiEntityManagerFactory",
         transactionManagerRef   = "aiTransactionManager"
 )
@@ -27,10 +27,16 @@ public class AiDataSourceConfig {
 
     @Bean
     @ConfigurationProperties("spring.datasource.ai")
-    public DataSourceProperties aiDsProps() { return new DataSourceProperties(); }
+    public DataSourceProperties aiDsProps() {
+        return new DataSourceProperties();
+    }
 
     @Bean(name = "aiDataSource")
     public DataSource aiDataSource(@Qualifier("aiDsProps") DataSourceProperties p) {
+        // ── 디버깅용(원인 추적 시 임시): URL/ID 바인딩 확인
+        System.out.println("[AI-DS] url=" + p.getUrl());
+        System.out.println("[AI-DS] username=" + p.getUsername());
+
         return p.initializeDataSourceBuilder()
                 .type(com.zaxxer.hikari.HikariDataSource.class)
                 .build();
@@ -39,16 +45,28 @@ public class AiDataSourceConfig {
     @Bean(name = "aiEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean aiEmf(
             @Qualifier("aiDataSource") DataSource ds) {
+
         var emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(ds);
-        // ⬇️ 공용 엔티티 패키지(예: TouristSpot, ImageUrl 등) 포함
-        emf.setPackagesToScan("com.nighttrip.core.domain");
+        emf.setPackagesToScan("com.nighttrip.core.domain");      // 엔티티 패키지
+        emf.setPersistenceUnitName("ai");                        // (권장) 구분용
+
         var vendor = new HibernateJpaVendorAdapter();
+        vendor.setGenerateDdl(false);                            // ddl-auto는 props로 통제
         emf.setJpaVendorAdapter(vendor);
-        var props = new HashMap<String, Object>();
-        props.put("hibernate.hbm2ddl.auto", "none");                 // 스키마 건드리지 않음
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("hibernate.hbm2ddl.auto", "none");             // 스키마 건드리지 않음
         props.put("hibernate.jdbc.lob.non_contextual_creation", true);
-        props.put("hibernate.default_schema", "rec");                // 기본은 뷰 스키마
+        props.put("hibernate.default_schema", "rec");
+
+        // ★★ 핵심: AI EMF용 Dialect를 명시해 줍니다.
+        props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+
+        // (선택) 초기 진단용 로그
+        // props.put("hibernate.show_sql", true);
+        // props.put("hibernate.format_sql", true);
+
         emf.setJpaPropertyMap(props);
         return emf;
     }
@@ -59,7 +77,6 @@ public class AiDataSourceConfig {
         return new JpaTransactionManager(f);
     }
 
-    // 선택: JDBC도 쓰고 싶으면
     @Bean(name = "aiJdbcTemplate")
     public JdbcTemplate aiJdbcTemplate(@Qualifier("aiDataSource") DataSource ds) {
         return new JdbcTemplate(ds);
