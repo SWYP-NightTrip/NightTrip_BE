@@ -64,9 +64,9 @@ public class AiDataSourceConfig {
         props.put("hibernate.default_schema", "ai_base");
         props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         props.put("hibernate.physical_naming_strategy",
-                "org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy");
+                "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
         props.put("hibernate.implicit_naming_strategy",
-                "org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy");
+                "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
 
         emf.setJpaPropertyMap(props);
         return emf;
