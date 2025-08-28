@@ -61,7 +61,7 @@ public class AiDataSourceConfig {
         Map<String, Object> props = new HashMap<>();
         props.put("hibernate.hbm2ddl.auto", "none");             // 스키마 건드리지 않음
         props.put("hibernate.jdbc.lob.non_contextual_creation", true);
-        props.put("hibernate.default_schema", "rec");
+        props.put("hibernate.default_schema", "ai_base");
         props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
 
         emf.setJpaPropertyMap(props);
