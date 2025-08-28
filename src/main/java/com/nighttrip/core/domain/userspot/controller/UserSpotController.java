@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+
 @RequestMapping("api/v1/trip-plan/private-place")
 @RestController
 public class UserSpotController {
@@ -19,7 +21,7 @@ public class UserSpotController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> addFavoritePlace(@Valid @RequestBody UserSpotAddRequest request) {
+    public ResponseEntity<ApiResponse<?>> addFavoritePlace(@Valid @RequestBody UserSpotAddRequest request) throws UnsupportedEncodingException {
         userSpotService.addUserPlace(request);
 
         return ResponseEntity

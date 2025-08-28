@@ -1,4 +1,4 @@
-package com.nighttrip.core.global.image.entity;
+package com.nighttrip.core.global.enums;
 
 public enum ImageSizeType {
     SEARCH, THUMBNAIL, DETAIL

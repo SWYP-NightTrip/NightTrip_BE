@@ -18,7 +18,6 @@ import com.nighttrip.core.feature.mainpage.dto.PartnerServiceDto;
 import com.nighttrip.core.feature.mainpage.dto.RecommendedSpotDto;
 import com.nighttrip.core.global.enums.SpotCategory;
 import com.nighttrip.core.global.enums.TripStatus;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,16 +96,18 @@ public class MainPageService {
 
         Optional<TripPlan> activePlanOpt = tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING));
         if (activePlanOpt.isPresent()) {
-            City targetCity = findTargetCityFromPlan(activePlanOpt.get());
-            if (targetCity != null) {
+            List<City> targetCities = findTargetCitiesFromPlan(activePlanOpt.get());
+            if (!targetCities.isEmpty()) {
+
+                List<Long> cityIds = targetCities.stream().map(City::getId).collect(Collectors.toList());
                 if (userLat != null && userLon != null) {
                     // 로그인 + 여행 계획 O + 위치 O
-                    long total = touristSpotRepository.countSpotsInCityWithScores(targetCity.getId(), userLat, userLon);
-                    List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsInCityWithScoresPaginated(targetCity.getId(), userLat, userLon, DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE, pageable.getPageSize(), pageable.getOffset());
+                    long total = touristSpotRepository.countSpotsInCitiesWithScores(cityIds, userLat, userLon);
+                    List<TouristSpotWithDistance> projections = touristSpotRepository.findSpotsInCitiesWithScoresPaginated(cityIds, userLat, userLon, DISTANCE_WEIGHT, MAIN_WEIGHT_FOR_DISTANCE, REVIEW_WEIGHT_FOR_DISTANCE, pageable.getPageSize(), pageable.getOffset());
                     return new PageImpl<>(projections.stream().map(this::toRecommendedSpotDto).collect(Collectors.toList()), pageable, total);
                 } else {
                     // 로그인 + 여행 계획 O + 위치 X
-                    Page<TouristSpot> spots = touristSpotRepository.findSpotsInCityByScoresWithoutLocationPaginated(targetCity.getId(), MAIN_WEIGHT_NO_DISTANCE, REVIEW_WEIGHT_NO_DISTANCE, pageable);
+                    Page<TouristSpot> spots = touristSpotRepository.findSpotsInCitiesByScoresWithoutLocationPaginated(cityIds, MAIN_WEIGHT_NO_DISTANCE, REVIEW_WEIGHT_NO_DISTANCE, pageable);
                     return spots.map(this::toRecommendedSpotDto);
                 }
             }
@@ -154,9 +154,9 @@ public class MainPageService {
     private Page<RecommendedSpotDto> getSpotsByCategoryPaginated(User user, Double userLat, Double userLon, SpotCategory category, Pageable pageable) {
         Optional<TripPlan> activePlanOpt = (user != null) ? tripPlanRepository.findFirstByUserAndStatusInOrderByStartDateAsc(user, List.of(TripStatus.UPCOMING, TripStatus.ONGOING)) : Optional.empty();
         if (activePlanOpt.isPresent()) {
-            City targetCity = findTargetCityFromPlan(activePlanOpt.get());
-            if (targetCity != null) {
-                return touristSpotRepository.findByCityAndCategoryOrderBySubWeightDescIdAsc(targetCity, category, pageable).map(this::toRecommendedSpotDto);
+            List<City> targetCities = findTargetCitiesFromPlan(activePlanOpt.get());
+            if (!targetCities.isEmpty()) {
+                return touristSpotRepository.findByCityInAndCategoryOrderBySubWeightDescIdAsc(targetCities, category, pageable).map(this::toRecommendedSpotDto);
             }
         }
 
@@ -202,20 +202,22 @@ public class MainPageService {
                 .orElse(null);
         return new RecommendedSpotDto(projection, imageUrl);
     }
-    /*
-       TODO: 현재 erd 수정으로 기존의 코드에서 임의로 수정했음
-        이도현 확인 후 기존의 로직과 동일한지 확인, 및 수정 필요
-    */
-    private City findTargetCityFromPlan(TripPlan activePlan) {
-        LocalDate today = LocalDate.now();
-        int todayOrder = (int) (today.toEpochDay() - activePlan.getStartDate().toEpochDay()) + 1;
 
+    private City findTargetCityFromPlan(TripPlan activePlan) {
+        // TripPlan에 연결된 CityOnTripDay 목록에서 첫 번째 도시를 찾아 반환합니다.
         return activePlan.getCityOnTripDays().stream()
-                .filter(cotd -> cotd.getTripPlan().getStartDate().plusDays(cotd.getCity().getId() - 1).compareTo(today) >= 0)
                 .map(CityOnTripDay::getCity)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private List<City> findTargetCitiesFromPlan(TripPlan activePlan) {
+        return activePlan.getCityOnTripDays().stream()
+                .map(CityOnTripDay::getCity)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 

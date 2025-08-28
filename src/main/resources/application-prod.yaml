@@ -10,6 +10,20 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
+
+    ai:
+      # 로컬에서 앱 실행 시
+      url: jdbc:postgresql://${AI_DB_HOST}:${AI_DB_PORT}/ai_rec_db?currentSchema=ai_base
+      username: ${AI_DB_USER}
+      password: ${AI_DB_PASSWORD}   # '!' 포함 → 반드시 따옴표로 감싸기
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 5
+        read-only: true
+        connection-timeout: 3000
+        # 세션 기본 스키마를 뷰 우선(rec)로
+        connection-init-sql: "SET search_path TO rec, ai_base, public"
+
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -97,11 +111,17 @@ naver:
   client-id: ${NAVER_CLIENT_CLOUD}
   client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
 
-clova:
-  api:
-    key: ${NAVER_CLIENT_CLOUD}
-  gateway:
-    key: ${NAVER_CLIENT_CLOUD}
+ncp:
+  object-storage:
+    access-key: ${NAVER_CLOUD_ID}
+    secret-key: ${NAVER_CLOUD_SECRET}
+    end-point: https://kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: nighttrip-images-bucket
+
+  clova:
+    endpoint: https://clovastudio.stream.ntruss.com
+    apiKey: ${CLOVA_API_KEY}
 
 logging:
   level:

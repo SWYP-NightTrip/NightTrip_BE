@@ -8,10 +8,7 @@ import com.nighttrip.core.domain.city.dto.CityResponseDto;
 import com.nighttrip.core.domain.city.entity.City;
 import com.nighttrip.core.domain.city.repository.CityRepository;
 import com.nighttrip.core.global.dto.SearchDocument;
-import com.nighttrip.core.global.enums.ErrorCode;
 import com.nighttrip.core.global.enums.ImageType;
-import com.nighttrip.core.global.exception.BusinessException;
-import com.nighttrip.core.global.image.entity.ImageSizeType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +40,7 @@ public class CitySearchService implements CitySearchServiceImpl {
 
     @Override
     public List<CityResponseDto> searchCity(String keyword) {
-        
+
         if (keyword == null || keyword.trim().isEmpty()) {
             return Collections.emptyList();
         }
