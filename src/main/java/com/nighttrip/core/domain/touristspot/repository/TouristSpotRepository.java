@@ -1,9 +1,10 @@
 package com.nighttrip.core.domain.touristspot.repository;
 
 import com.nighttrip.core.domain.city.entity.City;
-import com.nighttrip.core.domain.touristspot.dto.TouristSpotPopularityDto;
 import com.nighttrip.core.domain.touristspot.dto.TouristSpotWithDistance;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.global.enums.ImageSizeType;
+import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,11 +13,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> {
+public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long>, TouristSpotQueryRepository {
 
     @Query("""
                 select max(t.orderIndex)
@@ -24,7 +25,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
                 where t.tripDay.tripPlan.id=:tripPlanId
                 and t.tripDay.dayOrder=:tripDayOrder
             """)
-    Optional<BigDecimal> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
+    Optional<Long> findLastOrder(@Param("tripPlanId") Long tripPlanId, @Param("tripDayOrder") Integer tripDayOrder);
 
     @Query("SELECT ts FROM TouristSpot ts " +
             "LEFT JOIN ts.tourLikes tl " +
@@ -143,6 +144,8 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
      */
     Page<TouristSpot> findByCityAndCategoryOrderBySubWeightDescIdAsc(City city, SpotCategory category, Pageable pageable);
 
+    Page<TouristSpot> findByCityInAndCategoryOrderBySubWeightDescIdAsc(List<City> cities, SpotCategory category, Pageable pageable);
+
     /**
      * 카테고리 추천용 (위치 정보 없을 때 폴백): 전국 단위로 해당 카테고리 내에서 sub_weight로 정렬
      */
@@ -156,12 +159,12 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     @Query(value = """
         SELECT ts FROM TouristSpot ts
         LEFT JOIN ts.touristSpotReviews tsr
-        WHERE ts.city.id = :cityId
+        WHERE ts.city.id IN :cityIds
         GROUP BY ts.id
         ORDER BY (CAST(COALESCE(ts.mainWeight, 0) AS double) * :mainWeight) + ((COALESCE(AVG(tsr.scope), 0.0) * 20) * :reviewWeight) DESC, ts.id ASC
         """,
-            countQuery = "SELECT COUNT(ts) FROM TouristSpot ts WHERE ts.city.id = :cityId")
-    Page<TouristSpot> findSpotsInCityByScoresWithoutLocationPaginated(@Param("cityId") Long cityId, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, Pageable pageable);
+            countQuery = "SELECT COUNT(ts) FROM TouristSpot ts WHERE ts.city.id IN :cityIds")
+    Page<TouristSpot> findSpotsInCitiesByScoresWithoutLocationPaginated(@Param("cityIds") List<Long> cityIds, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, Pageable pageable);
 
     // [페이지네이션] 2-b. 여행 계획 X, 위치 X
     @Query(value = """
@@ -189,12 +192,12 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
         SELECT ts.*, (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) AS distance
         FROM tourist_spot ts
         LEFT JOIN (SELECT tourist_spot_id, AVG(scope) as avg_scope FROM tourist_spot_review GROUP BY tourist_spot_id) rs ON ts.tourist_spot_id = rs.tourist_spot_id
-        WHERE ts.city_id = :cityId AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
+        WHERE ts.city_id IN (:cityIds) AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
         ORDER BY (CASE WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 5 THEN 100 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 15 THEN 80 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 30 THEN 50 WHEN (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 60 THEN 20 ELSE 0 END * :distanceWeight) + (COALESCE(ts.main_weight, 0) * :mainWeight) + ((COALESCE(rs.avg_scope, 0) * 20) * :reviewWeight) DESC, ts.tourist_spot_id ASC
         LIMIT :limit OFFSET :offset
         """,
             nativeQuery = true)
-    List<TouristSpotWithDistance> findSpotsInCityWithScoresPaginated(@Param("cityId") Long cityId, @Param("userLat") double userLat, @Param("userLon") double userLon, @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, @Param("limit") int limit, @Param("offset") long offset);
+    List<TouristSpotWithDistance> findSpotsInCitiesWithScoresPaginated(@Param("cityIds") List<Long> cityIds, @Param("userLat") double userLat, @Param("userLon") double userLon, @Param("distanceWeight") double distanceWeight, @Param("mainWeight") double mainWeight, @Param("reviewWeight") double reviewWeight, @Param("limit") int limit, @Param("offset") long offset);
 
     // [페이지네이션] 카테고리 추천 (위치 기반)
     @Query(value = """
@@ -222,14 +225,14 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
 
     /**
      * [COUNT] 1-a. 여행 계획 O, 위치 O
-     * findSpotsInCityWithScoresPaginated 쿼리의 전체 개수를 세는 쿼리입니다.
+     * findSpotsInCitiesWithScoresPaginated 쿼리의 전체 개수를 세는 쿼리입니다.
      */
     @Query(value = """
             SELECT count(*)
             FROM tourist_spot ts
-            WHERE ts.city_id = :cityId AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
+            WHERE ts.city_id IN (:cityIds) AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
             """, nativeQuery = true)
-    long countSpotsInCityWithScores(@Param("cityId") Long cityId, @Param("userLat") double userLat, @Param("userLon") double userLon);
+    long countSpotsInCitiesWithScores(@Param("cityIds") List<Long> cityIds, @Param("userLat") double userLat, @Param("userLon") double userLon);
 
     /**
      * [COUNT] 카테고리 추천 (위치 기반)
@@ -241,4 +244,70 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
             WHERE ts.category = :category AND (6371 * acos(cos(radians(:userLat)) * cos(radians(ts.latitude)) * cos(radians(ts.longitude) - radians(:userLon)) + sin(radians(:userLat)) * sin(radians(ts.latitude)))) <= 70
             """, nativeQuery = true)
     long countSpotsByCategoryAndLocation(@Param("category") String category, @Param("userLat") double userLat, @Param("userLon") double userLon);
+
+
+    @Query(value = """
+      SELECT ts.*, 
+             (6371 * 2 * asin( sqrt(
+                power(sin(radians((ts.latitude - :lat)/2)),2) +
+                cos(radians(:lat))*cos(radians(ts.latitude))*
+                power(sin(radians((ts.longitude - :lng)/2)),2)
+             ))) AS dist_km
+      FROM tourist_spot ts
+      WHERE ts.city_id = :cityId
+      AND (6371 * 2 * asin( sqrt(
+                power(sin(radians((ts.latitude - :lat)/2)),2) +
+                cos(radians(:lat))*cos(radians(ts.latitude))*
+                power(sin(radians((ts.longitude - :lng)/2)),2)
+          ))) <= :radiusKm
+      ORDER BY COALESCE(ts.main_weight,0) DESC,
+               COALESCE(ts.check_count,0) DESC,
+               COALESCE(ts.sub_weight,0) DESC,
+               dist_km ASC
+      LIMIT :limit OFFSET :offset
+      """, nativeQuery = true)
+    List<Object[]> findCandidatesNative(
+            @Param("cityId") Long cityId,
+            @Param("lat") double lat, @Param("lng") double lng,
+            @Param("radiusKm") double radiusKm,
+            @Param("limit") int limit, @Param("offset") int offset);
+
+    @Query(
+            value = "select t from TouristSpot t where t.city.id = :cityId",
+            countQuery = "select count(t) from TouristSpot t where t.city.id = :cityId"
+    )
+    Page<TouristSpot> findByCityId(@Param("cityId") Long cityId, Pageable pageable);
+
+
+    /**
+     * 특정 도시 및 여러 카테고리에 해당하는 여행지 목록을 페이지네이션으로 조회합니다. (IN 쿼리)
+     * (예: "관광" 카테고리(자연, 문화, 역사 등) 조회 시 사용)
+     * 정렬: subWeight 내림차순, id 오름차순
+     */
+    Page<TouristSpot> findByCityAndCategoryInOrderBySubWeightDescIdAsc(City city, List<SpotCategory> categories, Pageable pageable);
+
+    Page<TouristSpot> findByCityInAndCategoryInOrderBySubWeightDescIdAsc(List<City> cities, List<SpotCategory> categories, Pageable pageable);
+
+    @Query("""
+        select
+           ts.id,
+           ts.spotName,
+           ts.address,
+           ts.category,
+           ts.spotDescription,
+           (
+             select iu.url
+             from ImageUrl iu
+             where iu.relatedId = ts.id
+               and iu.imageType = :imageType
+               and iu.imageSizeType = :sizeType
+           )
+        from TouristSpot ts
+        where ts.id in :ids
+    """)
+    List<Object[]> findRowsWithThumbByIds(
+            @Param("ids") Collection<Long> ids,
+            @Param("imageType") ImageType imageType,
+            @Param("sizeType") ImageSizeType sizeType
+    );
 }

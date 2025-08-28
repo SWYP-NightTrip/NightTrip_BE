@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/main/**").permitAll()
                         .requestMatchers("/api/v1/search/**", "/api/v1/search/recommend", "/api/v1/search/popular", "/api/v1/test/login").permitAll()
-                        .requestMatchers("/oauth2/**","/api/v1/oauth/status").permitAll()
+                        .requestMatchers("/oauth2/**","/api/v1/oauth/status","/api/v1/plan/ongoing").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/touristspot/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health").permitAll()

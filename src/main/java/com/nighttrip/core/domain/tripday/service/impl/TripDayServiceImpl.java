@@ -15,14 +15,6 @@ public class TripDayServiceImpl implements TripDayService {
 
     private final TripDayRepository tripDayRepository;
 
-    @Override
-    public void changePlanOrder(TripPlanChangeOrderRequest request, Long tripPlanId, Integer tripDayId) {
-
-        TripDay tripDay = tripDayRepository.findByTripPlanIdAndTripDayId(tripPlanId, tripDayId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_DAY_NOT_FOUND));
-
-        tripDay.changeTripOrder(request.fromIndex(), request.toIndex());
-    }
 
 
 }

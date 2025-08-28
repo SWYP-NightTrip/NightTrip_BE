@@ -1,5 +1,7 @@
 package com.nighttrip.core.domain.tripplan.entity;
 
+import com.nighttrip.core.domain.city.entity.City;
+import com.nighttrip.core.domain.tripday.entity.CityOnTripDay;
 import com.nighttrip.core.domain.tripday.entity.TripDay;
 import com.nighttrip.core.domain.user.entity.User;
 import com.nighttrip.core.global.enums.TripFeature;
@@ -38,6 +40,12 @@ public class TripPlan {
     @Column(name = "is_shared")
     private boolean isShared = false;
 
+    @Column(name = "num_index")
+    private Long numIndex;
+
+    @OneToMany(mappedBy = "tripPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CityOnTripDay> cityOnTripDays = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TripStatus status = TripStatus.UPCOMING;
@@ -65,4 +73,20 @@ public class TripPlan {
     public void changeStatus(TripStatus status) {
         this.status = status;
     }
+    public void changeNumIndex(Long newIndex) {
+        this.numIndex = newIndex;
+    }
+    public TripPlan(User user, String title, LocalDate startDate, LocalDate endDate, Long numIndex) {
+        this.user = user;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.numIndex = numIndex;
+
+    }
+    public void addCity(City city) {
+        CityOnTripDay cotd = new CityOnTripDay(this, city);
+        this.cityOnTripDays.add(cotd);
+    }
+
 }
