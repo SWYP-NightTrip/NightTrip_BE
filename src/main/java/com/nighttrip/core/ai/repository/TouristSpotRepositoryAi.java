@@ -14,46 +14,44 @@ public interface TouristSpotRepositoryAi extends JpaRepository<TouristSpot, Long
 
     // === 1) 후보 조회: 서비스 시그니처 그대로 ===
     default List<CandidateDto> findCandidates(Long cityId, int limit, int offset) {
-        int page = (limit > 0) ? (offset / limit) : 0;
-        return findCandidatesPage(cityId, PageRequest.of(page, limit));
+        int size = Math.max(1, limit);
+        int page = Math.max(0, offset / size);
+        return findCandidatesPage(cityId, PageRequest.of(page, size));
     }
 
-    // 내부 구현은 Pageable을 쓰는 JPQL (DTO 생성자로 매핑)
     @Query("""
-     SELECT new com.nighttrip.core.global.ai.dto.CandidateDto(
-        ts.id,
-        ts.spotName,
-        ts.category,
-        ts.mainWeight,
-        ts.checkCount,
-        ts.computedMeta
-     )
-     FROM TouristSpot ts
-     WHERE ts.city.id = :cityId
-     ORDER BY COALESCE(ts.mainWeight,0) DESC, ts.id ASC
-  """)
+        select new com.nighttrip.core.ai.dto.CandidateDto(
+            ts.id,
+            ts.spotName,
+            ts.category,
+            ts.mainWeight,
+            ts.checkCount,
+            ts.computedMeta
+        )
+        from TouristSpot ts
+        where ts.city.id = :cityId
+        order by coalesce(ts.mainWeight, 0) desc, ts.id asc
+    """)
     List<CandidateDto> findCandidatesPage(@Param("cityId") Long cityId, Pageable pageable);
 
-
-    // === 2) 썸네일 포함 요약: 시그니처 그대로 ===
+    // 서브쿼리 ORDER BY 제거 + 단일값 보장(가장 작은 URL을 대표로)
     @Query("""
-      select
-         ts.id,
-         ts.spotName,
-         ts.address,
-         ts.category,
-         ts.spotDescription,
-         (
-           select iu.url
-             from ImageUrl iu
-            where iu.relatedId = ts.id
-              and iu.imageType = :imageType
-              and iu.imageSizeType = :sizeType
-            order by iu.url asc
-         )
-      from TouristSpot ts
-      where ts.id in :ids
-  """)
+        select
+            ts.id,
+            ts.spotName,
+            ts.address,
+            ts.category,
+            ts.spotDescription,
+            (
+              select min(iu.url)
+              from ImageUrl iu
+              where iu.relatedId = ts.id
+                and iu.imageType = :imageType
+                and iu.imageSizeType = :sizeType
+            )
+        from TouristSpot ts
+        where ts.id in :ids
+    """)
     List<Object[]> findRowsWithThumbByIds(
             @Param("ids") Collection<Long> ids,
             @Param("imageType") ImageType imageType,
