@@ -76,7 +76,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     }
 
     public void deleteTripPlan(Long tripPlanId) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         TripPlan tripPlan = tripPlanRepository.findByIdAndUserId(tripPlanId, user.getId())
@@ -86,7 +86,7 @@ public class TripPlanServiceImpl implements TripPlanService {
     }
 
     public void reorderTripPlan(TripPlanReorderRequest request) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -130,7 +130,7 @@ public class TripPlanServiceImpl implements TripPlanService {
      * 현재 유저의 여행 계획 상태를 업데이트합니다.
      */
     public void updateTripPlanStatusesForUser() {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = SecurityUtils.getCurrentUserEmail();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
