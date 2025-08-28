@@ -1,4 +1,4 @@
-package com.nighttrip.core.global.ai.dto;
+package com.nighttrip.core.ai.dto;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;

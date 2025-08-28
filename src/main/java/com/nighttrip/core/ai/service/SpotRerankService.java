@@ -1,14 +1,15 @@
-package com.nighttrip.core.global.ai.service;
+package com.nighttrip.core.ai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nighttrip.core.ai.repository.TouristSpotRepositoryAi;
 import com.nighttrip.core.domain.touristspot.dto.RecommendTouristSpotResponse;
-import com.nighttrip.core.global.ai.dto.RerankCandidate;
-import com.nighttrip.core.global.ai.dto.RerankResult;
-import com.nighttrip.core.global.ai.dto.UserContext;
-import com.nighttrip.core.global.ai.header.ClovaHeaders;
+import com.nighttrip.core.ai.dto.RerankCandidate;
+import com.nighttrip.core.ai.dto.RerankResult;
+import com.nighttrip.core.ai.dto.UserContext;
+import com.nighttrip.core.ai.header.ClovaHeaders;
 import com.nighttrip.core.global.enums.ImageSizeType;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.enums.SpotCategory;
@@ -28,7 +29,7 @@ import java.util.stream.IntStream;
 @Transactional(readOnly = true, transactionManager = "aiTransactionManager")
 public class SpotRerankService {
 
-    private final com.nighttrip.core.global.ai.repository.TouristSpotRepositoryAi aiRepo;
+    private final TouristSpotRepositoryAi aiRepo;
     private final WebClient clovaWebClient;
     private final ClovaHeaders clovaHeaders;
     private final ObjectMapper om;

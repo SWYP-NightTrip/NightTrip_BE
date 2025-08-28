@@ -2,7 +2,7 @@ package com.nighttrip.core.domain.touristspot.repository.impl;
 
 import com.nighttrip.core.domain.touristspot.entity.QTouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotQueryRepository;
-import com.nighttrip.core.global.ai.dto.CandidateDto;
+import com.nighttrip.core.ai.dto.CandidateDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;

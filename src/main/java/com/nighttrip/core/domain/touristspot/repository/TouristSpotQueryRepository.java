@@ -1,6 +1,6 @@
 package com.nighttrip.core.domain.touristspot.repository;
 
-import com.nighttrip.core.global.ai.dto.CandidateDto;
+import com.nighttrip.core.ai.dto.CandidateDto;
 
 import java.util.List;
 

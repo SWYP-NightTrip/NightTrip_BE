@@ -1,9 +1,9 @@
-package com.nighttrip.core.global.ai.controller;
+package com.nighttrip.core.ai.controller;
 
 import com.nighttrip.core.domain.touristspot.dto.RecommendTouristSpotResponse;
-import com.nighttrip.core.global.ai.dto.RerankResult;
-import com.nighttrip.core.global.ai.dto.UserContext;
-import com.nighttrip.core.global.ai.service.SpotRerankService;
+import com.nighttrip.core.ai.dto.RerankResult;
+import com.nighttrip.core.ai.dto.UserContext;
+import com.nighttrip.core.ai.service.SpotRerankService;
 import com.nighttrip.core.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

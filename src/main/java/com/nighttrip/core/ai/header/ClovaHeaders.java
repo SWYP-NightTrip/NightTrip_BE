@@ -1,4 +1,4 @@
-package com.nighttrip.core.global.ai.header;
+package com.nighttrip.core.ai.header;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,12 @@
-package com.nighttrip.core.global.ai.service;
+package com.nighttrip.core.ai.service;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
 import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
-import com.nighttrip.core.global.ai.header.ClovaHeaders;
-import com.nighttrip.core.global.ai.dto.LabelInputSpot;
-import com.nighttrip.core.global.ai.dto.LabeledMeta;
+import com.nighttrip.core.ai.header.ClovaHeaders;
+import com.nighttrip.core.ai.dto.LabelInputSpot;
+import com.nighttrip.core.ai.dto.LabeledMeta;
 import com.nighttrip.core.global.enums.SpotDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

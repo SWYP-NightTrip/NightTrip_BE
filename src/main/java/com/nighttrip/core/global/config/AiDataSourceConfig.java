@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.nighttrip.core.global.ai.repository",   // AI 전용 리포 위치
+        basePackages = "com.nighttrip.core.ai",   // AI 전용 리포 위치
         entityManagerFactoryRef = "aiEntityManagerFactory",
         transactionManagerRef   = "aiTransactionManager"
 )

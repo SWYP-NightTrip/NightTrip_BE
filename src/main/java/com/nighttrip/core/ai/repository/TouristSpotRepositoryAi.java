@@ -1,7 +1,7 @@
-package com.nighttrip.core.global.ai.repository;
+package com.nighttrip.core.ai.repository;
 
 import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.global.ai.dto.CandidateDto;
+import com.nighttrip.core.ai.dto.CandidateDto;
 import com.nighttrip.core.global.enums.ImageSizeType;
 import com.nighttrip.core.global.enums.ImageType;
 import org.springframework.data.domain.*;

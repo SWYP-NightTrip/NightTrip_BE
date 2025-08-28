@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.nighttrip.core.domain",         // ✅ 메인 리포 범위
+        basePackages = {
+                "com.nighttrip.core.domain",
+                "com.nighttrip.core.global"
+        },
         entityManagerFactoryRef = "entityManagerFactory",   // 부트 기본 EMF
         transactionManagerRef   = "transactionManager"      // 부트 기본 Tx
 )
