@@ -52,8 +52,8 @@ jobs:
             echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
             echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
             echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
-            echo "NAVER_CLIENT_CLOUD=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
-            echo "NAVER_CLIENT_CLOUD_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
+            echo "NAVER_DEVELOPER_ID=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
+            echo "NAVER_DEVELOPER_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
             echo "NAVER_CLOUD_ID=${{ secrets.NAVER_CLOUD_ID }}" >> .env
             echo "NAVER_CLOUD_SECRET=${{ secrets.NAVER_CLOUD_SECRET }}" >> .env
             echo "AI_DB_HOST=${{ secrets.AI_DB_HOST }}" >> .env

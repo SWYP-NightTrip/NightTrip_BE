@@ -108,8 +108,8 @@ frontend:
 
 
 naver:
-  client-id: ${NAVER_CLIENT_CLOUD}
-  client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
+  client-id: ${NAVER_DEVELOPER_ID}
+  client-secret: ${NAVER_DEVELOPER_SECRET}
 
 ncp:
   object-storage:
