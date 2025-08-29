@@ -6,62 +6,59 @@ on:
 
 jobs:
   build-and-deploy:
+    runs-on: self-hosted
     timeout-minutes: 30
-    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
+      # 필요하다면 이 서버에서 바로 빌드 & 푸시
+      - name: Build and Push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nighttrip:latest
 
-      - name: SSH Deploy on NCP Server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            cd ~/nighttrip/deploy
-  
-            git pull origin main
-            
-            echo "DB_DOMAIN=${{ secrets.DB_DOMAIN }}" > .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
-            echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
-            echo "OAUTH_DOMAIN=${{ secrets.OAUTH_DOMAIN }}" >> .env
-            echo "CLOVA_API_KEY=${{ secrets.CLOVA_API_KEY }}" >> .env
-            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-            echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
-            echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
-            echo "NAVER_DEVELOPER_ID=${{ secrets.NAVER_CLIENT_CLOUD }}" >> .env
-            echo "NAVER_DEVELOPER_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}" >> .env
-            echo "NAVER_CLOUD_ID=${{ secrets.NAVER_CLOUD_ID }}" >> .env
-            echo "NAVER_CLOUD_SECRET=${{ secrets.NAVER_CLOUD_SECRET }}" >> .env
-            echo "AI_DB_HOST=${{ secrets.AI_DB_HOST }}" >> .env
-            echo "AI_DB_PORT=${{ secrets.AI_DB_PORT }}" >> .env
-            echo "AI_DB_USER=${{ secrets.AI_DB_USER }}" >> .env
-            echo "AI_DB_PASSWORD=${{ secrets.AI_DB_PASSWORD }}" >> .env
+      - name: Write .env for compose
+        run: |
+          cd ~/nighttrip/deploy
+          cat > .env <<'EOF'
+          DB_DOMAIN=${{ secrets.DB_DOMAIN }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DOMAIN=${{ secrets.DOMAIN }}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          OAUTH_DOMAIN=${{ secrets.OAUTH_DOMAIN }}
+          CLOVA_API_KEY=${{ secrets.CLOVA_API_KEY }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+          NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+          NAVER_DEVELOPER_ID=${{ secrets.NAVER_CLIENT_CLOUD }}
+          NAVER_DEVELOPER_SECRET=${{ secrets.NAVER_CLIENT_CLOUD_SECRET }}
+          NAVER_CLOUD_ID=${{ secrets.NAVER_CLOUD_ID }}
+          NAVER_CLOUD_SECRET=${{ secrets.NAVER_CLOUD_SECRET }}
+          AI_DB_HOST=${{ secrets.AI_DB_HOST }}
+          AI_DB_PORT=${{ secrets.AI_DB_PORT }}
+          AI_DB_USER=${{ secrets.AI_DB_USER }}
+          AI_DB_PASSWORD=${{ secrets.AI_DB_PASSWORD }}
+          EOF
 
-            docker compose down 
-            docker compose pull
-            docker compose up -d
-            docker image prune -f
+      - name: Deploy with Docker Compose
+        run: |
+          cd ~/nighttrip/deploy
+          docker compose pull || true
+          docker compose up -d --force-recreate
+          docker image prune -f
