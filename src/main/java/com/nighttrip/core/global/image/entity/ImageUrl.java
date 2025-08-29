@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "image_url")
+@Table(name = "image_url", schema = "public")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ImageUrl {
