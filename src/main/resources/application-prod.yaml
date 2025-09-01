@@ -134,5 +134,4 @@ llm:
     batchSize: 40         # 라벨링 1회 호출 후보 수
     metaVersion: 1
   rerank:
-    maxCandidates: 40     # 재랭킹에 투입할 상위 후보 수
     topK: 6
