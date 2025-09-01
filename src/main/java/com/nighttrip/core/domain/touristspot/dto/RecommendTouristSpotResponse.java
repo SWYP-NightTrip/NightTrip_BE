@@ -7,6 +7,7 @@ public record RecommendTouristSpotResponse(
         String spotName,
         String address,
         String category,
-        String spotDescription,
+        Double starAvg,
+        Long reviewCount,
         String imageUrl
 ) {}
