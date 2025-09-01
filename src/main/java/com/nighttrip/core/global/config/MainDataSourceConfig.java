@@ -55,8 +55,11 @@ public class MainDataSourceConfig {
         var props = new HashMap<String, Object>();
         // application.yml의 설정을 따르도록 기본값만 세팅
         props.put("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", "update"));
-        // Dialect는 자동 감지되지만, 명시하고 싶으면 아래 주석 해제
-        // props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        props.put("hibernate.default_schema", "public");
+        props.put("hibernate.physical_naming_strategy",
+                "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
+        props.put("hibernate.implicit_naming_strategy",
+                "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
         emf.setJpaPropertyMap(props);
         return emf;
     }
