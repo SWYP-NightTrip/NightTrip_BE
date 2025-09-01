@@ -108,8 +108,8 @@ frontend:
 
 
 naver:
-  client-id: ${NAVER_CLIENT_CLOUD}
-  client-secret: ${NAVER_CLIENT_CLOUD_SECRET}
+  client-id: ${NAVER_DEVELOPER_ID}
+  client-secret: ${NAVER_DEVELOPER_SECRET}
 
 ncp:
   object-storage:
@@ -127,3 +127,12 @@ logging:
   level:
     org.elasticsearch: DEBUG
     co.elastic.clients: DEBUG
+
+
+llm:
+  label:
+    batchSize: 40         # 라벨링 1회 호출 후보 수
+    metaVersion: 1
+  rerank:
+    maxCandidates: 40     # 재랭킹에 투입할 상위 후보 수
+    topK: 6
