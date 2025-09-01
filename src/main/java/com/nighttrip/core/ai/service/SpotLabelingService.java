@@ -2,11 +2,11 @@ package com.nighttrip.core.ai.service;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
-import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
-import com.nighttrip.core.ai.header.ClovaHeaders;
 import com.nighttrip.core.ai.dto.LabelInputSpot;
 import com.nighttrip.core.ai.dto.LabeledMeta;
+import com.nighttrip.core.ai.header.ClovaHeaders;
+import com.nighttrip.core.domain.touristspot.entity.TouristSpot;
+import com.nighttrip.core.domain.touristspot.repository.TouristSpotRepository;
 import com.nighttrip.core.global.enums.SpotDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +36,14 @@ public class SpotLabelingService {
     private int batchSize;
     @Value("${llm.label.metaVersion:1}")
     private int metaVersion;
+
+    private static List<String> toDetailStrings(Set<SpotDetails> set) {
+        if (set == null || set.isEmpty()) return List.of();
+        return set.stream()
+                .map(Enum::name)
+                .sorted()
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public int labelCity(Long cityId) throws Exception {
@@ -101,56 +109,94 @@ public class SpotLabelingService {
         );
     }
 
-    private static List<String> toDetailStrings(Set<SpotDetails> set) {
-        if (set == null || set.isEmpty()) return List.of();
-        return set.stream()
-                .map(Enum::name)
-                .sorted()
-                .collect(Collectors.toList());
-    }
-
     private int callAndUpsert(List<LabelInputSpot> batch, List<TouristSpot> pending) throws Exception {
         final String LABEL_SYSTEM_STRICT = """
-        역할: 당신은 도시 내 관광지 정보를 요약·태깅하는 전문가다.
-        규칙(반드시 준수):
-        - "출력은 JSON 배열 하나"만 허용. 설명/코멘트/코드펜스/키 이름 없는 텍스트 금지.
-        - 키 순서와 스키마를 정확히 지켜라. 누락/추가 키 금지.
-        - 값 제약:
-          - id: number
-          - tags: string 배열, 최대 5개
-          - night_suitability: 0~1 사이 소수 (예: 0, 0.2, 0.5, 0.8, 1)
-          - style: ["감성","느긋한","활동적","가성비","럭셔리"] 중 0개 이상
-          - companions_fit: ["가족","커플","친구","혼자"] 중 1개 이상
-          - dwell_time_min: "숫자~숫자" 형식 문자열 (분 단위)
-          - pros: 최대 3개, cons: 최대 2개, must_know: 최대 2개
-          - evidence: 최대 3개
-        - 입력 정보 부족 시 보수적으로 추론, 거짓 단정 금지. 애매하면 중립값.
-        - JSON 문법 준수. null/NaN/undefined 금지.
-        - 다시 강조: JSON 이외 그 어떤 텍스트도 출력 금지.
-    """;
+                    역할: 당신은 도시 내 관광지 정보를 요약·태깅하는 전문가다.
+                
+                                규칙(반드시 준수):
+                                - "출력은 JSON 배열 하나"만 허용. 설명/코멘트/코드펜스/기타 텍스트 금지.
+                                - 필수 키/옵션 키 스키마를 정확히 지켜라. 누락/추가 키 금지(옵션 키는 존재할 때만 포함).
+                                - 값 제약:
+                                  [필수]
+                                    - id: number
+                                    - tags: string[] (최대 5)
+                                    - night_suitability: number (0~1)
+                                    - dwell_time_min: "숫자~숫자" (분 단위)
+                                    - pros: string[] (<=3), cons: string[] (<=2), must_know: string[] (<=2), evidence: string[] (<=3)
+                                  [옵션]
+                                    - category: "숙소"|"식당"|"카페"|"펍"|"캠핑"|"랜드마크"|"전망대"|"공원"|"해변"|"드라이브코스"|"행사"
+                                    - lat: number, lng: number
+                                    - price_level: 1|2|3|4|5
+                                    - open_hours: [{"dow":"Mon|Tue|...","from":"HH:mm","to":"HH:mm"}, ...]
+                                    - night_open: boolean
+                                    - is_event: boolean
+                                    - event_dates: string[]  // "YYYY-MM-DD"
+                                    - is_night_view_spot: boolean
+                                    - night_view_score: number (0~1)
+                                    - is_rooftop: boolean
+                                    - live_music: boolean
+                                    - drive_walk_scenic: number (0~1)
+                                    - capacity_hint: number  // 권장/수용 인원 추정치
+                
+                                원칙:
+                                - 입력 정보 부족 시 보수적으로 추론하되 거짓 단정 금지. 애매하면 중립값.
+                                - JSON 문법 준수. null/NaN/undefined 금지.
+                                - 다시 강조: JSON 이외 그 어떤 텍스트도 출력 금지.
+                """;
 
         // 2) 사용자 프롬프트: 스키마 설명 + spots 데이터
         var userPrompt = Map.of(
                 "role", "user",
                 "content", """
-            입력: 관광지의 이름, 카테고리, 소개문, 상세설명, 주소, 좌표.
-            출력: JSON 배열로만 응답하라.
-            각 요소 스키마: {
-              "id": number,
-              "tags": string[<=5],
-              "night_suitability": number(0~1),
-              "style": string[], // ["감성","느긋한","활동적","가성비","럭셔리"] 중
-              "companions_fit": string[], // ["가족","커플","친구","혼자"]
-              "dwell_time_min": "30~90",
-              "pros": string[<=3],
-              "cons": string[<=2],
-              "must_know": string[<=2],
-              "evidence": string[<=3]
-            }
-            JSON 외 텍스트 금지.
-
-            %s
-            """.formatted(om.writeValueAsString(Map.of("spots", batch, "time_mode", "night")))
+                        입력: 관광지의 이름, 카테고리, 소개문, 상세설명, 주소, 좌표.
+                        출력: 아래 스키마의 JSON 배열만 응답하라.
+                        
+                        각 요소 스키마(필수/옵션 구분):
+                        {
+                          "id": number,
+                          "tags": string[<=5],
+                          "night_suitability": number,    // 0~1
+                          "dwell_time_min": "30~90",
+                          "pros": string[<=3],
+                          "cons": string[<=2],
+                          "must_know": string[<=2],
+                          "evidence": string[<=3],
+                        
+                          // 옵션
+                          "category": "...",
+                          "lat": number, "lng": number,
+                          "price_level": 1|2|3|4|5,
+                          "open_hours": [{"dow":"Mon","from":"10:00","to":"23:00"}],
+                          "night_open": true|false,
+                          "is_event": true|false,
+                          "event_dates": ["2025-10-03","2025-10-04"],
+                          "is_night_view_spot": true|false,
+                          "night_view_score": number,
+                          "is_rooftop": true|false,
+                          "live_music": true|false,
+                          "drive_walk_scenic": number,
+                          "capacity_hint": number
+                        }
+                        
+                        JSON 외 텍스트 금지.
+                        
+                        %s
+                        """.formatted(
+                        om.writeValueAsString(
+                                Map.of(
+                                        "spots", batch,
+                                        // 참고용 힌트(라벨 값 자체는 입력 기반으로 보수적 추정):
+                                        "context_hints", Map.of(
+                                                "tripDuration", /* ctx.tripDuration() 등 필요시 전달 */
+                                                "travelTime",   /* ctx.travelTime() */
+                                                "purpose",      /* ctx.purpose() */
+                                                "budgetLevel",  /* ctx.budgetLevel() */
+                                                "groupSize",    /* ctx.groupSize() */
+                                                "extras"     /* ctx.extras() */
+                                        )
+                                )
+                        )
+                )
         );
 
         Map<String, Object> body = Map.of(

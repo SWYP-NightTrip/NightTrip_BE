@@ -21,7 +21,7 @@ public class TripDayController {
         this.tripDayService = tripDayService;
         this.tripOrderService = tripOrderService;
     }
-    @PostMapping("/add-place")
+    @PostMapping
     public ResponseEntity<ApiResponse<Void>> addPlace(@RequestBody AddPlaceRequest request) {
         tripOrderService.addPlace(request.tripPlanId(), request.tripDayId(), request.touristSpotIds());
         return ResponseEntity.ok(ApiResponse.success(null));

@@ -7,6 +7,9 @@ public record CandidateDto(
         String spotName,
         SpotCategory category,
         Integer mainWeight,
+        Integer subWeight,
         Integer checkCount,
-        String computedMeta
+        String computedMeta,
+        Double latitude,
+        Double longitude
 ) {}
