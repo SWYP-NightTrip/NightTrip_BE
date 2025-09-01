@@ -469,7 +469,7 @@ public class SpotRerankService {
         return s;
     }
 
-    private List<Map<String, Object>> parseReasonArray(String raw) throws Exception {
+    private List<Map<String, Object>> parseReasonArray(String raw) {
         String s = cleanModelText(raw);
         try {
             return om.readValue(s, new TypeReference<>() {});
