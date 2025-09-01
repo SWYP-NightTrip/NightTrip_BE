@@ -61,10 +61,7 @@ public class SpotRerankService {
     private final ClovaHeaders clovaHeaders;
     private final ObjectMapper om;
 
-    @Value("${llm.rerank.maxCandidates:40}")
-    private int maxCandidates;
-
-    @Value("${llm.rerank.topK:6}")
+    @Value("${llm.rerank.topK:10}")
     private int topK;
 
     // 느슨한 ObjectMapper (지연 초기화)
@@ -92,7 +89,7 @@ public class SpotRerankService {
                         "purpose", u.purpose(),
                         "budgetLevel", u.budgetLevel(),
                         "groupSize", u.groupSize(),
-                        "extras", Optional.ofNullable(u.extras()).orElse(List.of())
+                        "extras", u.extras()
                 ),
                 // 단일 섹션: 고정 문자열만 사용(버킷 개념 제거)
                 "section", "main",
@@ -227,7 +224,7 @@ public class SpotRerankService {
     public List<RecommendTouristSpotResponse> recommendSectionItems(UserContext ctx) {
         if (ctx == null || ctx.cityId() == null) throw new IllegalArgumentException("cityId가 필요합니다.");
 
-        int limit = Optional.ofNullable(ctx.maxSpots()).orElse(topK);
+        int limit = topK;
         int poolSize = Math.max(60, limit * 6);
 
         var pool = fetchAndMapCandidates(ctx.cityId(), poolSize);
@@ -276,16 +273,21 @@ public class SpotRerankService {
         Map<String, Object> m = Optional.ofNullable(c.meta()).orElseGet(HashMap::new);
         double w = 0.0;
 
+        String tt = normTravelTime(u.travelTime());
+        String pp = normPurpose(u.purpose());
+        String bb = normBudgetLevel(u.budgetLevel());
+        String ex = normExtras(u.extras());
+
         w += 0.60 * clamp01(c.popularity());
-        if (isNight(u.travelTime())) w += 0.15 * dbl(m, "night_suitability", 0.0);
+        if (isNight(tt)) w += 0.15 * dbl(m, "night_suitability", 0.0);
 
-        w += 0.10 * purposeMatch(u.purpose(), m);
-        w += 0.15 * extrasMatch(u.extras(), m);
+        w += 0.10 * purposeMatch(pp, m);
+        w += 0.15 * extrasMatch(ex, m);
 
-        w += 0.10 * timeOpenMatch(u.travelTime(), m);
+        w += 0.10 * timeOpenMatch(tt, m);
         w += 0.05 * capacityMatch(u.groupSize(), m);
-        w -= budgetPenalty(u.budgetLevel(), m);
-        w -= hoursPenalty(u.travelTime(), m);
+        w -= budgetPenalty(bb, m);
+        w -= hoursPenalty(tt, m);
 
         return clamp01(w);
     }
@@ -299,6 +301,90 @@ public class SpotRerankService {
         double m = Optional.ofNullable(main).orElse(0);
         double c = Optional.ofNullable(checks).orElse(0);
         return Math.tanh((0.7 * m + 0.3 * c) / 1000.0);
+    }
+
+    private String normGroupLabel(String s) {
+        if (s == null) return null;
+        return s.trim().replaceAll("\\s+", ""); // "온 가족 여행" -> "온가족여행"
+    }
+
+    private String norm(String s) {
+        if (s == null) return null;
+        return s.trim().replaceAll("\\s+", "");
+    }
+
+    // 여행시간 라벨 → "오전/오후/저녁/심야"
+    private String normTravelTime(String raw) {
+        if (raw == null) return null;
+        String s = norm(raw);
+
+        // 키워드 우선
+        if (s.contains("심야")) return "심야";
+        if (s.contains("저녁")) return "저녁";
+        if (s.contains("오후")) return "오후";
+        if (s.contains("오전")) return "오전";
+
+        // 시간 범위 힌트
+        if (s.contains("10시이후") || s.contains("22시") || s.contains("23시")) return "심야";
+        if (s.contains("7-10시") || s.contains("19시") || s.contains("20시") || s.contains("21시")) return "저녁";
+        if (s.contains("4-7시") || s.contains("16시") || s.contains("17시") || s.contains("18시")) return "오후";
+
+        return null; // 매칭 실패 시 null
+    }
+
+    // 예산 라벨 → "저렴/보통/프리미엄"
+// 기준(임시): ≤20만 = 저렴, ≤40만 = 보통, >40만 = 프리미엄
+    private String normBudgetLevel(String raw) {
+        if (raw == null) return null;
+        String s = norm(raw);
+
+        // 숫자(만 원 단위) 추출
+        var m = java.util.regex.Pattern.compile("(\\d+)만").matcher(s);
+        java.util.List<Integer> vals = new java.util.ArrayList<>();
+        while (m.find()) vals.add(Integer.parseInt(m.group(1)));
+        int lo = vals.isEmpty() ? 0 : vals.get(0);
+        int hi = vals.size() >= 2 ? vals.get(1) : (s.contains("이상") ? Integer.MAX_VALUE : lo);
+
+        int ref = (hi == Integer.MAX_VALUE) ? hi : (lo + hi) / 2; // 중앙값 또는 하한
+        if (ref <= 20) return "저렴";
+        if (ref <= 40) return "보통";
+        return "프리미엄";
+    }
+
+    // 스타일 라벨 → 목적("힐링/사진/미식/액티브")
+    private String normPurpose(String raw) {
+        if (raw == null) return null;
+        String s = norm(raw);
+        if (s.contains("힐링") || s.contains("자연")) return "힐링";
+        if (s.contains("맛집") || s.contains("맛폿") || s.contains("미식") || s.contains("투어")) return "미식";
+        if (s.contains("사진") || s.contains("별") || s.contains("야경") || s.contains("포토")) return "사진";
+        if (s.contains("드라이브") || s.contains("산책") || s.contains("축제") || s.contains("체험")) return "액티브";
+        return raw; // 매칭 안 되면 원문 유지
+    }
+
+    // 스타일 라벨/자유입력 → extras 표준키("루프탑/라이브/야시장/야간개장")
+    private String normExtras(String raw) {
+        if (raw == null) return null;
+        String s = norm(raw);
+        if (s.contains("루프탑")) return "루프탑";
+        if (s.contains("라이브") || s.contains("펍") || s.contains("라이브카페")) return "라이브";
+        if (s.contains("야시장")) return "야시장";
+        if (s.contains("야간개장") || s.contains("심야문화") || s.contains("야간축제") || s.contains("야간")) return "야간개장";
+        return raw; // 매칭 안 되면 원문
+    }
+
+    private int[] groupRange(String normalizedLabel) {
+        if (normalizedLabel == null) return null;
+        return switch (normalizedLabel) {
+            case "혼자여행"     -> new int[]{1, 1};
+            case "친구와함께"   -> new int[]{2, 5};
+            case "연인과함께"   -> new int[]{2, 2};
+            case "배우자와함께" -> new int[]{2, 2};
+            case "부모님과함께" -> new int[]{3, 4};
+            case "온가족여행"   -> new int[]{3, 6};
+            case "그외"         -> null;  // 미지정
+            default             -> null;
+        };
     }
 
     private Map<String, Object> parseMeta(String json) {
@@ -367,19 +453,18 @@ public class SpotRerankService {
         };
     }
 
-    private double extrasMatch(List<String> extras, Map<String, Object> m) {
-        if (extras == null || extras.isEmpty()) return 0;
-        double v = 0;
-        for (String x : extras) {
-            switch (x) {
-                case "루프탑" -> v += bool(m, "is_rooftop") ? 1 : 0;
-                case "라이브" -> v += bool(m, "live_music") ? 1 : 0;
-                case "야시장" -> v += hasTag(m, "야시장") ? 1 : 0;
-                case "야간개장" -> v += hasTag(m, "야간개장") || bool(m, "night_open") ? 1 : 0;
-                default -> v += hasTag(m, x) ? 1 : 0;
-            }
-        }
-        return Math.min(1.0, v / Math.max(1, extras.size()));
+    private double extrasMatch(String extras, Map<String, Object> m) {
+        if (extras == null) return 0.0;
+        String x = extras.trim();
+        if (x.isEmpty()) return 0.0;
+
+        return switch (x) {
+            case "루프탑"   -> bool(m, "is_rooftop") ? 1.0 : 0.0;
+            case "라이브"   -> bool(m, "live_music") ? 1.0 : 0.0;
+            case "야시장"   -> hasTag(m, "야시장") ? 1.0 : 0.0;
+            case "야간개장" -> (hasTag(m, "야간개장") || bool(m, "night_open")) ? 1.0 : 0.0;
+            default        -> hasTag(m, x) ? 1.0 : 0.0;
+        };
     }
 
     private double timeOpenMatch(String travelTime, Map<String, Object> m) {
@@ -397,16 +482,25 @@ public class SpotRerankService {
         return "저녁".equals(travelTime) || "심야".equals(travelTime);
     }
 
-    private double capacityMatch(Integer groupSize, Map<String, Object> m) {
-        if (groupSize == null || groupSize <= 0) return 0;
+    private double capacityMatch(String groupSizeLabel, Map<String, Object> m) {
+        String norm = normGroupLabel(groupSizeLabel);
+        int[] rng = groupRange(norm);
+        if (rng == null) return 0.0; // 라벨이 없거나 매핑 불가
+
         Object v = m.get("capacity_hint");
         Integer cap = (v instanceof Number n) ? n.intValue() : null;
-        if (cap == null) return 0;
-        int diff = Math.abs(cap - groupSize);
-        if (diff <= 1) return 1.0;
-        if (diff == 2) return 0.5;
+        if (cap == null) return 0.0; // 메타에 권장 인원 없으면 가점 없음
+
+        // 범위 내면 만점
+        if (cap >= rng[0] && cap <= rng[1]) return 1.0;
+
+        // 범위에서 벗어난 정도에 따라 완화
+        int dist = (cap < rng[0]) ? (rng[0] - cap) : (cap - rng[1]);
+        if (dist == 1) return 0.7;
+        if (dist == 2) return 0.5;
         return 0.0;
     }
+
 
     private double budgetPenalty(String budgetLevel, Map<String, Object> m) {
         if (budgetLevel == null) return 0;
