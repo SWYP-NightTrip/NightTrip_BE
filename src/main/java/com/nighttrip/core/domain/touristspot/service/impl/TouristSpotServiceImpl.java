@@ -170,10 +170,18 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
         Query multiMatchQuery = Query.of(q -> q
                 .multiMatch(m -> m
-                        .fields("name", "suggestName", "description", "cityName", "category")
+                        .fields(
+                                "name^4",
+                                "category^2",
+                                "cityName^2",
+                                "address^2",
+                                "description",
+                                "name.autocomplete"
+                        )
                         .query(keyword)
                         .fuzziness("AUTO")
-                        .operator(Operator.And)
+                        .operator(Operator.Or)
+                        .minimumShouldMatch("70%")
                 )
         );
 
@@ -195,9 +203,21 @@ public class TouristSpotServiceImpl implements TouristSpotService {
 
         redisTemplate.opsForZSet().incrementScore(POPULAR_TOURIST_SPOTS_KEY, keyword.trim(), 1);
 
-        List<TouristSpot> spots = touristSpotRepository.findAllById(spotIds);
-        return spots.stream()
-                .map(this::mapToTouristSpotResponseDto)
+        return searchHits.getSearchHits().stream()
+                .map(hit -> {
+                    SearchDocument doc = hit.getContent();
+
+                    String formattedAddress = LocationFormatter.formatForSearch(doc.getAddress());
+
+                    return new TouristSpotResponseDto(
+                            Long.parseLong(doc.getId().replace("tourist_spot_", "")),
+                            doc.getName(),
+                            formattedAddress,
+                            doc.getCategory(),
+                            doc.getDescription(),
+                            doc.getImageUrl()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

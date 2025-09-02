@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.util.List;
 
@@ -23,23 +21,28 @@ public class SearchDocument {
     @Field(type = FieldType.Keyword)
     private String type;
 
-    @Field(type = FieldType.Text)
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "korean_search_analyzer_v2"),
+            otherFields = {
+                    @InnerField(suffix = "autocomplete", type = FieldType.Text, analyzer = "korean_autocomplete_analyzer_v2")
+            }
+    )
     private String name;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "korean_search_analyzer_v2")
     private String description;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "korean_search_analyzer_v2")
     private String cityName;
+
+    @Field(type = FieldType.Text, analyzer = "korean_search_analyzer_v2")
+    private String address;
 
     @Field(type = FieldType.Keyword)
     private String category;
 
     @Field(type = FieldType.Keyword, index = false)
     private String imageUrl;
-
-    @Field(type = FieldType.Text)
-    private List<String> suggestName;
 
     public SearchDocument withFormattedCityName() {
         String formattedCityName = LocationFormatter.formatForSearch(this.cityName);
@@ -48,10 +51,10 @@ public class SearchDocument {
                 this.type,
                 this.name,
                 this.description,
-                formattedCityName, // <-- 이 부분만 변경됩니다.
+                formattedCityName,
+                this.address,
                 this.category,
-                this.imageUrl,
-                this.suggestName
+                this.imageUrl
         );
     }
 }

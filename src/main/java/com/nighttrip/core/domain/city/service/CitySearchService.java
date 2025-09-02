@@ -1,5 +1,6 @@
 package com.nighttrip.core.domain.city.service;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.nighttrip.core.domain.city.Implementation.CitySearchServiceImpl;
@@ -11,6 +12,7 @@ import com.nighttrip.core.global.dto.SearchDocument;
 import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.image.entity.ImageUrl;
 import com.nighttrip.core.global.image.repository.ImageRepository;
+import com.nighttrip.core.global.util.LocationFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -47,9 +49,11 @@ public class CitySearchService implements CitySearchServiceImpl {
 
         Query typeFilter = QueryBuilders.term(t -> t.field("type").value("city"));
         Query multiMatchQuery = QueryBuilders.multiMatch(m -> m
-                .fields("name", "suggestName")
+                .fields("name^4", "name.autocomplete")
                 .query(keyword)
                 .fuzziness("AUTO")
+                .operator(Operator.Or)
+                .minimumShouldMatch("70%")
         );
 
         Query finalQuery = QueryBuilders.bool(b -> b.must(multiMatchQuery).filter(typeFilter));
@@ -60,12 +64,26 @@ public class CitySearchService implements CitySearchServiceImpl {
 
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
 
+        if (searchHits.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String currentMonthKey = POPULAR_CITIES_KEY_PREFIX + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
 
         redisTemplate.opsForZSet().incrementScore(currentMonthKey, keyword.trim(), 1);
 
         return searchHits.getSearchHits().stream()
-                .map(hit -> CityResponseDto.from(hit.getContent()))
+                .map(hit -> {
+                    SearchDocument doc = hit.getContent();
+
+                    String formattedCityName = LocationFormatter.formatForSearch(doc.getName());
+
+                    return new CityResponseDto(
+                            Long.parseLong(doc.getId().replace("city_", "")),
+                            formattedCityName,
+                            doc.getImageUrl()
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
