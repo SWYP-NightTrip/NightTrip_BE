@@ -78,7 +78,7 @@ public class DataSyncService {
             if (!cities.isEmpty()) {
                 List<SearchDocument> cityDocuments = cities.stream()
                         .map(city -> {
-                            Set<String> suggestions = generateCitySuggestions(city.getCityName());
+                            //Set<String> suggestions = generateCitySuggestions(city.getCityName());
 
                             String image = imageRepository.findTHUMBNAILImage(String.valueOf(ImageType.CITY), city.getId())
                                     .map(ImageUrl::getUrl)
@@ -88,8 +88,8 @@ public class DataSyncService {
                                     .id("city_" + city.getId())
                                     .type("city")
                                     .name(city.getCityName())
+                                    .address(null)
                                     .imageUrl(image)
-                                    .suggestName(new ArrayList<>(suggestions))
                                     .build();
                         })
                         .collect(Collectors.toList());
@@ -111,7 +111,7 @@ public class DataSyncService {
                                     .map(ImageUrl::getUrl)
                                     .orElse(null);
 
-                            Set<String> suggestions = generateTouristSpotSuggestions(touristSpot.getSpotName());
+                            //Set<String> suggestions = generateTouristSpotSuggestions(touristSpot.getSpotName());
 
                             return SearchDocument.builder()
                                     .id("tourist_spot_" + touristSpot.getId())
@@ -119,9 +119,9 @@ public class DataSyncService {
                                     .name(touristSpot.getSpotName())
                                     .description(touristSpot.getSpotDescription())
                                     .cityName(touristSpot.getCity() != null ? touristSpot.getCity().getCityName() : null)
+                                    .address(touristSpot.getAddress())
                                     .category(touristSpot.getCategory().getKoreanName())
                                     .imageUrl(mainImageUrl)
-                                    .suggestName(new ArrayList<>(suggestions))
                                     .build();
                         })
                         .collect(Collectors.toList());
@@ -143,77 +143,7 @@ public class DataSyncService {
         System.out.println("=== Elasticsearch 초기 동기화 종료 ===");
     }
 
-    /**
-     * City 검색어 추천어 생성
-     */
-    private Set<String> generateCitySuggestions(String fullCityName) {
-        Set<String> suggestions = new HashSet<>();
-        suggestions.add(fullCityName);
-        String[] words = fullCityName.split(" ");
-        for (String word : words) {
-            if (!word.isEmpty()) suggestions.add(word);
-        }
-        for (int i = 0; i < words.length; i++) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = i; j < words.length; j++) {
-                if (j > i) sb.append(" ");
-                sb.append(words[j]);
-                suggestions.add(sb.toString());
-            }
-        }
-        if (fullCityName.contains("특별시")) suggestions.add(fullCityName.substring(0, fullCityName.indexOf("특별시")));
-        if (fullCityName.contains("광역시")) suggestions.add(fullCityName.substring(0, fullCityName.indexOf("광역시")));
-        if (fullCityName.contains("도")) suggestions.add(fullCityName.substring(0, fullCityName.indexOf("도")));
-        if (fullCityName.endsWith("구")) suggestions.add(fullCityName.replace("구", ""));
-        if (fullCityName.endsWith("군")) suggestions.add(fullCityName.replace("군", ""));
-        if (fullCityName.endsWith("시")) suggestions.add(fullCityName.replace("시", ""));
-        suggestions.add(fullCityName.replace(" ", ""));
-        if (words.length >= 2) {
-            suggestions.add(words[0] + words[1]);
-            suggestions.add(words[1] + words[0]);
-        }
-        if (fullCityName.startsWith("서울특별시")) suggestions.add("서울특");
-        return suggestions;
-    }
 
-    /**
-     * TouristSpot 검색어 추천어 생성
-     */
-    private Set<String> generateTouristSpotSuggestions(String spotName) {
-        Set<String> suggestions = new HashSet<>();
-        suggestions.add(spotName);
-        String[] nameWords = spotName.split(" ");
-        for (String word : nameWords) {
-            if (!word.isEmpty()) suggestions.add(word);
-        }
-        for (int i = 0; i < nameWords.length; i++) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = i; j < nameWords.length; j++) {
-                if (j > i) sb.append(" ");
-                sb.append(nameWords[j]);
-                suggestions.add(sb.toString());
-            }
-        }
-        if (nameWords.length >= 2) {
-            for (int i = 0; i < nameWords.length; i++) {
-                for (int j = 0; j < nameWords.length; j++) {
-                    if (i != j) {
-                        suggestions.add(nameWords[i] + " " + nameWords[j]);
-                        suggestions.add(nameWords[i] + nameWords[j]);
-                    }
-                }
-            }
-        }
-        String compactName = spotName.replace(" ", "");
-        suggestions.add(compactName);
-        int len = compactName.length();
-        for (int i = 0; i < len; i++) {
-            for (int j = i + 2; j <= len; j++) {
-                suggestions.add(compactName.substring(i, j));
-            }
-        }
-        return suggestions;
-    }
     private Map<String, Object> readResourceFileAsMap(String path) throws IOException {
         ClassPathResource resource = new ClassPathResource(path);
         byte[] data = FileCopyUtils.copyToByteArray(resource.getInputStream());

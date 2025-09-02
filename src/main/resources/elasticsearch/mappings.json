@@ -1,43 +1,35 @@
 {
   "properties": {
-    "_class": {
-      "type": "keyword",
-      "index": false,
-      "doc_values": false
+    "name": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer_v2",
+      "fields": {
+        "autocomplete": {
+          "type": "text",
+          "analyzer": "korean_autocomplete_analyzer_v2"
+        }
+      }
+    },
+    "cityName": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer_v2"
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "korean_search_analyzer_v2"
     },
     "category": {
       "type": "keyword"
     },
-    "cityName": {
-      "type": "text",
-      "analyzer": "korean_search_analyzer"
-    },
-    "description": {
-      "type": "text",
-      "analyzer": "korean_search_analyzer"
+    "type": {
+      "type": "keyword"
     },
     "id": {
       "type": "keyword"
     },
     "imageUrl": {
-      "type": "keyword"
-    },
-    "name": {
-      "type": "text",
-      "analyzer": "korean_search_analyzer",
-      "fields": {
-        "autocomplete": {
-          "type": "text",
-          "analyzer": "korean_autocomplete_analyzer"
-        }
-      }
-    },
-    "suggestName": {
-      "type": "text",
-      "analyzer": "korean_autocomplete_analyzer"
-    },
-    "type": {
-      "type": "keyword"
+      "type": "keyword",
+      "index": false
     }
   }
 }
