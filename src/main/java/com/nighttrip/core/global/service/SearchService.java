@@ -2,6 +2,7 @@ package com.nighttrip.core.global.service;
 
 import com.nighttrip.core.global.dto.RecommendedKeyword;
 import com.nighttrip.core.global.dto.SearchDocument;
+import com.nighttrip.core.global.util.LocationFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -47,10 +48,14 @@ public class SearchService {
      * @return 검색 제안 문서 목록
      */
     public List<SearchDocument> suggestAutoComplete(String searchText) {
+
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return List.of();
+        }
+
         Query matchQuery = QueryBuilders.match(m -> m
-                .field("suggestName")
+                .field("name.autocomplete")
                 .query(searchText)
-                .analyzer("korean_autocomplete_analyzer")
         );
 
         NativeQuery nativeQuery = NativeQuery.builder()
@@ -59,16 +64,10 @@ public class SearchService {
                 .build();
 
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
-        List<SearchDocument> searchResults = searchHits.getSearchHits().stream()
+
+        return searchHits.getSearchHits().stream()
                 .map(hit -> hit.getContent())
-                .map(SearchDocument::withFormattedCityName)
-                .distinct()
-                .limit(10)
                 .collect(Collectors.toList());
-
-        incrementPopularKeywords(searchResults);
-
-        return searchResults;
     }
 
     /**
@@ -79,11 +78,18 @@ public class SearchService {
      */
     public List<SearchDocument> search(String query) {
         Query multiMatchQuery = QueryBuilders.multiMatch(m -> m
-                .fields("name", "cityName", "description")
+                .fields(
+                        "name^4",
+                        "category^2",
+                        "cityName^2",
+                        "address^2",
+                        "description",
+                        "name.autocomplete"
+                )
                 .query(query)
                 .fuzziness("AUTO")
-                .operator(Operator.And)
-                .analyzer("korean_search_analyzer")
+                .operator(Operator.Or)
+                .minimumShouldMatch("70%")
         );
 
         NativeQuery nativeQuery = NativeQuery.builder()
@@ -91,9 +97,24 @@ public class SearchService {
                 .build();
 
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(nativeQuery, SearchDocument.class);
+
         List<SearchDocument> searchResults = searchHits.getSearchHits().stream()
-                .map(hit -> hit.getContent())
-                .map(SearchDocument::withFormattedCityName)
+                .map(hit -> {
+                    SearchDocument doc = hit.getContent();
+
+                    String formattedCityName = LocationFormatter.formatForSearch(doc.getCityName());
+
+                    return SearchDocument.builder()
+                            .id(doc.getId())
+                            .type(doc.getType())
+                            .name(doc.getName())
+                            .description(doc.getDescription())
+                            .cityName(formattedCityName)
+                            .address(doc.getAddress())
+                            .category(doc.getCategory())
+                            .imageUrl(doc.getImageUrl())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
 

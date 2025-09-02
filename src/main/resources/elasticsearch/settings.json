@@ -1,26 +1,10 @@
 {
   "index": {
     "analysis": {
-      "analyzer": {
-        "korean_autocomplete_analyzer": {
-          "tokenizer": "nori_tokenizer",
-          "filter": [
-            "nori_readingform",
-            "nori_number",
-            "cjk_width",
-            "lowercase",
-            "edge_ngram_filter",
-            "unique"
-          ]
-        },
-        "korean_search_analyzer": {
-          "tokenizer": "nori_tokenizer",
-          "filter": [
-            "nori_readingform",
-            "nori_number",
-            "cjk_width",
-            "lowercase"
-          ]
+      "tokenizer": {
+        "nori_tokenizer_decompound": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
         }
       },
       "filter": {
@@ -28,6 +12,37 @@
           "type": "edge_ngram",
           "min_gram": 1,
           "max_gram": 20
+        },
+        "korean_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": [
+            "E", "IC", "J", "MAG", "MM", "NA",
+            "NR", "SC", "SE", "SF", "SH", "SL",
+            "SN", "SP", "SSC", "SSO", "SY",
+            "UNA", "UNKNOWN", "VA", "VCN", "VCP",
+            "VSV", "VV", "VX", "XPN", "XR",
+            "XSA", "XSN", "XSV"
+          ]
+        }
+      },
+      "analyzer": {
+        "korean_search_analyzer_v2": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_decompound",
+          "filter": [
+            "lowercase",
+            "nori_readingform",
+            "korean_pos_filter"
+          ]
+        },
+        "korean_autocomplete_analyzer_v2": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_readingform",
+            "edge_ngram_filter"
+          ]
         }
       }
     }
