@@ -84,8 +84,6 @@ public class SpotRerankService {
 
         var payload = Map.of(
                 "user", Map.of(
-                        "tripDuration", u.tripDuration(),
-                        "travelTime", u.travelTime(),
                         "purpose", u.purpose(),
                         "budgetLevel", u.budgetLevel(),
                         "groupSize", u.groupSize(),
@@ -273,21 +271,17 @@ public class SpotRerankService {
         Map<String, Object> m = Optional.ofNullable(c.meta()).orElseGet(HashMap::new);
         double w = 0.0;
 
-        String tt = normTravelTime(u.travelTime());
         String pp = normPurpose(u.purpose());
         String bb = normBudgetLevel(u.budgetLevel());
         String ex = normExtras(u.extras());
 
         w += 0.60 * clamp01(c.popularity());
-        if (isNight(tt)) w += 0.15 * dbl(m, "night_suitability", 0.0);
 
         w += 0.10 * purposeMatch(pp, m);
         w += 0.15 * extrasMatch(ex, m);
 
-        w += 0.10 * timeOpenMatch(tt, m);
         w += 0.05 * capacityMatch(u.groupSize(), m);
         w -= budgetPenalty(bb, m);
-        w -= hoursPenalty(tt, m);
 
         return clamp01(w);
     }
