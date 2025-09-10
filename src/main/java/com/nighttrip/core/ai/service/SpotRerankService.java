@@ -31,7 +31,9 @@ public class SpotRerankService {
             역할: 당신은 도시 내 관광지 추천 재랭킹 전문가다.
             입력: {"user":{...}, "section":"...", "candidates":[...], "hints":{"topK":K}}
             목표:
-            - 입력 candidates와 사용자 컨텍스트를 기반으로 Top-K를 선정하고 각 항목에 한국어 1~2문장 reason을 쓴다.
+            - 입력 candidates와 사용자 컨텍스트를 기반으로 Top-K를 선정하고 각 항목에 한국어 짧은 reason(8~14자 내외)을 쓴다.
+            (중요) reason은 '한국어 8~14자'의 매우 짧은 문구로 작성하며, 가능하면 12자 내외로 맞춘다.
+            예: "~ 추천", "~ 가성비 좋음", "~ 야경 좋아요" (마침표 생략 가능)
             
             선정 규칙(공통, 필수):
             1) travelTime이 "저녁/심야"이면 meta.night_suitability 가점.
@@ -44,7 +46,7 @@ public class SpotRerankService {
             
             출력 형식(엄격):
             [
-              { "id": number, "reason": "한국어 1~2문장", "score": number, "rank": number },
+              { "id": number, "reason": "한국어 8~14자 내외의 짧은 문구", "score": number, "rank": number },
               ...
             ]
             
@@ -54,6 +56,7 @@ public class SpotRerankService {
             - id는 입력 candidates에서만 선택, 중복 금지.
             - rank는 1..K 오름차순, score는 0..1 범위.
             - 모든 키에 큰따옴표 사용, null/NaN/undefined/trailing comma 금지.
+            - reason은 가능한 12자 내외를 유지하고, 과도한 수식어/문장부호는 피한다.
             """;
 
     private final TouristSpotRepositoryAi repo;
@@ -288,7 +291,8 @@ public class SpotRerankService {
 
     // ---------------- 공통 헬퍼 ----------------
     private String makeFallbackReason(RerankCandidate c) {
-        return c.spotName() + "은(는) 이번 여정에 잘 맞는 추천지예요.";
+        // 짧은 기본 문구 + 길이 제한 적용
+        return safeReason(c.spotName() + " 추천");
     }
 
     private double normPopularity(Integer main, Integer checks) {
@@ -586,7 +590,18 @@ public class SpotRerankService {
     private String safeReason(String s) {
         if (s == null) return null;
         String t = s.replaceAll("\\s+", " ").trim();
-        return t.length() > 140 ? t.substring(0, 140) + "…" : t;
+        // 양끝 불필요한 따옴표/괄호 제거
+        t = t.replaceAll("^[\"'“”‘’\\[\\](){}]+|[\"'“”‘’\\[\\](){}]+$", "");
+        // 끝의 문장부호 제거
+        t = t.replaceAll("[.!?…]+$", "");
+        // 코드포인트 기준 최대 글자수로 절단 (한글 안전)
+        int limit = 12; // 필요 시 10~14 등으로 조정
+        int cpCount = t.codePointCount(0, t.length());
+        if (cpCount > limit) {
+            int endIdx = t.offsetByCodePoints(0, limit);
+            t = t.substring(0, endIdx);
+        }
+        return t;
     }
 
     // 간단한 결과 홀더
