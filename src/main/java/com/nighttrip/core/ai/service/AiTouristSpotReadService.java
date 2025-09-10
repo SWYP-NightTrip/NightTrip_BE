@@ -44,14 +44,14 @@ public class AiTouristSpotReadService {
         // 3) 이미지 URL (AI DB) — 테이블/컬럼명은 실제 스키마에 맞게 필요 시 조정
         List<String> images = aiJdbc.query(
                 """
-                select url
-                  from image_url
+                select coalesce(ncp_image_url, url) as u
+                  from ai_base.image_url
                  where image_type = ?
                    and image_size_type = ?
                    and related_id = ?
-                 order by id asc
+                 order by image_url_id asc
                 """,
-                (rs, rowNum) -> rs.getString(1),
+                (rs, rowNum) -> rs.getString("u"),
                 ImageType.TOURIST_SPOT.name(),
                 ImageSizeType.DETAIL.name(),
                 spotId
