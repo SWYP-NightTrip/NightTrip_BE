@@ -10,6 +10,7 @@ import com.nighttrip.core.global.enums.ImageType;
 import com.nighttrip.core.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,31 +19,31 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true, value = "aiTransactionManager") // AI 전용 Tx
+@Transactional(readOnly = true, value = "aiTransactionManager") // ★ AI 전용 Tx
 public class AiTouristSpotReadService {
 
     private final TouristSpotRepositoryAi aiRepo;
 
-    @Qualifier("aiJdbcTemplate")           // AiDataSourceConfig 에서 만든 JDBC 템플릿
+    @Qualifier("aiJdbcTemplate") // AiDataSourceConfig 에서 등록
     private final JdbcTemplate aiJdbc;
 
     public TouristSpotDetailResponse getDetail(Long spotId) {
-        // 1) 기본 엔티티 (AI DB)
+        // 1) 기본 엔티티(단일 row) — 연관/컬렉션 접근 금지!
         TouristSpot ts = aiRepo.findById(spotId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOURIST_SPOT_NOT_FOUND));
 
-        // 2) 리뷰 집계 (AI DB, 없으면 0 처리)
-        Double avg = aiJdbc.queryForObject(
-                "select coalesce(avg(scope), 0) from tourist_spot_review where tourist_spot_id = ?",
-                Double.class, spotId
+        // 2) 리뷰 집계 (ai_base.tourist_spot_review)
+        Double avg = qObj(
+                "select coalesce(avg(scope), 0) from ai_base.tourist_spot_review where tourist_spot_id = ?",
+                Double.class, 0.0, spotId
         );
-        Long cnt = aiJdbc.queryForObject(
-                "select count(*) from tourist_spot_review where tourist_spot_id = ?",
-                Long.class, spotId
+        Long cnt = qObj(
+                "select count(*) from ai_base.tourist_spot_review where tourist_spot_id = ?",
+                Long.class, 0L, spotId
         );
 
-        // 3) 이미지 URL (AI DB) — 테이블/컬럼명은 실제 스키마에 맞게 필요 시 조정
-        List<String> images = aiJdbc.query(
+        // 3) 이미지 (ai_base.image_url) — 존재하는 컬럼으로만!
+        List<String> images = qList(
                 """
                 select coalesce(ncp_image_url, url) as u
                   from ai_base.image_url
@@ -51,23 +52,24 @@ public class AiTouristSpotReadService {
                    and related_id = ?
                  order by image_url_id asc
                 """,
-                (rs, rowNum) -> rs.getString("u"),
-                ImageType.TOURIST_SPOT.name(),
-                ImageSizeType.DETAIL.name(),
+                ImageType.TOURIST_SPOT.name(), ImageSizeType.DETAIL.name(), spotId
+        );
+
+        // 4) 해시태그 (ai_base.tourist_spot_hashtags)
+        List<String> hashTags = qList(
+                """
+                select hashtag
+                  from ai_base.tourist_spot_hashtags
+                 where tourist_spot_id = ?
+                 order by hashtag asc
+                """,
                 spotId
         );
 
-        // 4) 상세 태그(디테일) — 엔티티 관계 활용 (LAZY여도 @Transactional(readOnly=true) 범위)
-        List<SpotDetailsDto> spotDetails = ts.getTouristSpotDetails() == null
-                ? List.of()
-                : ts.getTouristSpotDetails().stream()
-                .map(d -> new SpotDetailsDto(d.getTypeKey(), d.getKoreanName()))
-                .toList();
+        // 5) 상세 디테일 — ai_base에 tourist_spot_details 가 없으니 빈 리스트
+        List<SpotDetailsDto> spotDetails = List.of();
 
-        // 5) 해시태그 — 엔티티 파생 메서드 그대로 사용
-        List<String> hashTags = ts.getHashTagsAsList() == null ? List.of() : ts.getHashTagsAsList();
-
-        // 6) 좋아요 — AI 전용은 계산 생략(false) 또는 AI DB에 like 테이블 있으면 별도 exists 처리
+        // 6) 좋아요 — AI 전용에서는 계산 생략
         boolean isLiked = false;
 
         // 7) 최종 DTO
@@ -80,5 +82,23 @@ public class AiTouristSpotReadService {
                 hashTags,
                 spotDetails
         );
+    }
+
+    // ===== helper =====
+    private <T> T qObj(String sql, Class<T> type, T def, Object... args) {
+        try {
+            T v = aiJdbc.queryForObject(sql, type, args);
+            return v == null ? def : v;
+        } catch (DataAccessException e) {
+            return def; // 테이블/컬럼 미존재 시 안전하게 기본값
+        }
+    }
+
+    private List<String> qList(String sql, Object... args) {
+        try {
+            return aiJdbc.query(sql, (rs, i) -> rs.getString(1), args);
+        } catch (DataAccessException e) {
+            return List.of();
+        }
     }
 }
