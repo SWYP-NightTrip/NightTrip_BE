@@ -36,7 +36,8 @@ public interface TouristSpotRepositoryAi extends JpaRepository<TouristSpot, Long
                     ts.longitude
                 )
                 from TouristSpot ts
-                where ts.city.cityName like concat(:cityName, '%')
+                where replace(lower(ts.city.cityName), ' ', '')
+                      like concat('%', replace(lower(:cityName), ' ', ''), '%')
                 order by coalesce(ts.mainWeight, 0) desc, ts.id asc
             """)
     List<CandidateDto> findCandidatesPage(@Param("cityName") String cityName, Pageable pageable);

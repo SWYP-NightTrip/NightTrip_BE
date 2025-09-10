@@ -31,7 +31,9 @@ public class SpotRerankService {
             역할: 당신은 도시 내 관광지 추천 재랭킹 전문가다.
             입력: {"user":{...}, "section":"...", "candidates":[...], "hints":{"topK":K}}
             목표:
-            - 입력 candidates와 사용자 컨텍스트를 기반으로 Top-K를 선정하고 각 항목에 한국어 1~2문장 reason을 쓴다.
+            - 입력 candidates와 사용자 컨텍스트를 기반으로 Top-K를 선정하고 각 항목에 한국어 짧은 reason(10~14자 내외)을 쓴다.
+            (중요) reason은 '한국어 10~14자'의 매우 짧은 문구로 작성하며, 가능하면 12자 내외로 맞춘다.
+            예: "~ 추천", "~ 가성비 좋음", "~ 야경 좋아요" (마침표 생략 가능)
             
             선정 규칙(공통, 필수):
             1) travelTime이 "저녁/심야"이면 meta.night_suitability 가점.
@@ -44,7 +46,7 @@ public class SpotRerankService {
             
             출력 형식(엄격):
             [
-              { "id": number, "reason": "한국어 1~2문장", "score": number, "rank": number },
+              { "id": number, "reason": "한국어 10~14자 내외의 짧은 문구", "score": number, "rank": number },
               ...
             ]
             
@@ -54,6 +56,7 @@ public class SpotRerankService {
             - id는 입력 candidates에서만 선택, 중복 금지.
             - rank는 1..K 오름차순, score는 0..1 범위.
             - 모든 키에 큰따옴표 사용, null/NaN/undefined/trailing comma 금지.
+            - reason은 가능한 12자 내외를 유지하고, 과도한 수식어/문장부호는 피한다.
             """;
 
     private final TouristSpotRepositoryAi repo;
@@ -288,7 +291,8 @@ public class SpotRerankService {
 
     // ---------------- 공통 헬퍼 ----------------
     private String makeFallbackReason(RerankCandidate c) {
-        return c.spotName() + "은(는) 이번 여정에 잘 맞는 추천지예요.";
+        // 짧은 기본 문구 + 길이 제한 적용
+        return safeReason(c.spotName() + " 추천");
     }
 
     private double normPopularity(Integer main, Integer checks) {
@@ -327,7 +331,7 @@ public class SpotRerankService {
     }
 
     // 예산 라벨 → "저렴/보통/프리미엄"
-// 기준(임시): ≤20만 = 저렴, ≤40만 = 보통, >40만 = 프리미엄
+    // 기준(임시): ≤20만 = 저렴, ≤40만 = 보통, >40만 = 프리미엄
     private String normBudgetLevel(String raw) {
         if (raw == null) return null;
         String s = norm(raw);
@@ -495,7 +499,6 @@ public class SpotRerankService {
         return 0.0;
     }
 
-
     private double budgetPenalty(String budgetLevel, Map<String, Object> m) {
         if (budgetLevel == null) return 0;
         Integer pl = null;
@@ -586,7 +589,64 @@ public class SpotRerankService {
     private String safeReason(String s) {
         if (s == null) return null;
         String t = s.replaceAll("\\s+", " ").trim();
-        return t.length() > 140 ? t.substring(0, 140) + "…" : t;
+        // 양끝 불필요한 따옴표/괄호 제거
+        t = t.replaceAll("^[\"'“”‘’\\[\\](){}]+|[\"'“”‘’\\[\\](){}]+$", "");
+        // 끝의 문장부호 제거
+        t = t.replaceAll("[.!?…]+$", "");
+
+        // ---------- 12±2 윈도우(10~14자) 적용 ----------
+        final int MIN = 10;
+        final int MAX = 14;
+
+        // 길이가 너무 길면 먼저 축약 치환으로 줄이기 (자연스러운 한국어 유지용)
+        int cpCount = t.codePointCount(0, t.length());
+        if (cpCount > MAX) {
+            // 존댓말 → 간결형
+            t = t.replace("좋아요", "좋음")
+                    .replace("좋습니다", "좋음")
+                    .replace("맛있어요", "맛있음")
+                    .replace("맛있습니다", "맛있음");
+            // 불필요 조사/어미 간단화(과도 축약 방지: 문맥상 자연스러운 것만)
+            if (t.contains("에서")) t = t.replace("에서", "서"); // 예: "딥커피에서" → "딥커피서"
+            // 다시 길이 계산
+            cpCount = t.codePointCount(0, t.length());
+        }
+
+        if (cpCount > MAX) {
+            // 우선 MAX 위치까지 자른 뒤, 마지막 공백/구분자 위치로 자연스럽게 컷
+            int hardEnd = t.offsetByCodePoints(0, MAX);
+            String head = t.substring(0, hardEnd);
+
+            // 마지막 브레이크 포인트 찾기: 공백/구분자
+            int lastBreak = Math.max(
+                    Math.max(head.lastIndexOf(' '), head.lastIndexOf('/')),
+                    Math.max(head.lastIndexOf(','), Math.max(head.lastIndexOf('·'), head.lastIndexOf('・')))
+            );
+
+            if (lastBreak >= 0) {
+                // 브레이크 포인트가 너무 앞쪽(10자 미만)이라면 하드컷 유지
+                int headCp = head.substring(0, lastBreak).codePointCount(0, lastBreak);
+                if (headCp >= MIN) {
+                    head = head.substring(0, lastBreak);
+                }
+            }
+
+            t = head.trim();
+        }
+
+        // 너무 짧으면(드묾) 자연스러운 보정: 여유 있을 때만 " 추천" 덧붙임
+        cpCount = t.codePointCount(0, t.length());
+        if (cpCount < MIN) {
+            String suffix = " 추천";
+            int suffixCp = suffix.codePointCount(0, suffix.length());
+            if (cpCount + suffixCp <= MAX && !t.endsWith("추천")) {
+                t = (t + suffix).trim();
+            }
+        }
+
+        // 최종 트리밍/마침표 제거
+        t = t.replaceAll("[.!?…]+$", "").trim();
+        return t;
     }
 
     // 간단한 결과 홀더

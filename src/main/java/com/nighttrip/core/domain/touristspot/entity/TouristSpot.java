@@ -31,7 +31,6 @@ public class TouristSpot {
     @Column(name = "tourist_spot_id")
     private Long id;
 
-
     @Column(name = "spot_name", nullable = false, length = 100)
     private String spotName;
 
